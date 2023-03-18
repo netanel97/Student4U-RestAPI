@@ -1,4 +1,4 @@
-package ControllersSrc;
+package controllersSrc;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import ControllersAPI.UsersRelatedAPI;
+import controllersAPI.UsersRelatedAPI;
 import entities.UserBoundary;
 import entities.UserID;
 import entities.eUserRole;

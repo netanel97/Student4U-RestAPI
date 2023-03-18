@@ -1,4 +1,4 @@
-package ControllersAPI;
+package controllersAPI;
 
 import org.springframework.web.bind.annotation.PathVariable;
 
