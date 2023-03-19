@@ -12,7 +12,7 @@ import entities.UserID;
 import entities.eUserRole;
 
 @RestController
-public class UsersRelated implements UsersRelatedAPI {
+public class UsersRelatedController implements UsersRelatedAPI {
 	
 	@RequestMapping(
 			path = {"/superapp/users/login/{superapp}/{email}"},
@@ -23,15 +23,10 @@ public class UsersRelated implements UsersRelatedAPI {
 		@PathVariable("superapp") String superapp, 
 		@PathVariable("email") String email){
 												
-		UserBoundary userBoundary = new UserBoundary(new UserID("superapp_test", "gal.tesler@s.afeka.ac.il"), 
+		UserBoundary userBoundary = new UserBoundary(new UserID(superapp.toString(), email.toString()), 
 				eUserRole.STUDENT, "gal.tesler", "someURL");
-
-		superapp = userBoundary.getUserId().getSuperApp();
-		email = userBoundary.getUserId().getEmail();
 
 		return userBoundary;
 	}
 
-
-	
 }
