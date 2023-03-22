@@ -45,6 +45,7 @@ public class AdminController implements AdminAPI {
 				targetObject, timeStamp, invokedBy, commandAttributes);
 		ArrayList<MiniAppCommandBoundary> allMiniAppCommandBoundaries = new ArrayList<>();
 		allMiniAppCommandBoundaries.add(miniAppCommandBoundary);
+		System.out.println("kofim shmenim");
 		return allMiniAppCommandBoundaries;
 	}
 

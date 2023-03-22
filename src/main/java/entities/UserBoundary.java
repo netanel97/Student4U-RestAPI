@@ -22,7 +22,6 @@ public class UserBoundary {
 	}
 
 
-
 	public UserID getUserId() {
 		return userId;
 	}
