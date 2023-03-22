@@ -25,9 +25,9 @@ import entities.UserID;
 public class AdminController implements AdminAPI {
 
 	@Override
-	public UserBoundary[] exportAllUsers() {
+	public int exportAllUsers() {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
