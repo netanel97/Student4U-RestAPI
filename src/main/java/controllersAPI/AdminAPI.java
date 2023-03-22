@@ -8,7 +8,7 @@ import entities.MiniAppCommandBoundary;
 import entities.UserBoundary;
 
 public interface AdminAPI {
-	int exportAllUsers();
+	UserBoundary[] exportAllUsers();
 
 	ArrayList<MiniAppCommandBoundary> allMiniAppCommandBoundaries();
 
