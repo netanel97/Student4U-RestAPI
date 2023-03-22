@@ -27,7 +27,7 @@ public class AdminController implements AdminAPI {
 	@Override
 	public int exportAllUsers() {
 		// TODO Auto-generated method stub
-		return 0;
+		return null;
 	}
 
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
