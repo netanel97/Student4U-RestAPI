@@ -27,6 +27,7 @@ public class AdminController implements AdminAPI {
 	@Override
 	public UserBoundary[] exportAllUsers() {
 		// TODO Auto-generated method stub
+		int k = 3;
 		return null;
 	}
 
