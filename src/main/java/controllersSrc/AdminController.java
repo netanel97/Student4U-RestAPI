@@ -25,7 +25,7 @@ import entities.UserID;
 public class AdminController implements AdminAPI {
 
 	@Override
-	public int exportAllUsers() {
+	public UserBoundary[] exportAllUsers() {
 		// TODO Auto-generated method stub
 		return null;
 	}
