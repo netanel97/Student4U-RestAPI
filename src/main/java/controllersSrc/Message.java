@@ -16,6 +16,7 @@ public class Message {
 	public Message(String message) {
 		super();
 		this.message = message;
+		timestamp = new Date();
 	}
 
 	public String getMessage() {

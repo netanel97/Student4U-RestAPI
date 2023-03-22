@@ -25,11 +25,12 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	@Override
 	public ObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId) {
-		ObjectId objectId = new ObjectId("superapp_test", "1");
-		Location location = new Location(30.1, 30.2);
-		CreatedBy createdBy = new CreatedBy(new UserID("superapp_test", "netanelhabas@gmail.com"));
-		ObjectDetails objectDetails = new ObjectDetails("bdika1", "bdika2");
-		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, "timestamp", location,
+		ObjectId objectId = new ObjectId(superapp.toString(), internalObjectId.toString());
+		Location location = new Location(32.1133, 34.818);
+		CreatedBy createdBy = new CreatedBy(new UserID(superapp.toString(), "netanelhabas@gmail.com"));
+		ObjectDetails objectDetails = new ObjectDetails(new HashMap<String,Object>());
+		objectDetails.getObjectDeatils().put("key1","bdika");
+		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, location,
 				createdBy, objectDetails);
 
 		return objectBoundary;
@@ -46,11 +47,12 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 
 		Location location = new Location(30.1, 30.2);
 		CreatedBy createdBy = new CreatedBy(new UserID("superapp_test", "netanelhabas@gmail.com"));
-		ObjectDetails objectDetails = new ObjectDetails("bdika1", "bdika2");
-		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, "timestamp", location,
+		ObjectDetails objectDetails = new ObjectDetails(new HashMap<String,Object>());
+		objectDetails.getObjectDeatils().put("key1","bdika");
+		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, location,
 				createdBy, objectDetails);
 
-		ObjectBoundary objectBoundary2 = new ObjectBoundary(objectId2, "type", "alias", true, "timestamp", location,
+		ObjectBoundary objectBoundary2 = new ObjectBoundary(objectId2, "type", "alias", true, location,
 				createdBy, objectDetails);
 
 		ArrayList<ObjectBoundary> allObjectsBoundary = new ArrayList<>();

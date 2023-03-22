@@ -1,12 +1,14 @@
 package entities;
 
+import java.util.Date;
+
 public class ObjectBoundary {
 	
 	private ObjectId objectId;
 	private String type;
 	private String alias;
 	private Boolean active;
-	private String creationTimestamp;
+	private Date creationTimestamp;
 	private Location location;
 	private CreatedBy createdBy;
 	private ObjectDetails objectDetails;
@@ -17,14 +19,14 @@ public class ObjectBoundary {
 	}
 	
 	
-	public ObjectBoundary(ObjectId objectId, String type, String alias, Boolean active, String creationTimestamp,
+	public ObjectBoundary(ObjectId objectId, String type, String alias, Boolean active,
 			Location location, CreatedBy createdBy, ObjectDetails objectDetails) {
 		super();
 		this.objectId = objectId;
 		this.type = type;
 		this.alias = alias;
 		this.active = active;
-		this.creationTimestamp = creationTimestamp;
+		creationTimestamp  = new Date();
 		this.location = location;
 		this.createdBy = createdBy;
 		this.objectDetails = objectDetails;
@@ -53,10 +55,10 @@ public class ObjectBoundary {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
-	public String getCreationTimestamp() {
+	public Date getCreationTimestamp() {
 		return creationTimestamp;
 	}
-	public void setCreationTimestamp(String creationTimestamp) {
+	public void Date(Date creationTimestamp) {
 		this.creationTimestamp = creationTimestamp;
 	}
 	public Location getLocation() {

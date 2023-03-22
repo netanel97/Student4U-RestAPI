@@ -40,9 +40,8 @@ public class AdminController implements AdminAPI {
 		CommandAttributes commandAttributes = new CommandAttributes(new HashMap<String, String>());
 		commandAttributes.getKey1().put("key1subkey1", "anything");
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd.HH:mm:ss");
-		String timeStamp = df.format(new Date());
 		MiniAppCommandBoundary miniAppCommandBoundary = new MiniAppCommandBoundary(commandId, "doSomething",
-				targetObject, timeStamp, invokedBy, commandAttributes);
+				targetObject, invokedBy, commandAttributes);
 		ArrayList<MiniAppCommandBoundary> allMiniAppCommandBoundaries = new ArrayList<>();
 		allMiniAppCommandBoundaries.add(miniAppCommandBoundary);
 		return allMiniAppCommandBoundaries;
@@ -59,10 +58,8 @@ public class AdminController implements AdminAPI {
 		InvokedBy invokedBy = new InvokedBy(new UserID("supperapp", "jane@demo.org"));
 		CommandAttributes commandAttributes = new CommandAttributes(new HashMap<String, String>());
 		commandAttributes.getKey1().put("key1subkey1", "anything");
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd.HH:mm:ss");
-		String timeStamp = df.format(new Date());
 		MiniAppCommandBoundary miniAppCommandBoundary = new MiniAppCommandBoundary(commandId, "doSomething",
-				targetObject, timeStamp, invokedBy, commandAttributes);
+				targetObject, invokedBy, commandAttributes);
 		ArrayList<MiniAppCommandBoundary> specificMiniAppCommandBoundaries = new ArrayList<>();
 		specificMiniAppCommandBoundaries.add(miniAppCommandBoundary);
 		return specificMiniAppCommandBoundaries;

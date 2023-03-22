@@ -1,40 +1,32 @@
 package entities;
 
+import java.util.HashMap;
+
 public class ObjectDetails {
 
-	private String detail;
-	private String detail2;
-
+	private HashMap<String, Object> objectDeatils;
 	public ObjectDetails() {
 		super();
 	}
-
-	public ObjectDetails(String detail, String detail2) {
+	public ObjectDetails(HashMap<String, Object> objectDeatils) {
 		super();
-		this.detail = detail;
-		this.detail2 = detail2;
+		this.objectDeatils = objectDeatils;
 	}
-
-	public String getDetail() {
-		return detail;
+	public HashMap<String, Object> getObjectDeatils() {
+		return objectDeatils;
 	}
-
-	public void setDetail(String detail) {
-		this.detail = detail;
+	public void setObjectDeatils(HashMap<String, Object> objectDeatils) {
+		this.objectDeatils = objectDeatils;
 	}
-
-	public String getDetail2() {
-		return detail2;
-	}
-
-	public void setDetail2(String detail2) {
-		this.detail2 = detail2;
-	}
-
 	@Override
 	public String toString() {
-		return "ObjectDetails [detail=" + detail + ", detail2=" + detail2 + "]";
+		return "ObjectDetails [objectDeatils=" + objectDeatils + "]";
 	}
+	
+	
+
+
+	
 	
 	
 

@@ -1,12 +1,13 @@
 package entities;
 
+import java.util.Date;
 
 public class MiniAppCommandBoundary {
 
 	private CommandId commandId;
 	private String command;
 	private TargetObject targetObject;
-	private String invocationTimestamp;
+	private Date invocationTimestamp;
 	private InvokedBy invokedBy;
 	private CommandAttributes commandAttributes;
 	
@@ -14,13 +15,13 @@ public class MiniAppCommandBoundary {
 		super();
 	}
 	
-	public MiniAppCommandBoundary(CommandId commandId, String command, TargetObject targetObject,
-			String invocationTimestamp, InvokedBy invokedBy, CommandAttributes commandAttributes) {
+	public MiniAppCommandBoundary(CommandId commandId, String command, TargetObject targetObject
+			, InvokedBy invokedBy, CommandAttributes commandAttributes) {
 		super();
 		this.commandId = commandId;
 		this.command = command;
 		this.targetObject = targetObject;
-		this.invocationTimestamp = invocationTimestamp;
+		invocationTimestamp = new Date();
 		this.invokedBy = invokedBy;
 		this.commandAttributes = commandAttributes;
 	}
@@ -43,10 +44,10 @@ public class MiniAppCommandBoundary {
 	public void setTargetObject(TargetObject targetObject) {
 		this.targetObject = targetObject;
 	}
-	public String getInvocationTimestamp() {
+	public Date getInvocationTimestamp() {
 		return invocationTimestamp;
 	}
-	public void setInvocationTimestamp(String invocationTimestamp) {
+	public void setInvocationTimestamp(Date invocationTimestamp) {
 		this.invocationTimestamp = invocationTimestamp;
 	}
 	public InvokedBy getInvokedBy() {
