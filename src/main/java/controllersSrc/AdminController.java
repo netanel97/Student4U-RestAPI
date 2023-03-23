@@ -26,6 +26,13 @@ public class AdminController implements AdminAPI {
 
 	@Override
 	public UserBoundary[] exportAllUsers() {
+		/*
+		 * TODO
+		  check implementation of Eyal's OtherController method: getAllMessages
+		  might want to get the arraysize from URL or something so we can safely get all users.
+		 */
+		 
+		
 		return null;
 	}
 
