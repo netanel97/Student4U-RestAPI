@@ -64,4 +64,22 @@ public class AdminController implements AdminAPI {
 		specificMiniAppCommandBoundaries.add(miniAppCommandBoundary);
 		return specificMiniAppCommandBoundaries;
 	}
+
+	@RequestMapping(method = { RequestMethod.DELETE })
+	@Override
+	public void deleteAllUsersInTheSuperApp() {
+		//do nothing
+	}
+
+	@RequestMapping(method = { RequestMethod.DELETE })
+	@Override
+	public void deleteAllObjectsInTheSuperApp() {
+		//do nothing
+	}
+
+	@RequestMapping(method = { RequestMethod.DELETE })
+	@Override
+	public void deleteAllCommandsHistory() {
+		//do nothing
+	}
 }
