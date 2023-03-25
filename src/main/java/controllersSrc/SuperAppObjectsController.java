@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,6 +60,32 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 		allObjectsBoundary.add(objectBoundary);
 		allObjectsBoundary.add(objectBoundary2);
 		return allObjectsBoundary;
+	}
+
+	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }
+			, method = { RequestMethod.PUT }, 
+			consumes = {MediaType.APPLICATION_JSON_VALUE })
+	@Override
+	public void updateAnObject(@PathVariable("superapp") String superapp, @PathVariable("InternalObjectId") String internalObjectId
+			,@RequestBody ObjectBoundary updateBoundary) {
+		
+//		updateBoundary.setObjectId(new ObjectId());
+//		updateBoundary.getObjectId().setSuperapp(superapp.toString());
+//		updateBoundary.getObjectId().setInternalObjectId(internalObjectId.toString());
+		System.err.println("bdika: "+updateBoundary.toString());
+	}
+//	
+	
+
+	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.POST }, produces = {
+			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
+			consumes = { MediaType.APPLICATION_JSON_VALUE }) // takes a JSON as argument
+	@Override
+	public ObjectBoundary createObject(ObjectBoundary newObjectBoundary) {
+		ObjectBoundary created = new ObjectBoundary();
+		created.setObjectId(new ObjectId());
+		System.err.println("CREATED A NEW Boundary!\n" + created.toString());
+		return created;
 	}
 
 }
