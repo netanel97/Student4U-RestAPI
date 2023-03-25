@@ -85,7 +85,6 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 		ObjectBoundary created = new ObjectBoundary();
 		created.setObjectId(new ObjectId());
 		System.err.println("CREATED A NEW Boundary!\n" + created.toString());
-
 		return created;
 	}
 
