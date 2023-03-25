@@ -20,4 +20,5 @@ public interface AdminAPI {
 	void deleteAllObjectsInTheSuperApp();
 	
 	void deleteAllCommandsHistory();
+	
 }

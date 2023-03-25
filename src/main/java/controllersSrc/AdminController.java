@@ -89,4 +89,5 @@ public class AdminController implements AdminAPI {
 	public void deleteAllCommandsHistory() {
 		//do nothing
 	}
+	
 }
