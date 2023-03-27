@@ -40,9 +40,9 @@ public class AdminController implements AdminAPI {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
 	public ArrayList<MiniAppCommandBoundary> allMiniAppCommandBoundaries() {
-		CommandId commandId = new CommandId("supperapp", "miniapp", "122");
-		TargetObject targetObject = new TargetObject(new ObjectId("superapp", "1"));
-		InvokedBy invokedBy = new InvokedBy(new UserID("supperapp", "jane@demo.org"));
+		CommandId commandId = new CommandId("miniapp", "122");
+		TargetObject targetObject = new TargetObject(new ObjectId("1"));
+		InvokedBy invokedBy = new InvokedBy(new UserID("jane@demo.org"));
 		CommandAttributes commandAttributes = new CommandAttributes(new HashMap<String, String>());
 		commandAttributes.getKey1().put("key1subkey1", "anything");
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd.HH:mm:ss");
@@ -60,9 +60,9 @@ public class AdminController implements AdminAPI {
 	public ArrayList<MiniAppCommandBoundary> specificMiniAppCommandBoundaries(
 			@PathVariable("miniAppName") String miniAppName) {
 
-		CommandId commandId = new CommandId("supperapp", miniAppName.toString(), "122");
-		TargetObject targetObject = new TargetObject(new ObjectId("superapp", "1"));
-		InvokedBy invokedBy = new InvokedBy(new UserID("supperapp", "jane@demo.org"));
+		CommandId commandId = new CommandId(miniAppName.toString(), "122");
+		TargetObject targetObject = new TargetObject(new ObjectId("1"));
+		InvokedBy invokedBy = new InvokedBy(new UserID("jane@demo.org"));
 		CommandAttributes commandAttributes = new CommandAttributes(new HashMap<String, String>());
 		commandAttributes.getKey1().put("key1subkey1", "anything");
 		MiniAppCommandBoundary miniAppCommandBoundary = new MiniAppCommandBoundary(commandId, "doSomething",

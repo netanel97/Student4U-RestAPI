@@ -2,6 +2,8 @@ package entities;
 
 public class ObjectId {
 
+	private final String SUPERAPP_NAME = "2023b.LiranSorokin";
+	
 	private String superapp;
 	private String internalObjectId;
 
@@ -9,9 +11,9 @@ public class ObjectId {
 		super();
 	};
 
-	public ObjectId(String superapp, String internalObjectId) {
+	public ObjectId(String internalObjectId) {
 		super();
-		this.superapp = superapp;
+		this.superapp = SUPERAPP_NAME;
 		this.internalObjectId = internalObjectId;
 	}
 

@@ -1,6 +1,8 @@
 package entities;
 
 public class CommandId {
+	
+	private final String SUPERAPP_NAME = "2023b.LiranSorokin";
 
 	private String superapp;
 	private String miniApp;
@@ -10,9 +12,9 @@ public class CommandId {
 		super();
 	}
 	
-	public CommandId(String superapp, String miniApp, String internalCommandId) {
+	public CommandId(String miniApp, String internalCommandId) {
 		super();
-		this.superapp = superapp;
+		this.superapp = SUPERAPP_NAME;
 		this.miniApp = miniApp;
 		this.internalCommandId = internalCommandId;
 	}

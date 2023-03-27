@@ -26,9 +26,9 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	@Override
 	public ObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId) {
-		ObjectId objectId = new ObjectId(superapp.toString(), internalObjectId.toString());
+		ObjectId objectId = new ObjectId(internalObjectId.toString());
 		Location location = new Location(32.1133, 34.818);
-		CreatedBy createdBy = new CreatedBy(new UserID(superapp.toString(), "netanelhabas@gmail.com"));
+		CreatedBy createdBy = new CreatedBy(new UserID("netanelhabas@gmail.com"));
 		ObjectDetails objectDetails = new ObjectDetails(new HashMap<String,Object>());
 		objectDetails.getObjectDeatils().put("key1","bdika");
 		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, location,
@@ -43,11 +43,11 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	@Override
 	public ArrayList<ObjectBoundary> getAllObjects() {
 
-		ObjectId objectId = new ObjectId("superapp_test", "1");
-		ObjectId objectId2 = new ObjectId("superapp_test2", "2");
+		ObjectId objectId = new ObjectId( "1");
+		ObjectId objectId2 = new ObjectId("2");
 
 		Location location = new Location(30.1, 30.2);
-		CreatedBy createdBy = new CreatedBy(new UserID("superapp_test", "netanelhabas@gmail.com"));
+		CreatedBy createdBy = new CreatedBy(new UserID("netanelhabas@gmail.com"));
 		ObjectDetails objectDetails = new ObjectDetails(new HashMap<String,Object>());
 		objectDetails.getObjectDeatils().put("key1","bdika");
 		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, location,

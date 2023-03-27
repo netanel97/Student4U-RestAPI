@@ -2,6 +2,8 @@ package entities;
 
 public class UserID {
 	
+	private final String SUPERAPP_NAME = "2023b.LiranSorokin";
+	
 	private String superApp;
 	private String email;
 	
@@ -9,9 +11,9 @@ public class UserID {
 		super();
 	}
 		
-	public UserID(String superApp, String email) {
+	public UserID(String email) {
 		super();
-		this.superApp = superApp;
+		this.superApp = SUPERAPP_NAME;
 		this.email = email;
 	}
 

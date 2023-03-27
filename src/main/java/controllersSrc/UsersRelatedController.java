@@ -22,7 +22,7 @@ public class UsersRelatedController implements UsersRelatedAPI {
 	public UserBoundary loginValidUserAndRetrieveUserDetails(@PathVariable("superapp") String superapp,
 			@PathVariable("email") String email) {
 
-		UserBoundary userBoundary = new UserBoundary(new UserID(superapp.toString(), email.toString()),
+		UserBoundary userBoundary = new UserBoundary(new UserID(email.toString()),
 				eUserRole.STUDENT, "gal.tesler", "someURL");
 
 		return userBoundary;
@@ -37,7 +37,7 @@ public class UsersRelatedController implements UsersRelatedAPI {
 		created.setUserName(newUser.getNewUserName());
 		created.setRole(newUser.getRole());
 		created.setAvatarUrl(newUser.getAvatarUrl());
-		created.setUserId(new UserID("superApp", newUser.getEmail()));
+		created.setUserId(new UserID(newUser.getEmail()));
 		System.err.println("CREATED A NEW USER!\n" + created.toString());
 
 		return created;
@@ -63,7 +63,7 @@ public class UsersRelatedController implements UsersRelatedAPI {
 		 */	
 		
 
-		System.err.println("UPDATING USER OF USERID: " + new UserID(superapp, email) + " USING " + updatedUser);
+		System.err.println("UPDATING USER OF USERID: " + new UserID(email) + " USING " + updatedUser);
 
 	}
 
