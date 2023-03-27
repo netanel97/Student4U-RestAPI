@@ -34,7 +34,11 @@ public class AdminController implements AdminAPI {
 		 
 		return null;
 	}
-
+	
+	/**
+	 * Export all MiniApps Commands history. Receives HTTP Method 'GET'.
+	 * @return Array of all MiniApp Command Boundaries.
+	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
@@ -52,13 +56,17 @@ public class AdminController implements AdminAPI {
 		System.out.println("kofim shmenim");
 		return allMiniAppCommandBoundaries;
 	}
-
+	
+	/**
+	 * Export Commands history of a specific MiniApp. Receives HTTP Method 'GET'.
+	 * @return Array of a specific MiniApp Command Boundaries.
+	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
 	public ArrayList<MiniAppCommandBoundary> specificMiniAppCommandBoundaries(
 			@PathVariable("miniAppName") String miniAppName) {
-
+		
 		CommandId commandId = new CommandId(miniAppName.toString(), "122");
 		TargetObject targetObject = new TargetObject(new ObjectId("1"));
 		InvokedBy invokedBy = new InvokedBy(new UserID("jane@demo.org"));
@@ -73,7 +81,7 @@ public class AdminController implements AdminAPI {
 
 	
 	/**
-	 * Recives HTTP Method 'Delete'. Deletes all users in the SuperApp
+	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * @param None
 	 * @return Nothing
 	 */
@@ -84,7 +92,7 @@ public class AdminController implements AdminAPI {
 	}
 
 	/**
-	 * Recives HTTP Method 'Delete'. Deletes all users in the SuperApp
+	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * @param None
 	 * @return Nothing
 	 */
@@ -95,8 +103,8 @@ public class AdminController implements AdminAPI {
 	}
 
 	/**
-	 * Recives HTTP Method 'Delete'. Deletes all users in the SuperApp
-	 * @param None
+	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
+	 * @paramNone
 	 * @return Nothing
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })
