@@ -7,3 +7,5 @@ import entities.MiniAppCommandBoundary;
 public interface MiniAppCommandAPI {
 	MiniAppCommandBoundary invokeMiniAppCommand(MiniAppCommandBoundary miniAppCommandBoundary, @PathVariable("miniAppName") String miniAppName);
 }
+
+//test
