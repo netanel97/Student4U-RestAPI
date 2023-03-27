@@ -21,6 +21,15 @@ import entities.UserID;
 @RestController
 public class SuperAppObjectsController implements SuperAppObjectsAPI {
 
+	
+	/**
+	 * This code defines a method that handles a GET request for retrieving a specific object from a "superapp" application. 
+		The method is annotated with the "@RequestMapping" annotation, 
+	 * which maps the method to the path "/superapp/objects/{superapp}/{InternalObjectId}",
+	 *  specifies the HTTP method as GET, and the response media type as JSON. The path contains two path variables: "superapp" and "InternalObjectId",
+	 *  which are used to identify the specific object to retrieve.
+	 * 
+	 */
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
 			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@Override
@@ -36,6 +45,12 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 
 		return objectBoundary;
 	}
+	
+	/**
+	 * This code defines a method that handles a GET request for retrieving all objects from a "superapp" application.
+	 *  The method is annotated with the "@RequestMapping" annotation, which maps the method to the path "/superapp/objects", 
+	 *  specifies the HTTP method as GET, and the response media type as JSON.
+	 */
 
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
