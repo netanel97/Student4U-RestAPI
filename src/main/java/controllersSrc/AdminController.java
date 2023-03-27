@@ -25,30 +25,26 @@ import entities.eUserRole;
 
 @RestController
 public class AdminController implements AdminAPI {
-	@RequestMapping(
-            path = {"/superapp/admin/users"},
-            method = {RequestMethod.GET},
-            produces = {MediaType.APPLICATION_JSON_VALUE})
-    
-         @Override
-    public UserBoundary[] exportAllUsers() {
-		
-		 return IntStream.range(0, 2)
-                 .mapToObj(i -> new UserBoundary(new UserID("user" + i), eUserRole.STUDENT, "User " + i, ""))
-                 .toArray(UserBoundary[]::new);
-		 
-		/*
-		 *    UserBoundary[] allUserBoundary = {
-            new UserBoundary(new UserID("gal.tesler@s.afeka.ac.il"), 
-                             eUserRole.STUDENT, "gal.tesler", "someURL"),
-            new UserBoundary(new UserID("maayan.shiran@s.afeka.ac.il"), 
-                    eUserRole.STUDENT, "maayan.shiran", "someURL111")
-        };
-        return allUserBoundary;
-		 */
-     
-    }
+	/**
+	 * Export all existing users. Receives HTTP Method 'GET'.
+	 * 
+	 * @return Array of all UserBoundaries.
+	 */
+	@RequestMapping(path = { "/superapp/admin/users" }, method = { RequestMethod.GET }, produces = {
+			MediaType.APPLICATION_JSON_VALUE })
+	@Override
+	public UserBoundary[] exportAllUsers() {
 
+		return IntStream.range(0, 2)
+				.mapToObj(i -> new UserBoundary(new UserID("user" + i), eUserRole.STUDENT, "User " + i, ""))
+				.toArray(UserBoundary[]::new);
+	} 
+
+	/**
+	 * Export all MiniApps Commands history. Receives HTTP Method 'GET'.
+	 * 
+	 * @return Array of all MiniApp Command Boundaries.
+	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
@@ -67,6 +63,11 @@ public class AdminController implements AdminAPI {
 		return allMiniAppCommandBoundaries;
 	}
 
+	/**
+	 * Export Commands history of a specific MiniApp. Receives HTTP Method 'GET'.
+	 * 
+	 * @return Array of a specific MiniApp Command Boundaries.
+	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
@@ -85,22 +86,40 @@ public class AdminController implements AdminAPI {
 		return specificMiniAppCommandBoundaries;
 	}
 
-	@RequestMapping(method = { RequestMethod.DELETE })
+	/**
+	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
+	 * 
+	 * @param None
+	 * @return Nothing
+	 */
+	@RequestMapping(path = { "/superapp/admin/users" }, method = { RequestMethod.DELETE })
 	@Override
 	public void deleteAllUsersInTheSuperApp() {
-		//do nothing
+		System.err.println("Users Deleted!");
 	}
 
-	@RequestMapping(method = { RequestMethod.DELETE })
+	/**
+	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
+	 * 
+	 * @param None
+	 * @return Nothing
+	 */
+	@RequestMapping(path = { "/superapp/admin/objects" }, method = { RequestMethod.DELETE })
 	@Override
 	public void deleteAllObjectsInTheSuperApp() {
-		//do nothing
+		System.err.println("Objects Deleted!");
 	}
 
-	@RequestMapping(method = { RequestMethod.DELETE })
+	/**
+	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
+	 * 
+	 * @paramNone
+	 * @return Nothing
+	 */
+	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })
 	@Override
 	public void deleteAllCommandsHistory() {
-		//do nothing
+		System.err.println("Command History Deleted!");
 	}
-	
+
 }
