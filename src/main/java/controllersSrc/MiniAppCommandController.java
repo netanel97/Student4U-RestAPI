@@ -16,21 +16,14 @@ public class MiniAppCommandController implements MiniAppCommandAPI {
 			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
 			consumes = { MediaType.APPLICATION_JSON_VALUE }) // takes a JSON as argument
 	@Override
-	public Object invokeMiniAppCommand(MiniAppCommandBoundary miniAppCommandBoundary,  @PathVariable("miniAppName") String miniAppName) {
+	public MiniAppCommandBoundary invokeMiniAppCommand(MiniAppCommandBoundary miniAppCommandBoundary,  @PathVariable("miniAppName") String miniAppName) {
 		// TODO Auto-generated method stub
-		Object miniAppCommand = new Object();
+		MiniAppCommandBoundary newMiniAppCommandBoundary = new MiniAppCommandBoundary();
+		newMiniAppCommandBoundary.setCommand(miniAppName + "command");
 		// miniAppCommand.setObjectId(new ObjectId());
-		System.err.println("Invoked a mini app command!\n" + miniAppCommand.toString());
-		return miniAppCommand;
+		System.err.println("Invoked a mini app command!\n" + newMiniAppCommandBoundary.toString());
+		return newMiniAppCommandBoundary;
 	}
 	
-//	@Override
-//	public Object invokeMiniAppCommand(ObjectBoundary newObjectBoundary) {
-//		ObjectBoundary created = new ObjectBoundary();
-//		created.setObjectId(new ObjectId());
-//		System.err.println("CREATED A NEW Boundary!\n" + created.toString());
-//		return created;
-//	}
-
 
 }
