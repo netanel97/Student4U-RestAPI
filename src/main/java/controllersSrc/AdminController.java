@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.stream.IntStream;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,20 +21,33 @@ import entities.ObjectId;
 import entities.TargetObject;
 import entities.UserBoundary;
 import entities.UserID;
+import entities.eUserRole;
 
 @RestController
 public class AdminController implements AdminAPI {
-
-	@Override
-	public UserBoundary[] exportAllUsers() {
-		/*
-		 * TODO
-		  check implementation of Eyal's OtherController method: getAllMessages
-		  might want to get the arraysize from URL or something so we can safely get all users.
-		 */
+	@RequestMapping(
+            path = {"/superapp/admin/users"},
+            method = {RequestMethod.GET},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    
+         @Override
+    public UserBoundary[] exportAllUsers() {
+		
+		 return IntStream.range(0, 2)
+                 .mapToObj(i -> new UserBoundary(new UserID("user" + i), eUserRole.STUDENT, "User " + i, ""))
+                 .toArray(UserBoundary[]::new);
 		 
-		return null;
-	}
+		/*
+		 *    UserBoundary[] allUserBoundary = {
+            new UserBoundary(new UserID("gal.tesler@s.afeka.ac.il"), 
+                             eUserRole.STUDENT, "gal.tesler", "someURL"),
+            new UserBoundary(new UserID("maayan.shiran@s.afeka.ac.il"), 
+                    eUserRole.STUDENT, "maayan.shiran", "someURL111")
+        };
+        return allUserBoundary;
+		 */
+     
+    }
 
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
