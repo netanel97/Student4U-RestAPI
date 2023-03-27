@@ -15,10 +15,10 @@ public interface AdminAPI {
 	ArrayList<MiniAppCommandBoundary> specificMiniAppCommandBoundaries(
 			@PathVariable("miniAppName") String internalObjectId);
 	
-	void deleteAllUsersInTheSuperApp();
-	
-	void deleteAllObjectsInTheSuperApp();
-	
-	void deleteAllCommandsHistory();
+//	void deleteAllUsersInTheSuperApp();
+//	
+//	void deleteAllObjectsInTheSuperApp();
+//	
+//	void deleteAllCommandsHistory();
 	
 }

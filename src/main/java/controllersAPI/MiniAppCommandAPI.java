@@ -1,11 +1,12 @@
 package controllersAPI;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import entities.MiniAppCommandBoundary;
 
 public interface MiniAppCommandAPI {
-	MiniAppCommandBoundary invokeMiniAppCommand(MiniAppCommandBoundary miniAppCommandBoundary, @PathVariable("miniAppName") String miniAppName);
+	Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary, @PathVariable("miniAppName") String miniAppName);
 }
 
 //test
