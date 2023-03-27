@@ -70,23 +70,39 @@ public class AdminController implements AdminAPI {
 		specificMiniAppCommandBoundaries.add(miniAppCommandBoundary);
 		return specificMiniAppCommandBoundaries;
 	}
-//
-//	@RequestMapping(method = { RequestMethod.DELETE })
-//	@Override
-//	public void deleteAllUsersInTheSuperApp() {
-//		//do nothing
-//	}
-//
-//	@RequestMapping(method = { RequestMethod.DELETE })
-//	@Override
-//	public void deleteAllObjectsInTheSuperApp() {
-//		//do nothing
-//	}
-//
-//	@RequestMapping(method = { RequestMethod.DELETE })
-//	@Override
-//	public void deleteAllCommandsHistory() {
-//		//do nothing
-//	}
+
+	
+	/**
+	 * Recives HTTP Method 'Delete'. Deletes all users in the SuperApp
+	 * @param None
+	 * @return Nothing
+	 */
+	@RequestMapping(path = { "/superapp/admin/users" }, method = { RequestMethod.DELETE })
+	@Override
+	public void deleteAllUsersInTheSuperApp() {
+		System.err.println("Users Deleted!");
+	}
+
+	/**
+	 * Recives HTTP Method 'Delete'. Deletes all users in the SuperApp
+	 * @param None
+	 * @return Nothing
+	 */
+	@RequestMapping(path = { "/superapp/admin/objects" }, method = { RequestMethod.DELETE })
+	@Override
+	public void deleteAllObjectsInTheSuperApp() {
+		System.err.println("Objects Deleted!");
+	}
+
+	/**
+	 * Recives HTTP Method 'Delete'. Deletes all users in the SuperApp
+	 * @param None
+	 * @return Nothing
+	 */
+	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })
+	@Override
+	public void deleteAllCommandsHistory() {
+		System.err.println("Command History Deleted!");
+	}
 	
 }
