@@ -41,7 +41,6 @@ public class UsersRelatedController implements UsersRelatedAPI {
 		System.err.println("CREATED A NEW USER!\n" + created.toString());
 
 		return created;
-
 	}
 
 	@RequestMapping(path = { "/superapp/users/{superapp}/{userEmail}" }

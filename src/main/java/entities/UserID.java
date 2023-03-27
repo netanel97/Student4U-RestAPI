@@ -34,5 +34,4 @@ public class UserID {
 	public String toString() {
 		return "UserID [superApp=" + superApp + ", email=" + email + "]";
 	}
-	
 }

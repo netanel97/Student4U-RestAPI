@@ -75,7 +75,6 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 		System.err.println("bdika: "+updateBoundary.toString());
 	}
 //	
-	
 
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.POST }, produces = {
 			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
