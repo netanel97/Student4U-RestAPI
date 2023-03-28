@@ -1,7 +1,5 @@
 package controllersSrc;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.stream.IntStream;
 
@@ -27,6 +25,7 @@ public class AdminController implements AdminAPI {
 	/**
 	 * Export all existing users. Receives HTTP Method 'GET'.
 	 * 
+	 * @param None
 	 * @return Array of all UserBoundaries.
 	 */
 	@RequestMapping(path = { "/superapp/admin/users" }, method = { RequestMethod.GET }, produces = {
@@ -37,36 +36,42 @@ public class AdminController implements AdminAPI {
 		return IntStream.range(0, 2)
 				.mapToObj(i -> new UserBoundary(new UserID("user" + i), eUserRole.STUDENT, "User " + i, ""))
 				.toArray(UserBoundary[]::new);
-	} 
+	}
 
 	/**
 	 * Export all MiniApps Commands history. Receives HTTP Method 'GET'.
 	 * 
+	 * @param None
 	 * @return Array of all MiniApp Command Boundaries.
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
 	public MiniAppCommandBoundary[] allMiniAppCommandBoundaries() {
-		
+
 		return IntStream.range(0, 3)
-				.mapToObj(i -> new MiniAppCommandBoundary(new CommandId("miniapp", "122"), "doSomething" + i, new TargetObject(new ObjectId("1")), new InvokedBy(new UserID("jane@demo.org")), new CommandAttributes(new HashMap<String, String>())))
+				.mapToObj(i -> new MiniAppCommandBoundary(new CommandId("miniapp", "122"), "doSomething" + i,
+						new TargetObject(new ObjectId("1")), new InvokedBy(new UserID("jane@demo.org")),
+						new CommandAttributes(new HashMap<String, String>())))
 				.toArray(MiniAppCommandBoundary[]::new);
 	}
 
 	/**
 	 * Export Commands history of a specific MiniApp. Receives HTTP Method 'GET'.
 	 * 
+	 * @param None
 	 * @return Array of a specific MiniApp Command Boundaries.
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
-	public MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(
-			@PathVariable("miniAppName") String miniAppName) {
-		
+	public MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(@PathVariable("miniAppName") String miniAppName) {
+
 		return IntStream.range(0, 2)
-				.mapToObj(i -> new MiniAppCommandBoundary(new CommandId(miniAppName.toString(), "122"), "doSomething" + i, new TargetObject(new ObjectId(""+i)), new InvokedBy(new UserID("jane@demo.org")), new CommandAttributes(new HashMap<String, String>())))
+				.mapToObj(
+						i -> new MiniAppCommandBoundary(new CommandId(miniAppName.toString(), "122"), "doSomething" + i,
+								new TargetObject(new ObjectId("" + i)), new InvokedBy(new UserID("jane@demo.org")),
+								new CommandAttributes(new HashMap<String, String>())))
 				.toArray(MiniAppCommandBoundary[]::new);
 	}
 
@@ -97,7 +102,7 @@ public class AdminController implements AdminAPI {
 	/**
 	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * 
-	 * @paramNone
+	 * @param None
 	 * @return Nothing
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })

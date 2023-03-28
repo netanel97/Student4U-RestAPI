@@ -39,7 +39,6 @@ public class UsersRelatedController implements UsersRelatedAPI {
 		created.setAvatarUrl(newUser.getAvatarUrl());
 		created.setUserId(new UserID(newUser.getEmail()));
 		System.err.println("CREATED A NEW USER!\n" + created.toString());
-
 		return created;
 	}
 
@@ -61,9 +60,8 @@ public class UsersRelatedController implements UsersRelatedAPI {
 		 
 		 */	
 		
-
+		
 		System.err.println("UPDATING USER OF USERID: " + new UserID(email) + " USING " + updatedUser);
-
 	}
 
 }

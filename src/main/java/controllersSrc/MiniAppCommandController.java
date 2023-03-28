@@ -25,6 +25,10 @@ public class MiniAppCommandController implements MiniAppCommandAPI {
 	/**This function processes an HTTP POST request to execute a command for a specific mini app.
 	*It requires two parameters to be passed: the mini app's name for which the command is to be executed, and the command itself.
 	*The function returns the command object that was initially provided as a parameter.
+	*
+	* @param @RequestBody MiniAppCommandBoundary miniAppCommandBoundary 
+	* @param @PathVariable("miniAppName") String miniAppName
+	* @return Nothing
 	*/
 	
 	@RequestMapping(path = { "/superapp/miniapp/{miniAppName}" }, method = { RequestMethod.POST }, produces = {
