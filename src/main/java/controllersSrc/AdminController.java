@@ -1,7 +1,6 @@
 package controllersSrc;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.stream.IntStream;
@@ -48,19 +47,11 @@ public class AdminController implements AdminAPI {
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
-	public ArrayList<MiniAppCommandBoundary> allMiniAppCommandBoundaries() {
-		CommandId commandId = new CommandId("miniapp", "122");
-		TargetObject targetObject = new TargetObject(new ObjectId("1"));
-		InvokedBy invokedBy = new InvokedBy(new UserID("jane@demo.org"));
-		CommandAttributes commandAttributes = new CommandAttributes(new HashMap<String, String>());
-		commandAttributes.getKey1().put("key1subkey1", "anything");
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd.HH:mm:ss");
-		MiniAppCommandBoundary miniAppCommandBoundary = new MiniAppCommandBoundary(commandId, "doSomething",
-				targetObject, invokedBy, commandAttributes);
-		ArrayList<MiniAppCommandBoundary> allMiniAppCommandBoundaries = new ArrayList<>();
-		allMiniAppCommandBoundaries.add(miniAppCommandBoundary);
-		System.out.println("kofim shmenim");
-		return allMiniAppCommandBoundaries;
+	public MiniAppCommandBoundary[] allMiniAppCommandBoundaries() {
+		
+		return IntStream.range(0, 3)
+				.mapToObj(i -> new MiniAppCommandBoundary(new CommandId("miniapp", "122"), "doSomething" + i, new TargetObject(new ObjectId("1")), new InvokedBy(new UserID("jane@demo.org")), new CommandAttributes(new HashMap<String, String>())))
+				.toArray(MiniAppCommandBoundary[]::new);
 	}
 
 	/**
@@ -71,19 +62,12 @@ public class AdminController implements AdminAPI {
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	@Override
-	public ArrayList<MiniAppCommandBoundary> specificMiniAppCommandBoundaries(
+	public MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(
 			@PathVariable("miniAppName") String miniAppName) {
-
-		CommandId commandId = new CommandId(miniAppName.toString(), "122");
-		TargetObject targetObject = new TargetObject(new ObjectId("1"));
-		InvokedBy invokedBy = new InvokedBy(new UserID("jane@demo.org"));
-		CommandAttributes commandAttributes = new CommandAttributes(new HashMap<String, String>());
-		commandAttributes.getKey1().put("key1subkey1", "anything");
-		MiniAppCommandBoundary miniAppCommandBoundary = new MiniAppCommandBoundary(commandId, "doSomething",
-				targetObject, invokedBy, commandAttributes);
-		ArrayList<MiniAppCommandBoundary> specificMiniAppCommandBoundaries = new ArrayList<>();
-		specificMiniAppCommandBoundaries.add(miniAppCommandBoundary);
-		return specificMiniAppCommandBoundaries;
+		
+		return IntStream.range(0, 2)
+				.mapToObj(i -> new MiniAppCommandBoundary(new CommandId(miniAppName.toString(), "122"), "doSomething" + i, new TargetObject(new ObjectId(""+i)), new InvokedBy(new UserID("jane@demo.org")), new CommandAttributes(new HashMap<String, String>())))
+				.toArray(MiniAppCommandBoundary[]::new);
 	}
 
 	/**

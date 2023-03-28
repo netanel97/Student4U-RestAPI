@@ -9,13 +9,11 @@ import entities.UserBoundary;
 
 public interface AdminAPI {
 	UserBoundary[] exportAllUsers();
+
+	MiniAppCommandBoundary[] allMiniAppCommandBoundaries();
 	
-	///need to change from arraylist to array
-
-	ArrayList<MiniAppCommandBoundary> allMiniAppCommandBoundaries();
-
-	ArrayList<MiniAppCommandBoundary> specificMiniAppCommandBoundaries(
-			@PathVariable("miniAppName") String internalObjectId);
+	MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(
+			@PathVariable("miniAppName") String miniAppName);
 	
 	void deleteAllUsersInTheSuperApp();
 	

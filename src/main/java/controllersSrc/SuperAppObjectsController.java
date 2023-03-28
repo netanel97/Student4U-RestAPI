@@ -3,6 +3,7 @@ package controllersSrc;
 import org.springframework.http.MediaType;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.IntStream;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,9 @@ import entities.Location;
 import entities.ObjectBoundary;
 import entities.ObjectDetails;
 import entities.ObjectId;
+import entities.UserBoundary;
 import entities.UserID;
+import entities.eUserRole;
 
 @RestController
 public class SuperAppObjectsController implements SuperAppObjectsAPI {
@@ -56,25 +59,12 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 			MediaType.APPLICATION_JSON_VALUE })
 
 	@Override
-	public ArrayList<ObjectBoundary> getAllObjects() {
+	public ObjectBoundary[] getAllObjects() {
+		
+		return IntStream.range(0, 3)
+				.mapToObj(i -> new ObjectBoundary(new ObjectId( ""+i), "TYPE", "ALIAS", true, new Location(30.1, 30.2), new CreatedBy(new UserID("netanelhabas@gmail.com")), new ObjectDetails(new HashMap<String,Object>())))
+				.toArray(ObjectBoundary[]::new);
 
-		ObjectId objectId = new ObjectId( "1");
-		ObjectId objectId2 = new ObjectId("2");
-
-		Location location = new Location(30.1, 30.2);
-		CreatedBy createdBy = new CreatedBy(new UserID("netanelhabas@gmail.com"));
-		ObjectDetails objectDetails = new ObjectDetails(new HashMap<String,Object>());
-		objectDetails.getObjectDeatils().put("key1","bdika");
-		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, location,
-				createdBy, objectDetails);
-
-		ObjectBoundary objectBoundary2 = new ObjectBoundary(objectId2, "type", "alias", true, location,
-				createdBy, objectDetails);
-
-		ArrayList<ObjectBoundary> allObjectsBoundary = new ArrayList<>();
-		allObjectsBoundary.add(objectBoundary);
-		allObjectsBoundary.add(objectBoundary2);
-		return allObjectsBoundary;
 	}
 
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }

@@ -14,7 +14,7 @@ public interface SuperAppObjectsAPI {
 	ObjectBoundary retrieveObject(@PathVariable("superapp") String superapp, 
 			@PathVariable("InternalObjectId") String internalObjectId);
 	
-	ArrayList<ObjectBoundary> getAllObjects();
+	ObjectBoundary[] getAllObjects();
 	
 	void updateAnObject(@PathVariable("superapp") String superapp, @PathVariable("InternalObjectId") String internalObjectId
 			,@RequestBody ObjectBoundary updateBoundary);
