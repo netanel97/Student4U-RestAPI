@@ -17,9 +17,7 @@ import entities.Location;
 import entities.ObjectBoundary;
 import entities.ObjectDetails;
 import entities.ObjectId;
-import entities.UserBoundary;
 import entities.UserID;
-import entities.eUserRole;
 
 @RestController
 public class SuperAppObjectsController implements SuperAppObjectsAPI {
@@ -111,5 +109,4 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 		System.err.println("CREATED A NEW Boundary!\n" + created.toString());
 		return created;
 	}
-
 }
