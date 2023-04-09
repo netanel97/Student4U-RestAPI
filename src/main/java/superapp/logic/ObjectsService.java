@@ -3,7 +3,7 @@ package superapp.logic;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import entities.ObjectBoundary;
+import superapp.entities.ObjectBoundary;
 
 public interface ObjectsService {
 

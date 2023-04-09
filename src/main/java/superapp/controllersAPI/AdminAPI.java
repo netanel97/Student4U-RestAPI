@@ -1,11 +1,11 @@
-package controllersAPI;
+package superapp.controllersAPI;
 
 
 
 import org.springframework.web.bind.annotation.PathVariable;
 
-import entities.MiniAppCommandBoundary;
-import entities.UserBoundary;
+import superapp.entities.MiniAppCommandBoundary;
+import superapp.entities.UserBoundary;
 
 public interface AdminAPI {
 	UserBoundary[] exportAllUsers();

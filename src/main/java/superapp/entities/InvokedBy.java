@@ -1,23 +1,23 @@
-package entities;
+package superapp.entities;
 
 public class InvokedBy {
-	UserID userID;
+	UserId userID;
 
 	public InvokedBy() {
 		super();
 
 	}
 	
-	public InvokedBy(UserID userID) {
+	public InvokedBy(UserId userID) {
 		super();
 		this.userID = userID;
 	}
 
-	public UserID getUserID() {
+	public UserId getUserID() {
 		return userID;
 	}
 
-	public void setUserID(UserID userID) {
+	public void setUserID(UserId userID) {
 		this.userID = userID;
 	}
 

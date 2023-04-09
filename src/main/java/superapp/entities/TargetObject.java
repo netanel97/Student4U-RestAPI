@@ -1,4 +1,4 @@
-package entities;
+package superapp.entities;
 
 public class TargetObject {
 	ObjectId objectId;

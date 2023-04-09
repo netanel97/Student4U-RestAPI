@@ -1,11 +1,11 @@
-package controllersAPI;
+package superapp.controllersAPI;
 
 import java.util.ArrayList;
 
 import org.springframework.web.bind.annotation.PathVariable;
-
-import entities.ObjectBoundary;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import superapp.entities.ObjectBoundary;
 
 
 public interface SuperAppObjectsAPI {

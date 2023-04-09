@@ -1,4 +1,4 @@
-package entities;
+package superapp.entities;
 
 import java.util.HashMap;
 

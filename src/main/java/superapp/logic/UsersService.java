@@ -1,19 +1,21 @@
 package superapp.logic;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import entities.NewUserBoundary;
-import entities.UserBoundary;
+import java.util.List;
+import java.util.Optional;
+
+import superapp.entities.UserBoundary;
 
 public interface UsersService {
 
-	UserBoundary loginValidUserAndRetrieveUserDetails(@PathVariable("superapp") String superapp, 
-			@PathVariable("email") String email);
-	
-	UserBoundary createANewUser(@RequestBody NewUserBoundary newUser);
-	
-	void updateUserDetails(@PathVariable("superapp") String superapp, 
-			@PathVariable("userEmail") String email,
-			@RequestBody UserBoundary toUpdate);
+	public Optional<UserBoundary> login(String userSuperApp,String userEmail);
+
+	public UserBoundary createUser(UserBoundary user);
+
+	public UserBoundary updateUser(String userSuperApp,String userEmail,UserBoundary  update);
+
+	public List<UserBoundary> getAllUsers();
+
+	public void deleteAllUsers();
+
 }

@@ -1,4 +1,4 @@
-package entities;
+package superapp.entities;
 
 import java.util.Date;
 
@@ -12,8 +12,6 @@ public class ObjectBoundary {
 	private Location location;
 	private CreatedBy createdBy;
 	private ObjectDetails objectDetails;
-	
-	
 	public ObjectBoundary() {
 		super();
 	}
@@ -58,6 +56,11 @@ public class ObjectBoundary {
 	public Date getCreationTimestamp() {
 		return creationTimestamp;
 	}
+	public void setCreationTimestamp(Date creationTimestamp) {
+		this.creationTimestamp = creationTimestamp;
+	}
+
+
 	public void Date(Date creationTimestamp) {
 		this.creationTimestamp = creationTimestamp;
 	}

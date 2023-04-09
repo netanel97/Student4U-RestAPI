@@ -1,4 +1,4 @@
-package controllersSrc;
+package superapp.controllersSrc;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import controllersAPI.MiniAppCommandAPI;
-import entities.MiniAppCommandBoundary;
-import entities.ObjectBoundary;
-import entities.ObjectId;
+import superapp.controllersAPI.MiniAppCommandAPI;
+import superapp.entities.MiniAppCommandBoundary;
+import superapp.entities.ObjectBoundary;
+import superapp.entities.ObjectId;
 
 	/**
 	*The MiniAppCommandController class offers a means to execute commands on a particular mini app within the SuperApp system by providing an endpoint.

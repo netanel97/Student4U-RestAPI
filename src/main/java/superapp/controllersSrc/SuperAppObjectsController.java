@@ -1,4 +1,4 @@
-package controllersSrc;
+package superapp.controllersSrc;
 
 import org.springframework.http.MediaType;
 import java.util.ArrayList;
@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import controllersAPI.SuperAppObjectsAPI;
-import entities.CreatedBy;
-import entities.Location;
-import entities.ObjectBoundary;
-import entities.ObjectDetails;
-import entities.ObjectId;
-import entities.UserID;
+import superapp.controllersAPI.SuperAppObjectsAPI;
+import superapp.entities.CreatedBy;
+import superapp.entities.Location;
+import superapp.entities.ObjectBoundary;
+import superapp.entities.ObjectDetails;
+import superapp.entities.ObjectId;
+import superapp.entities.UserId;
 
 @RestController
 public class SuperAppObjectsController implements SuperAppObjectsAPI {
@@ -42,7 +42,7 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 			@PathVariable("InternalObjectId") String internalObjectId) {
 		ObjectId objectId = new ObjectId(internalObjectId.toString());
 		Location location = new Location(32.1133, 34.818);
-		CreatedBy createdBy = new CreatedBy(new UserID("netanelhabas@gmail.com"));
+		CreatedBy createdBy = new CreatedBy(new UserId("netanelhabas@gmail.com"));
 		ObjectDetails objectDetails = new ObjectDetails(new HashMap<String, Object>());
 		objectDetails.getObjectDeatils().put("key1", "bdika");
 		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, location, createdBy,
@@ -69,7 +69,7 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 
 		return IntStream.range(0, 3)
 				.mapToObj(i -> new ObjectBoundary(new ObjectId("" + i), "TYPE", "ALIAS", true, new Location(30.1, 30.2),
-						new CreatedBy(new UserID("netanelhabas@gmail.com")),
+						new CreatedBy(new UserId("netanelhabas@gmail.com")),
 						new ObjectDetails(new HashMap<String, Object>())))
 				.toArray(ObjectBoundary[]::new);
 

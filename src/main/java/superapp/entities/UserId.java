@@ -1,17 +1,17 @@
-package entities;
+package superapp.entities;
 
-public class UserID {
+public class UserId {
 	
 	private final String SUPERAPP_NAME = "2023b.LiranSorokin";
 	
 	private String superApp;
 	private String email;
 	
-	public UserID() {
+	public UserId() {
 		super();
 	}
 		
-	public UserID(String email) {
+	public UserId(String email) {
 		super();
 		this.superApp = SUPERAPP_NAME;
 		this.email = email;

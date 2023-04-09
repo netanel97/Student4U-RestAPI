@@ -1,22 +1,22 @@
-package entities;
+package superapp.entities;
 
 public class CreatedBy {
-	private UserID userID;
+	private UserId userID;
 
 	public CreatedBy() {
 		super();
 	}
 
-	public CreatedBy(UserID userID) {
+	public CreatedBy(UserId userID) {
 		super();
 		this.userID = userID;
 	}
 
-	public UserID getUserID() {
+	public UserId getUserID() {
 		return userID;
 	}
 
-	public void setUserID(UserID userID) {
+	public void setUserID(UserId userID) {
 		this.userID = userID;
 	}
 
