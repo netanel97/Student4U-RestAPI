@@ -1,10 +1,16 @@
 package superapp.entities;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PostConstruct;
+
+@Component
 public class ObjectId {
 
-	private final String SUPERAPP_NAME = "2023b.LiranSorokin";
+	@Value("${spring.application.name:2023b.LiranSorokin}")
+	private String springApplicationName;
 	
-	private String superapp;
 	private String internalObjectId;
 
 	public ObjectId() {
@@ -13,16 +19,24 @@ public class ObjectId {
 
 	public ObjectId(String internalObjectId) {
 		super();
-		this.superapp = SUPERAPP_NAME;
 		this.internalObjectId = internalObjectId;
 	}
-
-	public String getSuperapp() {
-		return superapp;
+	
+	@PostConstruct
+	private void init(){
+		System.err.println("Initializing ObjectId with springApplicationName: " + springApplicationName);
 	}
 
-	public void setSuperapp(String superapp) {
-		this.superapp = superapp;
+	public String getSpringApplicationName() {
+		return springApplicationName;
+	}
+
+	/*
+	 * this method injects a configuration value of spring
+	 */
+	@Value("${spring.application.name:2023b.LiranSorokin}")
+	public void setSpringApplicationName(String springApllicationName) {
+		this.springApplicationName = springApllicationName;
 	}
 
 	public String getInternalObjectId() {
@@ -35,6 +49,6 @@ public class ObjectId {
 
 	@Override
 	public String toString() {
-		return "ObjectId [superapp=" + superapp + ", internalObjectId=" + internalObjectId + "]";
+		return "ObjectId [springApplicationName=" + springApplicationName + ", internalObjectId=" + internalObjectId + "]";
 	}
 }

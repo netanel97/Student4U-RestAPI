@@ -1,10 +1,12 @@
 package superapp.entities;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class UserId {
-	
-	private final String SUPERAPP_NAME = "2023b.LiranSorokin";
-	
+		
+	@Value("${spring.application.name:iAmTheDefaultNameOfTheApplication}")
 	private String superApp;
+	
 	private String email;
 	
 	public UserId() {
@@ -13,7 +15,6 @@ public class UserId {
 		
 	public UserId(String email) {
 		super();
-		this.superApp = SUPERAPP_NAME;
 		this.email = email;
 	}
 

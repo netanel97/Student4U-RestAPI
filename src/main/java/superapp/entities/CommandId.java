@@ -1,10 +1,12 @@
 package superapp.entities;
 
-public class CommandId {
-	
-	private final String SUPERAPP_NAME = "2023b.LiranSorokin";
+import org.springframework.beans.factory.annotation.Value;
 
-	private String superapp;
+public class CommandId {
+
+	@Value("${spring.application.name:iAmTheDefaultNameOfTheApplication}")
+	private String springApplicationName;
+	
 	private String miniApp;
 	private String internalCommandId;
 	
@@ -14,17 +16,20 @@ public class CommandId {
 	
 	public CommandId(String miniApp, String internalCommandId) {
 		super();
-		this.superapp = SUPERAPP_NAME;
 		this.miniApp = miniApp;
 		this.internalCommandId = internalCommandId;
 	}
 	
 	public String getSuperapp() {
-		return superapp;
+		return springApplicationName;
 	}
 	
-	public void setSuperapp(String superapp) {
-		this.superapp = superapp;
+	/*
+	 * this method injects a configuration value of spring
+	 */
+	@Value("${spring.application.name:2023b.LiranSorokin}")
+	public void setSpringApplicationName(String springApllicationName) {
+		this.springApplicationName = springApllicationName;
 	}
 	
 	public String getMiniApp() {
@@ -45,7 +50,7 @@ public class CommandId {
 
 	@Override
 	public String toString() {
-		return "CommandId [superapp=" + superapp + ", miniApp=" + miniApp + ", internalCommandId=" + internalCommandId
+		return "CommandId [springApplicationName=" + springApplicationName + ", miniApp=" + miniApp + ", internalCommandId=" + internalCommandId
 				+ "]";
 	}
 	

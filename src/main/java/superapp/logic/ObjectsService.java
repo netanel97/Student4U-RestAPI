@@ -7,14 +7,17 @@ import superapp.entities.ObjectBoundary;
 
 public interface ObjectsService {
 
+	public ObjectBoundary createObject(@RequestBody ObjectBoundary newObjectBoundary);
 	
-	ObjectBoundary retrieveObject(@PathVariable("superapp") String superapp, 
+	public void updateAnObject(@PathVariable("superapp") String superapp,
+			@PathVariable("InternalObjectId") String internalObjectId,
+			@RequestBody ObjectBoundary updateBoundary);
+	
+	public ObjectBoundary getSpecificObject(@PathVariable("superapp") String superapp, 
 			@PathVariable("InternalObjectId") String internalObjectId);
 	
-	ObjectBoundary[] getAllObjects();
+	public ObjectBoundary[] getAllObjects();
 	
-	void updateAnObject(@PathVariable("superapp") String superapp, @PathVariable("InternalObjectId") String internalObjectId
-			,@RequestBody ObjectBoundary updateBoundary);
-//	
-	ObjectBoundary createObject(@RequestBody ObjectBoundary newObjectBoundary);
+	public void deleteAllObjects();
+	
 }
