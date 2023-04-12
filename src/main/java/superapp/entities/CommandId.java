@@ -1,12 +1,8 @@
 package superapp.entities;
 
-import org.springframework.beans.factory.annotation.Value;
-
 public class CommandId {
 
-	@Value("${spring.application.name:iAmTheDefaultNameOfTheApplication}")
 	private String springApplicationName;
-	
 	private String miniApp;
 	private String internalCommandId;
 	
@@ -24,10 +20,6 @@ public class CommandId {
 		return springApplicationName;
 	}
 	
-	/*
-	 * this method injects a configuration value of spring
-	 */
-	@Value("${spring.application.name:2023b.LiranSorokin}")
 	public void setSpringApplicationName(String springApllicationName) {
 		this.springApplicationName = springApllicationName;
 	}

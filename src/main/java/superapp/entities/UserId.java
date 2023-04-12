@@ -1,12 +1,8 @@
 package superapp.entities;
 
-import org.springframework.beans.factory.annotation.Value;
-
 public class UserId {
 		
-	@Value("${spring.application.name:iAmTheDefaultNameOfTheApplication}")
-	private String superApp;
-	
+	private String springApplicationName;
 	private String email;
 	
 	public UserId() {
@@ -19,13 +15,13 @@ public class UserId {
 	}
 
 	public String getSuperApp() {
-		return superApp;
+		return springApplicationName;
 	}
 	public String getEmail() {
 		return email;
 	}
-	public void setSuperApp(String superApp) {
-		this.superApp = superApp;
+	public void setSuperApp(String springApplicationName) {
+		this.springApplicationName = springApplicationName;
 	}
 	public void setEmail(String email) {
 		this.email = email;
@@ -33,6 +29,6 @@ public class UserId {
 
 	@Override
 	public String toString() {
-		return "UserID [superApp=" + superApp + ", email=" + email + "]";
+		return "UserID [springApplicationName=" + springApplicationName + ", email=" + email + "]";
 	}
 }
