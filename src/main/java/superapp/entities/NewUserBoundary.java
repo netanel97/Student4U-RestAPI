@@ -1,17 +1,16 @@
 package superapp.entities;
 
 public class NewUserBoundary {
-	
+
 	private String role;
 	private String username;
 	private String avatar;
 	private String email;
-	
+
 	public NewUserBoundary() {
 		super();
 	}
-	
-	
+
 	public NewUserBoundary(String email, String role, String userName, String avatarUrl) {
 		super();
 		this.email = email;
@@ -20,34 +19,30 @@ public class NewUserBoundary {
 		this.avatar = avatarUrl;
 	}
 
-
 	public String getEmail() {
 		return email;
 	}
+
 	public String getRole() {
 		return role;
 	}
-	
-	
-	
+
 	public String getUsername() {
 		return username;
 	}
-
 
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
-
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
 	public void setRole(String role) {
 		this.role = role;
 	}
 
-	
 	public String getAvatar() {
 		return avatar;
 	}
@@ -56,13 +51,10 @@ public class NewUserBoundary {
 		this.avatar = avatar;
 	}
 
-
 	@Override
 	public String toString() {
-		return "UserBoundary [email=" + email + ", role=" + role + ", userName=" + username + ", avatarUrl="
-				+ avatar + "]";
+		return "UserBoundary [email=" + email + ", role=" + role + ", userName=" + username + ", avatarUrl=" + avatar
+				+ "]";
 	}
-	
-	
-	
+
 }

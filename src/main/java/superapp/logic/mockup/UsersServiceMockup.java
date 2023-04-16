@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import superapp.data.UserEntity;
+import superapp.data.UserRole;
 import superapp.entities.UserBoundary;
 import superapp.entities.UserId;
 import superapp.logic.UsersService;
@@ -99,8 +100,13 @@ public class UsersServiceMockup implements UsersService {
 			dirtyFlag = true;
 		}
 		if (update.getRole() != null) {
-			existingUser.setRole(update.getRole());
-			dirtyFlag = true;
+			try {
+				UserRole role = UserRole.valueOf(update.getRole());
+				existingUser.setRole(role);
+				dirtyFlag = true;
+			} catch (Exception e) {
+				throw new RuntimeException("Could not find role: " + update.getRole());
+			}
 		}
 		if (update.getUserId() != null) {
 			existingUser.setUserId(boundaryToStr(update.getUserId()));
@@ -137,15 +143,17 @@ public class UsersServiceMockup implements UsersService {
 	private UserBoundary entityToBoundary(UserEntity userEntity) {
 		UserBoundary userBoundary = new UserBoundary();
 		userBoundary.setAvatar(userEntity.getAvatar());
-		userBoundary.setRole(userEntity.getRole());
+		userBoundary.setRole(userEntity.getRole().toString());
 		userBoundary.setUserId(this.toBoundaryUserId(userEntity.getUserId()));
 		userBoundary.setUsername(userEntity.getUserName());
 		return userBoundary;
 
 	}
+
 	/**
-	 * Convert from String user id to UserId 
-	 * @param String user id 
+	 * Convert from String user id to UserId
+	 * 
+	 * @param String user id
 	 * @return UserId
 	 */
 	private UserId toBoundaryUserId(String userId) {
@@ -159,28 +167,39 @@ public class UsersServiceMockup implements UsersService {
 			return null;
 		}
 	}
+
 	/**
 	 * Convert from user Boundary to user Entity
+	 * 
 	 * @param UserBoundary user boundary
 	 * @return UserEntity user entity
 	 */
 	private UserEntity boundaryToEntity(UserBoundary userBoundary) {
 		UserEntity userEntity = new UserEntity();
 		userEntity.setAvatar(userBoundary.getAvatar());
-		userEntity.setRole(userBoundary.getRole());
+
+		try {
+			UserRole role = UserRole.valueOf(userBoundary.getRole());
+			userEntity.setRole(role);
+		} catch (Exception e) {
+			throw new RuntimeException("Could not find role: " + userBoundary.getRole());
+		}
 		userEntity.setUserId(this.boundaryToStr(userBoundary.getUserId()));
 		userEntity.setUserName(userBoundary.getUsername());
 		return userEntity;
 
 	}
+
 	/**
 	 * Convert from UserId to string with delimiter
+	 * 
 	 * @param UserId user id
 	 * @return String application name followed by delimiter and user email
 	 */
 	private String boundaryToStr(UserId userId) {
 		return springApplicationName + DELIMITER + userId.getEmail();
 	}
+
 	/**
 	 * Delete all users from DB
 	 * 

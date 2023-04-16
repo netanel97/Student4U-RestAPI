@@ -1,6 +1,5 @@
 package superapp.controllersSrc;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,11 +21,12 @@ public class UsersRelatedController {
 	public void setUsersService(UsersService usersService) {
 		this.usersService = usersService;
 	}
+
 	/**
 	 * Login to specific user from DB. Receives HTTP Method 'GET'.
 	 * 
 	 * @param @PathVariable("superapp") String superapp
-	 * @param @PathVariable ("email") String email
+	 * @param @PathVariable             ("email") String email
 	 * @return UserBoundary specific user.
 	 */
 	@RequestMapping(path = { "/superapp/users/login/{superapp}/{email}" }, method = { RequestMethod.GET }, produces = {
@@ -34,10 +34,10 @@ public class UsersRelatedController {
 
 	public UserBoundary loginValidUserAndRetrieveUserDetails(@PathVariable("superapp") String superapp,
 			@PathVariable("email") String email) {
-		return usersService.login(superapp, email).orElseThrow(()->new RuntimeException("could not find user with id: " + superapp + "_" + email));
+		return usersService.login(superapp, email)
+				.orElseThrow(() -> new RuntimeException("could not find user with id: " + superapp + "_" + email));
 	}
-	
-	
+
 	/**
 	 * create a new user. Receives HTTP Method 'POST'.
 	 * 
@@ -61,10 +61,10 @@ public class UsersRelatedController {
 	 * update an existing user from DB. Receives HTTP Method 'PUT'.
 	 * 
 	 * @param @PathVariable("superapp") String superapp
-	 * @param @PathVariable ("email") String email
-	 * @param @RequestBody UserBoundary user Boundary
+	 * @param @PathVariable             ("email") String email
+	 * @param @RequestBody              UserBoundary user Boundary
 	 */
-	
+
 	@RequestMapping(path = { "/superapp/users/{superapp}/{userEmail}" }, method = { RequestMethod.PUT }, consumes = {
 			MediaType.APPLICATION_JSON_VALUE })
 
