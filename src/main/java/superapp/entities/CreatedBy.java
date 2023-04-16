@@ -25,5 +25,4 @@ public class CreatedBy {
 		return "CreatedBy [userID=" + userID + "]";
 	}
 
-	
 }

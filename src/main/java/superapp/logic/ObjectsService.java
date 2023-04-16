@@ -1,23 +1,21 @@
 package superapp.logic;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import java.util.List;
+import java.util.Optional;
 
-import superapp.entities.ObjectBoundary;
+import superapp.entities.SuperAppObjectBoundary;
 
 public interface ObjectsService {
 
-	public ObjectBoundary createObject(@RequestBody ObjectBoundary newObjectBoundary);
-	
-	public void updateAnObject(@PathVariable("superapp") String superapp,
-			@PathVariable("InternalObjectId") String internalObjectId,
-			@RequestBody ObjectBoundary updateBoundary);
-	
-	public ObjectBoundary getSpecificObject(@PathVariable("superapp") String superapp, 
-			@PathVariable("InternalObjectId") String internalObjectId);
-	
-	public ObjectBoundary[] getAllObjects();
-	
+	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary newObjectBoundary);
+
+	public SuperAppObjectBoundary updateAnObject(String superapp, String internalObjectId,
+			SuperAppObjectBoundary updateBoundary);
+
+	public Optional<SuperAppObjectBoundary> getSpecificObject(String superapp, String internalObjectId);
+
+	public List<SuperAppObjectBoundary> getAllObjects();
+
 	public void deleteAllObjects();
-	
+
 }

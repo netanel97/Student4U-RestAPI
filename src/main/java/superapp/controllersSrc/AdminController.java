@@ -19,18 +19,24 @@ import superapp.entities.ObjectId;
 import superapp.entities.TargetObject;
 import superapp.entities.UserBoundary;
 import superapp.entities.UserId;
+import superapp.logic.ObjectsService;
 import superapp.logic.UsersService;
 
 @RestController
 public class AdminController {
-	
+
 	private UsersService usersService;
+	private ObjectsService objectsService;
 
 	@Autowired
 	public void setUsersService(UsersService usersService) {
 		this.usersService = usersService;
 	}
 
+	@Autowired
+	public void setObjectsService(ObjectsService objectsService) {
+		this.objectsService = objectsService;
+	}
 
 	/**
 	 * Export all MiniApps Commands history. Receives HTTP Method 'GET'.
@@ -40,7 +46,7 @@ public class AdminController {
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	
+
 	public MiniAppCommandBoundary[] allMiniAppCommandBoundaries() {
 
 		return IntStream.range(0, 3)
@@ -58,7 +64,7 @@ public class AdminController {
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	
+
 	public MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(@PathVariable("miniAppName") String miniAppName) {
 
 		return IntStream.range(0, 2)
@@ -69,41 +75,23 @@ public class AdminController {
 				.toArray(MiniAppCommandBoundary[]::new);
 	}
 
-	
-
 	/**
-	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
-	 * 
-	 * @param None
-	 * @return Nothing
-	 */
-	@RequestMapping(path = { "/superapp/admin/objects" }, method = { RequestMethod.DELETE })
-	
-	public void deleteAllObjectsInTheSuperApp() {
-		System.err.println("Objects Deleted!");
-	}
-
-	/**
-	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
+	 * Delete all commands history. Receives HTTP Method 'DELETE'.
 	 * 
 	 * @param None
 	 * @return Nothing
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })
-	
+
 	public void deleteAllCommandsHistory() {
 		System.err.println("Command History Deleted!");
 	}
-	
-	
-	
-	
-	// @@@!@!@!@!@!@!@!@!@ new functions sprint 3 do not delete!@!!@!@!@!@!@!@!@!@!@!
-	
-	
-	
+
+	// @@@!@!@!@!@!@!@!@!@ new functions sprint 3 do not
+	// delete!@!!@!@!@!@!@!@!@!@!@!
+
 	/**
-	 * Deletes all users in the SuperApp. Receives HTTP Method 'DELETE'.
+	 * Delete all users in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * 
 	 * @param None
 	 * @return Nothing
@@ -114,7 +102,6 @@ public class AdminController {
 		this.usersService.deleteAllUsers();
 	}
 
-	
 	/**
 	 * Export all existing users. Receives HTTP Method 'GET'.
 	 * 
@@ -126,6 +113,17 @@ public class AdminController {
 	public UserBoundary[] getAllUsers() {
 		List<UserBoundary> allBoundaries = this.usersService.getAllUsers();
 		return allBoundaries.toArray(new UserBoundary[0]);
+	}
+
+	/**
+	 * Delete all objects in the SuperApp. Receives HTTP Method 'DELETE'.
+	 * 
+	 * @param None
+	 * @return Nothing
+	 */
+	@RequestMapping(path = { "/superapp/admin/objects" }, method = { RequestMethod.DELETE })
+	public void deleteAllObjectsInTheSuperApp() {
+		this.objectsService.deleteAllObjects();
 	}
 
 }

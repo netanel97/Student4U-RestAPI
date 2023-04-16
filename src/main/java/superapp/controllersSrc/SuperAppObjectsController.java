@@ -1,9 +1,9 @@
 package superapp.controllersSrc;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.stream.IntStream;
+
+import java.util.List;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,15 +12,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import superapp.controllersAPI.SuperAppObjectsAPI;
-import superapp.entities.CreatedBy;
-import superapp.entities.Location;
-import superapp.entities.ObjectBoundary;
-import superapp.entities.ObjectDetails;
-import superapp.entities.ObjectId;
-import superapp.entities.UserId;
+import superapp.entities.SuperAppObjectBoundary;
+import superapp.logic.ObjectsService;
 
 @RestController
 public class SuperAppObjectsController implements SuperAppObjectsAPI {
+
+	private ObjectsService objectsService;
+
+	@Autowired
+	private void setObjectsService(ObjectsService objectsService) {
+		this.objectsService = objectsService;
+	}
 
 	/**
 	 * This code defines a method that handles a GET request for retrieving a
@@ -31,24 +34,17 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	 * variables: "superapp" and "InternalObjectId", which are used to identify the
 	 * specific object to retrieve.
 	 * 
-	 * @param @PathVariable("superapp") String superapp
+	 * @param @PathVariable("superapp")         String superapp
 	 * @param @PathVariable("InternalObjectId") String internalObjectId
 	 * @return ObjectBoundary.
 	 */
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
 			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	@Override
-	public ObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
+	public SuperAppObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId) {
-		ObjectId objectId = new ObjectId(internalObjectId.toString());
-		Location location = new Location(32.1133, 34.818);
-		CreatedBy createdBy = new CreatedBy(new UserId("netanelhabas@gmail.com"));
-		ObjectDetails objectDetails = new ObjectDetails(new HashMap<String, Object>());
-		objectDetails.getObjectDeatils().put("key1", "bdika");
-		ObjectBoundary objectBoundary = new ObjectBoundary(objectId, "type", "alias", true, location, createdBy,
-				objectDetails);
-
-		return objectBoundary;
+		return this.objectsService.getSpecificObject(superapp, internalObjectId)
+				.orElseThrow(() -> new RuntimeException("Could not find object by id: " + internalObjectId));
 	}
 
 	/**
@@ -57,56 +53,64 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	 * "@RequestMapping" annotation, which maps the method to the path
 	 * "/superapp/objects", specifies the HTTP method as GET, and the response media
 	 * type as JSON.
+	 * 
 	 * @param None
 	 * @return Array of ObjectBoundary.
 	 */
-
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-
 	@Override
-	public ObjectBoundary[] getAllObjects() {
-
-		return IntStream.range(0, 3)
-				.mapToObj(i -> new ObjectBoundary(new ObjectId("" + i), "TYPE", "ALIAS", true, new Location(30.1, 30.2),
-						new CreatedBy(new UserId("netanelhabas@gmail.com")),
-						new ObjectDetails(new HashMap<String, Object>())))
-				.toArray(ObjectBoundary[]::new);
-
+	public SuperAppObjectBoundary[] getAllObjects() {
+		List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects();
+		return allBoundaries.toArray(new SuperAppObjectBoundary[0]);
 	}
-	
-	/**
-	A method that handles a PUT request for updating an object in a "superapp" application.
-	@param superapp: a string representing the name of the "superapp" application.
-	@param internalObjectId: a string representing the ID of the object to be updated in the "superapp".
-	@param updateBoundary: an ObjectBoundary object representing the updated version of the object.
-	*/
 
+	/**
+	 * A method that handles a PUT request for updating an object in a "super app"
+	 * application.
+	 * 
+	 * @param superapp:         a string representing the name of the "super app"
+	 *                          application.
+	 * @param internalObjectId: a string representing the ID of the object to be
+	 *                          updated in the "superapp".
+	 * @param updateBoundary:   an ObjectBoundary object representing the updated
+	 *                          version of the object.
+	 */
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
 			RequestMethod.PUT }, consumes = { MediaType.APPLICATION_JSON_VALUE })
 	@Override
 	public void updateAnObject(@PathVariable("superapp") String superapp,
-			@PathVariable("InternalObjectId") String internalObjectId, @RequestBody ObjectBoundary updateBoundary) {
-
-
-		System.err.println("bdika: " + updateBoundary.toString());
+			@PathVariable("InternalObjectId") String internalObjectId,
+			@RequestBody SuperAppObjectBoundary updateBoundary) {
+		this.objectsService.updateAnObject(superapp, internalObjectId, updateBoundary);
 	}
 
 	/**
-
-	A method that handles a POST request for creating a new object in a "superapp" application.
-
-	@param newObjectBoundary: an ObjectBoundary object representing the new object to be created in the "superapp".
-	@return the created ObjectBoundary object as a response in JSON format.
-	*/
+	 * 
+	 * A method that handles a POST request for creating a new object in a
+	 * "superapp" application.
+	 * 
+	 * @param newObjectBoundary: an ObjectBoundary object representing the new
+	 *                           object to be created in the "superapp".
+	 * @return the created ObjectBoundary object as a response in JSON format.
+	 */
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.POST }, produces = {
 			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
 			consumes = { MediaType.APPLICATION_JSON_VALUE }) // takes a JSON as argument
 	@Override
-	public ObjectBoundary createObject(ObjectBoundary newObjectBoundary) {
-		ObjectBoundary created = new ObjectBoundary();
-		created.setObjectId(new ObjectId());
-		System.err.println("CREATED A NEW Boundary!\n" + created.toString());
-		return created;
+	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary newObjectBoundary) {
+		SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();
+		objectBoundary.setActive(newObjectBoundary.getActive());
+		objectBoundary.setAlias(newObjectBoundary.getAlias());
+		objectBoundary.setCreatedBy(newObjectBoundary.getCreatedBy());
+		objectBoundary.setLocation(newObjectBoundary.getLocation());
+		objectBoundary.setObjectDetails(newObjectBoundary.getObjectDetails());
+		objectBoundary.setType(newObjectBoundary.getType());
+		return this.objectsService.createObject(objectBoundary);
+
+//		ObjectBoundary created = new ObjectBoundary();
+//		created.setObjectId(new ObjectId());
+//		System.err.println("CREATED A NEW Boundary!\n" + created.toString());
+//		return created;
 	}
 }

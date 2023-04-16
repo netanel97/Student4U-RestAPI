@@ -1,24 +1,22 @@
 package superapp.controllersAPI;
 
-import java.util.ArrayList;
-
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import superapp.entities.ObjectBoundary;
-
+import superapp.entities.SuperAppObjectBoundary;
 
 public interface SuperAppObjectsAPI {
 
-	
-	ObjectBoundary retrieveObject(@PathVariable("superapp") String superapp, 
+	SuperAppObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId);
-	
-	ObjectBoundary[] getAllObjects();
-	
-	void updateAnObject(@PathVariable("superapp") String superapp, @PathVariable("InternalObjectId") String internalObjectId
-			,@RequestBody ObjectBoundary updateBoundary);
+
+	SuperAppObjectBoundary[] getAllObjects();
+
+	void updateAnObject(@PathVariable("superapp") String superapp,
+			@PathVariable("InternalObjectId") String internalObjectId,
+			@RequestBody SuperAppObjectBoundary updateBoundary);
+
 //	
-	ObjectBoundary createObject(@RequestBody ObjectBoundary newObjectBoundary);
-	
+	SuperAppObjectBoundary createObject(@RequestBody SuperAppObjectBoundary newObjectBoundary);
+
 }
