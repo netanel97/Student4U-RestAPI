@@ -1,19 +1,27 @@
 package superapp.logic.mockup;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
-import superapp.data.UserEntity;
+import superapp.data.MiniAppCommandEntity;
+import superapp.entities.CommandId;
+import superapp.entities.InvokedBy;
 import superapp.entities.MiniAppCommandBoundary;
+import superapp.entities.ObjectId;
+import superapp.entities.TargetObject;
+import superapp.entities.UserId;
 import superapp.logic.MiniAppCommandsService;
 
+@Service
 public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
-	private Map<String, UserEntity> databaseMockup;
+	private Map<String, MiniAppCommandEntity> databaseMockup;
 	private String springApplicationName;
 	private String DELIMITER = "_";
 	
@@ -35,27 +43,177 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 		System.err.println("******** " + this.springApplicationName);
 	}
 	
+	/*
+	 * Activate a given command from a miniApp
+	 * 
+	 * @param MiniAppCommandBoundary
+	 * 
+	 * @param String
+	 * 
+	 * @return Object
+	 */
 	
 	@Override
 	public Object invokeCommand(MiniAppCommandBoundary miniAppCommandBoundary, String miniAppName) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(miniAppCommandBoundary);
+
+		this.databaseMockup.put(miniAppName, miniAppCommandEntity);
+		return this.entityToBoundary(miniAppCommandEntity);
 	}
-	@Override
-	public List<MiniAppCommandBoundary> getAllCommands() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 	
 	
 	/**
-	 * Delete all users from DB
+	 * Get all commands from DB
 	 * 
+	 * @return List<MiniAppCommandBoundary>
+	 */
+	@Override
+	public List<MiniAppCommandBoundary> getAllCommands() {
+		return this.databaseMockup.values().stream().map(this::entityToBoundary).toList();
+	}
+	
+	/**
+	 * Get all commands from specific miniApp from DB
+	 * 
+	 * @param String
+	 * 
+	 * @return List<MiniAppCommandBoundary>
+	 */
+	@Override
+	public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName) {
+		List<MiniAppCommandBoundary> specificCommands = new ArrayList<>();
+		 for (String miniAppFromDb : databaseMockup.keySet())
+		 {
+			 if (miniAppFromDb.equals(miniAppName))
+			 {
+				 specificCommands.add(this.entityToBoundary(databaseMockup.get(miniAppFromDb)));
+			 }
+		 }
+		 return specificCommands;
+	}
+	
+
+	/**
+	 * Convert miniapp command boundary to miniapp command entity
+	 * 
+	 * @param MiniAppCommandBoundary
+	 * @return MiniAppCommandEntity
+	 */
+	private MiniAppCommandEntity boundaryToEntity(MiniAppCommandBoundary miniAppCommandBoundary) {
+		MiniAppCommandEntity miniAppCommandEntity = new MiniAppCommandEntity();
+        miniAppCommandEntity.setCommand(miniAppCommandBoundary.getCommand());
+        miniAppCommandEntity.setCommandAttributes(miniAppCommandBoundary.getCommandAttributes());
+        miniAppCommandEntity.setCommandId(this.toEntityCommandId(miniAppCommandBoundary.getCommandId()));
+        miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(miniAppCommandBoundary.getInvokedBy()));
+        miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(miniAppCommandBoundary.getTargetObject()));
+        miniAppCommandEntity.setInvocationTimestamp(miniAppCommandBoundary.getInvocationTimestamp());
+        return miniAppCommandEntity;
+	}
+	
+	/**
+	 * Convert TargetObject to String for entity
+	 * 
+	 * @param TargetObject
+	 * @return String
+	 */
+    private String toEntityTargetObject(TargetObject targetObject) {
+    	return targetObject.getObjectId().getSpringApplicationName() + DELIMITER + targetObject.getObjectId().getInternalObjectId();
+	}
+    
+    /**
+	 * Convert InvokedBy object to String for entity
+	 * 
+	 * @param InvokedBy
+	 * @return String
+	 */
+	private String toEntityInvokedBy(InvokedBy invokedBy) {
+		return invokedBy.getUserID().getSuperApp() + DELIMITER + invokedBy.getUserID().getEmail();
+	}
+	
+	/**
+	 * Convert CommandId object to String for entity
+	 * 
+	 * @param CommandId
+	 * @return String
+	 */
+	private String toEntityCommandId(CommandId commandId) {
+		return commandId.getSuperapp() + DELIMITER + commandId.getMiniApp() + DELIMITER + commandId.getInternalCommandId();
+	}
+
+	
+	/**
+	 * Convert miniapp command entity to miniapp command boundary
+	 * 
+	 * @param MiniAppCommandEntity
+	 * @return MiniAppCommandBoundary
+	 */
+	private MiniAppCommandBoundary entityToBoundary(MiniAppCommandEntity miniAppCommandEntity) 
+    {
+        MiniAppCommandBoundary miniAppCommandBoundary = new MiniAppCommandBoundary();
+        miniAppCommandBoundary.setCommand(miniAppCommandEntity.getCommand());
+        miniAppCommandBoundary.setCommandAttributes(miniAppCommandEntity.getCommandAttributes());
+        miniAppCommandBoundary.setCommandId(this.toBoundaryCommandId(miniAppCommandEntity.getCommandId()));
+        miniAppCommandBoundary.setInvokedBy(this.toBoundaryInvokedBy(miniAppCommandEntity.getInvokedBy()));
+        miniAppCommandBoundary.setTargetObject(this.toBoundaryTargetObject(miniAppCommandEntity.getTargetObject()));
+        miniAppCommandBoundary.setInvocationTimestamp(miniAppCommandEntity.getInvocationTimestamp());
+        return miniAppCommandBoundary;
+    }
+	
+	
+	/**
+	 * Convert String to CommandId object for boundary
+	 * 
+	 * @param String
+	 * @return CommandId
+	 */
+	private CommandId toBoundaryCommandId(String commandId) {
+		CommandId newCommandId = new CommandId();
+		String[] attr = commandId.split(DELIMITER);
+		newCommandId.setSpringApplicationName(attr[0]);
+		newCommandId.setMiniApp(attr[1]);
+		newCommandId.setInternalCommandId(attr[2]);
+		return newCommandId;
+	}
+
+	/**
+	 * Convert String to TargetObject object for boundary
+	 * 
+	 * @param String
+	 * @return TargetObject
+	 */
+	private TargetObject toBoundaryTargetObject(String targetObject) {
+		String[] attr = targetObject.split(DELIMITER);
+		ObjectId newObjectId = new ObjectId();
+		newObjectId.setSpringApplicationName(attr[0]);
+		newObjectId.setInternalObjectId(attr[1]);
+		TargetObject newTargetObject = new TargetObject();
+		newTargetObject.setObjectId(newObjectId);
+		
+		return newTargetObject;
+	}
+
+	/**
+	 * Convert String to InvokedBy object for boundary
+	 * 
+	 * @param String
+	 * @return InvokedBy
+	 */
+	private InvokedBy toBoundaryInvokedBy(String invokedBy) {
+		String[] attr = invokedBy.split(DELIMITER);
+		UserId newUserId = new UserId();
+		newUserId.setSuperApp(attr[0]);
+		newUserId.setEmail(attr[1]);
+		InvokedBy newInvokedBy = new InvokedBy();
+		newInvokedBy.setUserID(newUserId);
+		
+		return newInvokedBy;
+	}
+
+
+	/**
+	 * Delete all users from DB
 	 */
 	@Override
 	public void deleteAllCommands() {
