@@ -4,23 +4,23 @@ import java.util.HashMap;
 
 public class ObjectDetails {
 
-	private HashMap<String, Object> objectDeatils;
+	private HashMap<String, Object> objectDetails;
 	public ObjectDetails() {
 		super();
 	}
-	public ObjectDetails(HashMap<String, Object> objectDeatils) {
+	public ObjectDetails(HashMap<String, Object> objectDetails) {
 		super();
-		this.objectDeatils = objectDeatils;
+		this.objectDetails = objectDetails;
 	}
-	public HashMap<String, Object> getObjectDeatils() {
-		return objectDeatils;
+	public HashMap<String, Object> getObjectDetails() {
+		return objectDetails;
 	}
-	public void setObjectDeatils(HashMap<String, Object> objectDeatils) {
-		this.objectDeatils = objectDeatils;
+	public void setObjectDetails(HashMap<String, Object> objectDetails) {
+		this.objectDetails = objectDetails;
 	}
 	@Override
 	public String toString() {
-		return "ObjectDetails [objectDeatils=" + objectDeatils + "]";
+		return "ObjectDetails [objectDeatils=" + objectDetails + "]";
 	}
 	
 	

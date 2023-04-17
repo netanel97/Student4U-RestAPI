@@ -1,6 +1,8 @@
 package superapp.entities;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MiniAppCommandBoundary {
 
@@ -9,21 +11,21 @@ public class MiniAppCommandBoundary {
 	private TargetObject targetObject;
 	private Date invocationTimestamp;
 	private InvokedBy invokedBy;
-	private CommandAttributes commandAttributes;
+	private Map<String, String> commandAttributes;
 	
 	public MiniAppCommandBoundary() {
 		super();
 	}
 	
 	public MiniAppCommandBoundary(CommandId commandId, String command, TargetObject targetObject
-			, InvokedBy invokedBy, CommandAttributes commandAttributes) {
+			, InvokedBy invokedBy) {
 		super();
 		this.commandId = commandId;
 		this.command = command;
 		this.targetObject = targetObject;
 		invocationTimestamp = new Date();
 		this.invokedBy = invokedBy;
-		this.commandAttributes = commandAttributes;
+		commandAttributes = new HashMap<>();
 	}
 
 	public CommandId getCommandId() {
@@ -56,10 +58,10 @@ public class MiniAppCommandBoundary {
 	public void setInvokedBy(InvokedBy invokedBy) {
 		this.invokedBy = invokedBy;
 	}
-	public CommandAttributes getCommandAttributes() {
+	public Map<String, String> getCommandAttributes() {
 		return commandAttributes;
 	}
-	public void setCommandAttributes(CommandAttributes commandAttributes) {
+	public void setCommandAttributes(Map<String, String> commandAttributes) {
 		this.commandAttributes = commandAttributes;
 	}
 
