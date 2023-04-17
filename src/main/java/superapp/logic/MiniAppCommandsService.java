@@ -1,18 +1,19 @@
 package superapp.logic;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import superapp.entities.MiniAppCommandBoundary;
 
 public interface MiniAppCommandsService {
-	Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
-			@PathVariable("miniAppName") String miniAppName);
+	Object invokeCommand(MiniAppCommandBoundary miniAppCommandBoundary, String miniAppName);
 
-	public MiniAppCommandBoundary[] getAllCommands();
+	public List<MiniAppCommandBoundary> getAllCommands();
 	
-	public MiniAppCommandBoundary[] getAllMiniAppCommands(@PathVariable("miniAppName") String miniAppName);
+	public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName);
 	
-	public void deleteAllObjects();
+	public void deleteAllCommands();
 	
 }

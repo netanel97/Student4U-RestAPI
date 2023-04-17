@@ -1,5 +1,6 @@
 package superapp.controllersSrc;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import superapp.controllersAPI.MiniAppCommandAPI;
 import superapp.entities.MiniAppCommandBoundary;
+import superapp.logic.MiniAppCommandsService;
+import superapp.logic.UsersService;
 
 /**
  * The MiniAppCommandController class offers a means to execute commands on a
@@ -20,7 +23,13 @@ import superapp.entities.MiniAppCommandBoundary;
  */
 
 @RestController
-public class MiniAppCommandController implements MiniAppCommandAPI {
+public class MiniAppCommandController {
+	private MiniAppCommandsService miniAppCommandsService;
+	
+	@Autowired
+	public void setMiniAppCommandsService(MiniAppCommandsService miniAppCommandsService) {
+		this.miniAppCommandsService = miniAppCommandsService;
+	}
 
 	/**
 	 * This function processes an HTTP POST request to execute a command for a
@@ -32,20 +41,20 @@ public class MiniAppCommandController implements MiniAppCommandAPI {
 	 * @param @RequestBody                 MiniAppCommandBoundary
 	 *                                     miniAppCommandBoundary
 	 * @param @PathVariable("miniAppName") String miniAppName
-	 * @return Nothing
+	 * @return Object
 	 */
 
 	@RequestMapping(path = { "/superapp/miniapp/{miniAppName}" }, method = { RequestMethod.POST }, produces = {
 			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
 			consumes = { MediaType.APPLICATION_JSON_VALUE }) // takes a JSON as argument
-	@Override
+	
 	public Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
 			@PathVariable("miniAppName") String miniAppName) {
 		// TODO Auto-generated method stub
 		MiniAppCommandBoundary newMiniAppCommandBoundary = new MiniAppCommandBoundary();
 		newMiniAppCommandBoundary.setCommand(miniAppName + "command");
-		System.err.println("Invoked a mini app command!\n" + newMiniAppCommandBoundary.toString());
-		return miniAppCommandBoundary;
+		return miniAppCommandsService.invokeCommand(newMiniAppCommandBoundary, miniAppName);
+		
 	}
 
 }

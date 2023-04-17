@@ -19,6 +19,7 @@ import superapp.entities.ObjectId;
 import superapp.entities.TargetObject;
 import superapp.entities.UserBoundary;
 import superapp.entities.UserId;
+import superapp.logic.MiniAppCommandsService;
 import superapp.logic.ObjectsService;
 import superapp.logic.UsersService;
 
@@ -27,6 +28,7 @@ public class AdminController {
 
 	private UsersService usersService;
 	private ObjectsService objectsService;
+	private MiniAppCommandsService miniAppCommandsService;
 
 	@Autowired
 	public void setUsersService(UsersService usersService) {
@@ -37,6 +39,11 @@ public class AdminController {
 	public void setObjectsService(ObjectsService objectsService) {
 		this.objectsService = objectsService;
 	}
+	
+	@Autowired
+	public void setMiniAppCommandsService(MiniAppCommandsService miniAppCommandsService) {
+		this.miniAppCommandsService = miniAppCommandsService;
+	}
 
 	/**
 	 * Export all MiniApps Commands history. Receives HTTP Method 'GET'.
@@ -46,14 +53,11 @@ public class AdminController {
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-
-	public MiniAppCommandBoundary[] allMiniAppCommandBoundaries() {
-
-		return IntStream.range(0, 3)
-				.mapToObj(i -> new MiniAppCommandBoundary(new CommandId("miniapp", "122"), "doSomething" + i,
-						new TargetObject(new ObjectId("1")), new InvokedBy(new UserId("jane@demo.org")),
-						new CommandAttributes(new HashMap<String, String>())))
-				.toArray(MiniAppCommandBoundary[]::new);
+	
+	public MiniAppCommandBoundary[] getAllMiniAppCommandsHistory() {
+		
+		List<MiniAppCommandBoundary> allBoundaries = this.miniAppCommandsService.getAllCommands();
+		return allBoundaries.toArray(new MiniAppCommandBoundary[0]);
 	}
 
 	/**
@@ -64,27 +68,24 @@ public class AdminController {
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-
+	
 	public MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(@PathVariable("miniAppName") String miniAppName) {
 
-		return IntStream.range(0, 2)
-				.mapToObj(
-						i -> new MiniAppCommandBoundary(new CommandId(miniAppName.toString(), "122"), "doSomething" + i,
-								new TargetObject(new ObjectId("" + i)), new InvokedBy(new UserId("jane@demo.org")),
-								new CommandAttributes(new HashMap<String, String>())))
-				.toArray(MiniAppCommandBoundary[]::new);
+		List<MiniAppCommandBoundary> allBoundaries = this.miniAppCommandsService.getAllMiniAppCommands(miniAppName);
+		return allBoundaries.toArray(new MiniAppCommandBoundary[0]);
+
 	}
 
 	/**
-	 * Delete all commands history. Receives HTTP Method 'DELETE'.
+	 * Deletes all commands history in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * 
 	 * @param None
 	 * @return Nothing
 	 */
+	
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })
-
 	public void deleteAllCommandsHistory() {
-		System.err.println("Command History Deleted!");
+		this.miniAppCommandsService.deleteAllCommands();
 	}
 
 	// @@@!@!@!@!@!@!@!@!@ new functions sprint 3 do not
