@@ -1,5 +1,8 @@
 package superapp.controllersSrc;
 
+import java.util.Date;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,10 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import superapp.controllersAPI.MiniAppCommandAPI;
+import superapp.entities.CommandId;
 import superapp.entities.MiniAppCommandBoundary;
 import superapp.logic.MiniAppCommandsService;
-import superapp.logic.UsersService;
 
 /**
  * The MiniAppCommandController class offers a means to execute commands on a
@@ -50,10 +52,23 @@ public class MiniAppCommandController {
 	
 	public Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
 			@PathVariable("miniAppName") String miniAppName) {
-		// TODO Auto-generated method stub
+
 		MiniAppCommandBoundary newMiniAppCommandBoundary = new MiniAppCommandBoundary();
-		newMiniAppCommandBoundary.setCommand(miniAppName + "command");
-		return miniAppCommandsService.invokeCommand(newMiniAppCommandBoundary, miniAppName);
+		UUID uuid = UUID.randomUUID();
+		newMiniAppCommandBoundary.setInvocationTimestamp(new Date());
+		CommandId newCommandId = new CommandId();
+		newCommandId.setMiniApp(miniAppName);
+		newCommandId.setSpringApplicationName(miniAppCommandBoundary.getCommandId().getSuperapp());
+		newCommandId.setInternalCommandId(uuid.toString());
+		newMiniAppCommandBoundary.setCommandId(newCommandId);
+		
+		newMiniAppCommandBoundary.setCommand(miniAppCommandBoundary.getCommand());
+		newMiniAppCommandBoundary.setCommandAttributes(miniAppCommandBoundary.getCommandAttributes());
+		newMiniAppCommandBoundary.setInvokedBy(miniAppCommandBoundary.getInvokedBy());
+		newMiniAppCommandBoundary.setTargetObject(miniAppCommandBoundary.getTargetObject());
+		
+		
+		return miniAppCommandsService.invokeCommand(newMiniAppCommandBoundary);
 		
 	}
 

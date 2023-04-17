@@ -51,6 +51,12 @@ public class MiniAppCommandEntity {
 	public void setCommandAttributes(Map<String, String> commandAttributes) {
 		this.commandAttributes = commandAttributes;
 	}
+	@Override
+	public String toString() {
+		return "MiniAppCommandEntity [commandId=" + commandId + ", command=" + command + ", targetObject="
+				+ targetObject + ", invocationTimestamp=" + invocationTimestamp + ", invokedBy=" + invokedBy
+				+ ", commandAttributes=" + commandAttributes + "]";
+	}
 	
 	
 }

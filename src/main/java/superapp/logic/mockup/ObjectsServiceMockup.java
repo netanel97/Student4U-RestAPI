@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import superapp.data.SuperAppObjectEntity;
-import superapp.entities.SuperAppObjectBoundary;
-import superapp.entities.ObjectDetails;
-import superapp.entities.ObjectId;
-import superapp.entities.UserId;
 import superapp.entities.CreatedBy;
 import superapp.entities.Location;
+import superapp.entities.ObjectDetails;
+import superapp.entities.ObjectId;
+import superapp.entities.SuperAppObjectBoundary;
+import superapp.entities.UserId;
 import superapp.logic.ObjectsService;
 
 @Service
@@ -218,7 +218,7 @@ public class ObjectsServiceMockup implements ObjectsService {
 	 * @return String application name followed by delimiter and user email.
 	 */
 	private String boundaryToStr(CreatedBy createdBy) {
-		String boundaryStr = createdBy.getUserID().getEmail();
+		String boundaryStr = createdBy.getUserId().getEmail();
 		return springApplicationName + DELIMITER + boundaryStr;
 	}
 
@@ -265,8 +265,8 @@ public class ObjectsServiceMockup implements ObjectsService {
 			String[] attr = createdByStr.split(DELIMITER);
 
 			CreatedBy createdBy = new CreatedBy();
-			createdBy.setUserID(new UserId(attr[1]));
-			createdBy.getUserID().setSuperApp(attr[0]);
+			createdBy.setUserId(new UserId(attr[1]));
+			createdBy.getUserId().setSuperApp(attr[0]);
 
 			return createdBy;
 		} else {

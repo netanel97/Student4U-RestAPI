@@ -1,28 +1,28 @@
 package superapp.entities;
 
 public class CreatedBy {
-	private UserId userID;
+	private UserId userId;
 
 	public CreatedBy() {
 		super();
 	}
 
-	public CreatedBy(UserId userID) {
+	public CreatedBy(UserId userId) {
 		super();
-		this.userID = userID;
+		this.userId = userId;
 	}
 
-	public UserId getUserID() {
-		return userID;
+	public UserId getUserId() {
+		return userId;
 	}
 
-	public void setUserID(UserId userID) {
-		this.userID = userID;
+	public void setUserId(UserId userId) {
+		this.userId = userId;
 	}
 
 	@Override
 	public String toString() {
-		return "CreatedBy [userID=" + userID + "]";
+		return "CreatedBy [userId=" + userId + "]";
 	}
 
 }

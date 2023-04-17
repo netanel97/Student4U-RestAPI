@@ -1,29 +1,29 @@
 package superapp.entities;
 
 public class InvokedBy {
-	UserId userID;
+	UserId userId;
 
 	public InvokedBy() {
 		super();
 
 	}
 	
-	public InvokedBy(UserId userID) {
+	public InvokedBy(UserId userId) {
 		super();
-		this.userID = userID;
+		this.userId = userId;
 	}
 
-	public UserId getUserID() {
-		return userID;
+	public UserId getUserId() {
+		return userId;
 	}
 
-	public void setUserID(UserId userID) {
-		this.userID = userID;
+	public void setUserId(UserId userId) {
+		this.userId = userId;
 	}
 
 	@Override
 	public String toString() {
-		return "InvokedBy [userID=" + userID + "]";
+		return "InvokedBy [userId=" + userId + "]";
 	}
 	
 	

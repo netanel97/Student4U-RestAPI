@@ -54,11 +54,11 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	 */
 	
 	@Override
-	public Object invokeCommand(MiniAppCommandBoundary miniAppCommandBoundary, String miniAppName) {
+	public Object invokeCommand(MiniAppCommandBoundary miniAppCommandBoundary) {
 		
 		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(miniAppCommandBoundary);
-
-		this.databaseMockup.put(miniAppName, miniAppCommandEntity);
+		this.databaseMockup.put(miniAppCommandBoundary.getCommandId().getMiniApp() + "-" + miniAppCommandBoundary.getCommandId().getInternalCommandId(),
+				miniAppCommandEntity);
 		return this.entityToBoundary(miniAppCommandEntity);
 	}
 	
@@ -86,7 +86,7 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 		List<MiniAppCommandBoundary> specificCommands = new ArrayList<>();
 		 for (String miniAppFromDb : databaseMockup.keySet())
 		 {
-			 if (miniAppFromDb.equals(miniAppName))
+			 if (miniAppFromDb.contains(miniAppName))
 			 {
 				 specificCommands.add(this.entityToBoundary(databaseMockup.get(miniAppFromDb)));
 			 }
@@ -129,7 +129,7 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	 * @return String
 	 */
 	private String toEntityInvokedBy(InvokedBy invokedBy) {
-		return invokedBy.getUserID().getSuperApp() + DELIMITER + invokedBy.getUserID().getEmail();
+		return springApplicationName + DELIMITER + invokedBy.getUserId().getEmail();
 	}
 	
 	/**
@@ -139,7 +139,7 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	 * @return String
 	 */
 	private String toEntityCommandId(CommandId commandId) {
-		return commandId.getSuperapp() + DELIMITER + commandId.getMiniApp() + DELIMITER + commandId.getInternalCommandId();
+		return springApplicationName + DELIMITER + commandId.getMiniApp() + DELIMITER + commandId.getInternalCommandId();
 	}
 
 	
@@ -169,12 +169,17 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	 * @return CommandId
 	 */
 	private CommandId toBoundaryCommandId(String commandId) {
-		CommandId newCommandId = new CommandId();
-		String[] attr = commandId.split(DELIMITER);
-		newCommandId.setSpringApplicationName(attr[0]);
-		newCommandId.setMiniApp(attr[1]);
-		newCommandId.setInternalCommandId(attr[2]);
-		return newCommandId;
+		if (commandId != null)
+		{
+			CommandId newCommandId = new CommandId();
+			String[] attr = commandId.split(DELIMITER);
+			newCommandId.setSpringApplicationName(attr[0]);
+			newCommandId.setMiniApp(attr[1]);
+			newCommandId.setInternalCommandId(attr[2]);
+			return newCommandId;			
+		}
+		else
+			return null;
 	}
 
 	/**
@@ -184,14 +189,19 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	 * @return TargetObject
 	 */
 	private TargetObject toBoundaryTargetObject(String targetObject) {
-		String[] attr = targetObject.split(DELIMITER);
-		ObjectId newObjectId = new ObjectId();
-		newObjectId.setSpringApplicationName(attr[0]);
-		newObjectId.setInternalObjectId(attr[1]);
-		TargetObject newTargetObject = new TargetObject();
-		newTargetObject.setObjectId(newObjectId);
+		if (targetObject != null)
+		{
+			String[] attr = targetObject.split(DELIMITER);
+			ObjectId newObjectId = new ObjectId();
+			newObjectId.setSpringApplicationName(attr[0]);
+			newObjectId.setInternalObjectId(attr[1]);
+			TargetObject newTargetObject = new TargetObject();
+			newTargetObject.setObjectId(newObjectId);			
+			return newTargetObject;
+		}
+		else
+			return null;
 		
-		return newTargetObject;
 	}
 
 	/**
@@ -201,14 +211,19 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	 * @return InvokedBy
 	 */
 	private InvokedBy toBoundaryInvokedBy(String invokedBy) {
-		String[] attr = invokedBy.split(DELIMITER);
-		UserId newUserId = new UserId();
-		newUserId.setSuperApp(attr[0]);
-		newUserId.setEmail(attr[1]);
-		InvokedBy newInvokedBy = new InvokedBy();
-		newInvokedBy.setUserID(newUserId);
-		
-		return newInvokedBy;
+		if (invokedBy != null)
+		{
+			String[] attr = invokedBy.split(DELIMITER);
+			UserId newUserId = new UserId();
+			newUserId.setSuperApp(attr[0]);
+			newUserId.setEmail(attr[1]);
+			InvokedBy newInvokedBy = new InvokedBy();
+			newInvokedBy.setUserId(newUserId);
+			
+			return newInvokedBy;			
+		}
+		else
+			return null;
 	}
 
 
