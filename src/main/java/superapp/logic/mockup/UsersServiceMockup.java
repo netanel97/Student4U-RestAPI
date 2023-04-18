@@ -22,6 +22,7 @@ public class UsersServiceMockup implements UsersService {
 	private String springApplicationName;
 	private String DELIMITER = "_";
 
+
 	/**
 	 * this method injects a configuration value of spring
 	 */
@@ -29,6 +30,7 @@ public class UsersServiceMockup implements UsersService {
 	public void setSpringApplicationName(String springApllicationName) {
 		this.springApplicationName = springApllicationName;
 	}
+	
 
 	/**
 	 * this method is invoked after values are injected to instance

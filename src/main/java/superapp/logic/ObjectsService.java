@@ -9,10 +9,10 @@ public interface ObjectsService {
 
 	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary newObjectBoundary);
 
-	public SuperAppObjectBoundary updateAnObject(String superapp, String internalObjectId,
-			SuperAppObjectBoundary updateBoundary);
+	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
+			SuperAppObjectBoundary update);
 
-	public Optional<SuperAppObjectBoundary> getSpecificObject(String superapp, String internalObjectId);
+	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId);
 
 	public List<SuperAppObjectBoundary> getAllObjects();
 

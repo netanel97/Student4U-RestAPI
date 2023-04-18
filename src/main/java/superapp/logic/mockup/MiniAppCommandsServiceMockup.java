@@ -43,7 +43,7 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 		System.err.println("******** " + this.springApplicationName);
 	}
 	
-	/*
+	/**
 	 * Activate a given command from a miniApp
 	 * 
 	 * @param MiniAppCommandBoundary
@@ -54,14 +54,14 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	 */
 	
 	@Override
-	public Object invokeCommand(MiniAppCommandBoundary miniAppCommandBoundary) {
-		if (miniAppCommandBoundary == null) {
+	public Object invokeCommand(MiniAppCommandBoundary command) {
+		if (command == null) {
 			throw new RuntimeException("miniAppCommandBoundary is null");
 		}
 
-		miniAppCommandBoundary.getCommandId().setSuperApp(springApplicationName);		
-		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(miniAppCommandBoundary);
-		this.databaseMockup.put(miniAppCommandBoundary.getCommandId().getMiniApp() + "-" + miniAppCommandBoundary.getCommandId().getInternalCommandId(),
+		command.getCommandId().setSuperApp(springApplicationName);		
+		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
+		this.databaseMockup.put(command.getCommandId().getMiniApp() + "-" + command.getCommandId().getInternalCommandId(),
 				miniAppCommandEntity);
 		return this.entityToBoundary(miniAppCommandEntity);
 	}

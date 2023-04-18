@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import superapp.controllersAPI.SuperAppObjectsAPI;
 import superapp.entities.SuperAppObjectBoundary;
 import superapp.logic.ObjectsService;
 
 @RestController
-public class SuperAppObjectsController implements SuperAppObjectsAPI {
+public class SuperAppObjectsController {
 
 	private ObjectsService objectsService;
 
@@ -39,7 +38,7 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	 */
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
 			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
-	@Override
+
 	public SuperAppObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId) {
 		return this.objectsService.getSpecificObject(superapp, internalObjectId)
@@ -58,7 +57,7 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	 */
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	@Override
+
 	public SuperAppObjectBoundary[] getAllObjects() {
 		List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects();
 		return allBoundaries.toArray(new SuperAppObjectBoundary[0]);
@@ -77,7 +76,7 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	 */
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
 			RequestMethod.PUT }, consumes = { MediaType.APPLICATION_JSON_VALUE })
-	@Override
+
 	public void updateAnObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId,
 			@RequestBody SuperAppObjectBoundary updateBoundary) {
@@ -96,20 +95,16 @@ public class SuperAppObjectsController implements SuperAppObjectsAPI {
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.POST }, produces = {
 			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
 			consumes = { MediaType.APPLICATION_JSON_VALUE }) // takes a JSON as argument
-	@Override
-	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary newObjectBoundary) {
-		SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();
-		objectBoundary.setActive(newObjectBoundary.getActive());
-		objectBoundary.setAlias(newObjectBoundary.getAlias());
-		objectBoundary.setCreatedBy(newObjectBoundary.getCreatedBy());
-		objectBoundary.setLocation(newObjectBoundary.getLocation());
-		objectBoundary.setObjectDetails(newObjectBoundary.getObjectDetails());
-		objectBoundary.setType(newObjectBoundary.getType());
-		return this.objectsService.createObject(objectBoundary);
 
-//		ObjectBoundary created = new ObjectBoundary();
-//		created.setObjectId(new ObjectId());
-//		System.err.println("CREATED A NEW Boundary!\n" + created.toString());
-//		return created;
+	public SuperAppObjectBoundary createAnObject(SuperAppObjectBoundary newObjectBoundary) {
+//		SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();
+//		objectBoundary.setActive(newObjectBoundary.getActive());
+//		objectBoundary.setAlias(newObjectBoundary.getAlias());
+//		objectBoundary.setCreatedBy(newObjectBoundary.getCreatedBy());
+//		objectBoundary.setLocation(newObjectBoundary.getLocation());
+//		objectBoundary.setObjectDetails(newObjectBoundary.getObjectDetails());
+//		objectBoundary.setType(newObjectBoundary.getType());
+		return this.objectsService.createObject(newObjectBoundary);
+
 	}
 }

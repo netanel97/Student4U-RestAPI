@@ -44,22 +44,7 @@ public class ObjectsServiceMockup implements ObjectsService {
 	public void init() {
 		// create a thread safe map
 		this.databaseMockup = Collections.synchronizedMap(new HashMap<>());
-
 		System.err.println("******** " + this.springApplicationName);
-
-		// Base data to work and check the code
-		SuperAppObjectBoundary[] objects = IntStream.range(0, 3)
-				.mapToObj(i -> new SuperAppObjectBoundary(new ObjectId("" + i), "TYPE", "ALIAS", true,
-						new Location(30.1, 30.2), new CreatedBy(new UserId("netanelhabas@gmail.com")),
-						new ObjectDetails(new HashMap<String, Object>())))
-				.toArray(SuperAppObjectBoundary[]::new);
-		for (SuperAppObjectBoundary objectBoundary : objects) {
-//			objectBoundary.getCreatedBy().getUserID().setSuperApp(springApplicationName);;
-			SuperAppObjectEntity superAppObjectEntity = this.boundaryToEntity(objectBoundary);
-			databaseMockup.put(superAppObjectEntity.getObjectId(), superAppObjectEntity);
-		}
-
-		System.err.println("******** " + databaseMockup.toString());
 	}
 
 	/**
@@ -91,33 +76,33 @@ public class ObjectsServiceMockup implements ObjectsService {
 	 * @return ObjectBoundary object boundary after update
 	 */
 	@Override
-	public SuperAppObjectBoundary updateAnObject(String superapp, String internalObjectId,
-			SuperAppObjectBoundary updateBoundary) {
-		String attr = superapp + DELIMITER + internalObjectId;
+	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
+			SuperAppObjectBoundary update) {
+		String attr = objectSuperApp + DELIMITER + internalObjectId;
 
 		SuperAppObjectEntity existingObject = this.databaseMockup.get(attr);
 		if (existingObject == null) {
 			throw new RuntimeException("Could not find object by id: " + internalObjectId);
 		}
 		boolean dirtyFlag = false;
-		if (updateBoundary.getActive() != null) {
-			existingObject.setActive(updateBoundary.getActive());
+		if (update.getActive() != null) {
+			existingObject.setActive(update.getActive());
 			dirtyFlag = true;
 		}
-		if (updateBoundary.getAlias() != null) {
-			existingObject.setAlias(updateBoundary.getAlias());
+		if (update.getAlias() != null) {
+			existingObject.setAlias(update.getAlias());
 			dirtyFlag = true;
 		}
-		if (updateBoundary.getType() != null) {
-			existingObject.setType(updateBoundary.getType());
+		if (update.getType() != null) {
+			existingObject.setType(update.getType());
 			dirtyFlag = true;
 		}
-		if (updateBoundary.getLocation() != null) {
-			existingObject.setLocation(this.boundaryToStr(updateBoundary.getLocation()));
+		if (update.getLocation() != null) {
+			existingObject.setLocation(this.boundaryToStr(update.getLocation()));
 			dirtyFlag = true;
 		}
-		if (updateBoundary.getObjectDetails() != null) {
-			existingObject.setObjectDetails(updateBoundary.getObjectDetails());
+		if (update.getObjectDetails() != null) {
+			existingObject.setObjectDetails(update.getObjectDetails());
 			dirtyFlag = true;
 		}
 
@@ -135,8 +120,8 @@ public class ObjectsServiceMockup implements ObjectsService {
 	 * @return ObjectBoundary requested object boundary
 	 */
 	@Override
-	public Optional<SuperAppObjectBoundary> getSpecificObject(String superapp, String internalObjectId) {
-		String attr = superapp + DELIMITER + internalObjectId;
+	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId) {
+		String attr = objectSuperApp + DELIMITER + internalObjectId;
 
 		SuperAppObjectEntity requestedObject = this.databaseMockup.get(attr);
 		if (requestedObject == null) {
@@ -146,7 +131,6 @@ public class ObjectsServiceMockup implements ObjectsService {
 			return Optional.of(objectBoundary);
 		}
 
-//		return this.entityToBoundary(requestedObject);
 	}
 
 	/**

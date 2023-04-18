@@ -80,9 +80,6 @@ public class AdminController {
 		this.miniAppCommandsService.deleteAllCommands();
 	}
 
-	// @@@!@!@!@!@!@!@!@!@ new functions sprint 3 do not
-	// delete!@!!@!@!@!@!@!@!@!@!@!
-
 	/**
 	 * Delete all users in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * 
