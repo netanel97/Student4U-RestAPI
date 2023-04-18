@@ -52,23 +52,17 @@ public class MiniAppCommandController {
 	
 	public Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
 			@PathVariable("miniAppName") String miniAppName) {
-
-		MiniAppCommandBoundary newMiniAppCommandBoundary = new MiniAppCommandBoundary();
+		
+		
 		UUID uuid = UUID.randomUUID();
-		newMiniAppCommandBoundary.setInvocationTimestamp(new Date());
+		miniAppCommandBoundary.setInvocationTimestamp(new Date());
 		CommandId newCommandId = new CommandId();
 		newCommandId.setMiniApp(miniAppName);
-		newCommandId.setSpringApplicationName(miniAppCommandBoundary.getCommandId().getSuperapp());
 		newCommandId.setInternalCommandId(uuid.toString());
-		newMiniAppCommandBoundary.setCommandId(newCommandId);
-		
-		newMiniAppCommandBoundary.setCommand(miniAppCommandBoundary.getCommand());
-		newMiniAppCommandBoundary.setCommandAttributes(miniAppCommandBoundary.getCommandAttributes());
-		newMiniAppCommandBoundary.setInvokedBy(miniAppCommandBoundary.getInvokedBy());
-		newMiniAppCommandBoundary.setTargetObject(miniAppCommandBoundary.getTargetObject());
-		
-		
-		return miniAppCommandsService.invokeCommand(newMiniAppCommandBoundary);
+		miniAppCommandBoundary.setCommandId(newCommandId);
+
+		MiniAppCommandBoundary newMiniAppCommandBoundary = (MiniAppCommandBoundary) miniAppCommandsService.invokeCommand(miniAppCommandBoundary);
+		return newMiniAppCommandBoundary;
 		
 	}
 

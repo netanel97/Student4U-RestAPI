@@ -55,7 +55,11 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	
 	@Override
 	public Object invokeCommand(MiniAppCommandBoundary miniAppCommandBoundary) {
-		
+		if (miniAppCommandBoundary == null) {
+			throw new RuntimeException("miniAppCommandBoundary is null");
+		}
+
+		miniAppCommandBoundary.getCommandId().setSuperApp(springApplicationName);		
 		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(miniAppCommandBoundary);
 		this.databaseMockup.put(miniAppCommandBoundary.getCommandId().getMiniApp() + "-" + miniAppCommandBoundary.getCommandId().getInternalCommandId(),
 				miniAppCommandEntity);
@@ -105,9 +109,23 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 		MiniAppCommandEntity miniAppCommandEntity = new MiniAppCommandEntity();
         miniAppCommandEntity.setCommand(miniAppCommandBoundary.getCommand());
         miniAppCommandEntity.setCommandAttributes(miniAppCommandBoundary.getCommandAttributes());
-        miniAppCommandEntity.setCommandId(this.toEntityCommandId(miniAppCommandBoundary.getCommandId()));
-        miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(miniAppCommandBoundary.getInvokedBy()));
-        miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(miniAppCommandBoundary.getTargetObject()));
+        miniAppCommandEntity.setCommandId(this.toEntityCommandId(miniAppCommandBoundary.getCommandId())); // commandID cannot be null 
+        if (miniAppCommandBoundary.getInvokedBy() != null)
+        {
+        	miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(miniAppCommandBoundary.getInvokedBy()));        	
+        }
+        else
+        {
+        	miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(new InvokedBy(new UserId("default"))));
+        }
+        if (miniAppCommandBoundary.getTargetObject() != null)
+        {
+        	miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(miniAppCommandBoundary.getTargetObject()));        	
+        }
+        else
+        {
+        	miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(new TargetObject(new ObjectId("default"))));
+        }
         miniAppCommandEntity.setInvocationTimestamp(miniAppCommandBoundary.getInvocationTimestamp());
         return miniAppCommandEntity;
 	}
@@ -119,7 +137,7 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 	 * @return String
 	 */
     private String toEntityTargetObject(TargetObject targetObject) {
-    	return targetObject.getObjectId().getSpringApplicationName() + DELIMITER + targetObject.getObjectId().getInternalObjectId();
+    	return springApplicationName + DELIMITER + targetObject.getObjectId().getInternalObjectId();
 	}
     
     /**
@@ -173,7 +191,7 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 		{
 			CommandId newCommandId = new CommandId();
 			String[] attr = commandId.split(DELIMITER);
-			newCommandId.setSpringApplicationName(attr[0]);
+			newCommandId.setSuperApp(attr[0]);
 			newCommandId.setMiniApp(attr[1]);
 			newCommandId.setInternalCommandId(attr[2]);
 			return newCommandId;			
@@ -193,7 +211,7 @@ public class MiniAppCommandsServiceMockup implements MiniAppCommandsService{
 		{
 			String[] attr = targetObject.split(DELIMITER);
 			ObjectId newObjectId = new ObjectId();
-			newObjectId.setSpringApplicationName(attr[0]);
+			newObjectId.setSuperApp(attr[0]);
 			newObjectId.setInternalObjectId(attr[1]);
 			TargetObject newTargetObject = new TargetObject();
 			newTargetObject.setObjectId(newObjectId);			

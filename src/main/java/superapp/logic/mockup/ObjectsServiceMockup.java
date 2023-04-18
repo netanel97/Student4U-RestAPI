@@ -245,7 +245,7 @@ public class ObjectsServiceMockup implements ObjectsService {
 			String[] attr = objectStr.split(DELIMITER);
 
 			ObjectId objectId = new ObjectId();
-			objectId.setSpringApplicationName(attr[0]);
+			objectId.setSuperApp(attr[0]);
 			objectId.setInternalObjectId(attr[1]);
 
 			return objectId;

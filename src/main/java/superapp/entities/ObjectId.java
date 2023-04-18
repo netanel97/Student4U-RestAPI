@@ -17,11 +17,11 @@ public class ObjectId {
 		this.internalObjectId = internalObjectId;
 	}
 
-	public String getSpringApplicationName() {
+	public String getSuperApp() {
 		return springApplicationName;
 	}
 
-	public void setSpringApplicationName(String springApllicationName) {
+	public void setSuperApp(String springApllicationName) {
 		this.springApplicationName = springApllicationName;
 	}
 
