@@ -27,7 +27,7 @@ import superapp.logic.MiniAppCommandsService;
 @RestController
 public class MiniAppCommandController {
 	private MiniAppCommandsService miniAppCommandsService;
-	
+
 	@Autowired
 	public void setMiniAppCommandsService(MiniAppCommandsService miniAppCommandsService) {
 		this.miniAppCommandsService = miniAppCommandsService;
@@ -49,10 +49,10 @@ public class MiniAppCommandController {
 	@RequestMapping(path = { "/superapp/miniapp/{miniAppName}" }, method = { RequestMethod.POST }, produces = {
 			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
 			consumes = { MediaType.APPLICATION_JSON_VALUE }) // takes a JSON as argument
-	
+
 	public Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
 			@PathVariable("miniAppName") String miniAppName) {
-		
+
 		UUID uuid = UUID.randomUUID();
 		miniAppCommandBoundary.setInvocationTimestamp(new Date());
 		CommandId newCommandId = new CommandId();
@@ -60,9 +60,10 @@ public class MiniAppCommandController {
 		newCommandId.setInternalCommandId(uuid.toString());
 		miniAppCommandBoundary.setCommandId(newCommandId);
 
-		MiniAppCommandBoundary newMiniAppCommandBoundary = (MiniAppCommandBoundary) miniAppCommandsService.invokeCommand(miniAppCommandBoundary);
+		MiniAppCommandBoundary newMiniAppCommandBoundary = (MiniAppCommandBoundary) miniAppCommandsService
+				.invokeCommand(miniAppCommandBoundary);
 		return newMiniAppCommandBoundary;
-		
+
 	}
 
 }

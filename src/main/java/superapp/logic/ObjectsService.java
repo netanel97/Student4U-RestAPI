@@ -7,7 +7,7 @@ import superapp.entities.SuperAppObjectBoundary;
 
 public interface ObjectsService {
 
-	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary newObjectBoundary);
+	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary object);
 
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
 			SuperAppObjectBoundary update);

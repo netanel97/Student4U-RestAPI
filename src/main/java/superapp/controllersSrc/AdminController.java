@@ -31,7 +31,7 @@ public class AdminController {
 	public void setObjectsService(ObjectsService objectsService) {
 		this.objectsService = objectsService;
 	}
-	
+
 	@Autowired
 	public void setMiniAppCommandsService(MiniAppCommandsService miniAppCommandsService) {
 		this.miniAppCommandsService = miniAppCommandsService;
@@ -45,9 +45,9 @@ public class AdminController {
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	
+
 	public MiniAppCommandBoundary[] getAllMiniAppCommandsHistory() {
-		
+
 		List<MiniAppCommandBoundary> allBoundaries = this.miniAppCommandsService.getAllCommands();
 		return allBoundaries.toArray(new MiniAppCommandBoundary[0]);
 	}
@@ -60,7 +60,7 @@ public class AdminController {
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	
+
 	public MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(@PathVariable("miniAppName") String miniAppName) {
 
 		List<MiniAppCommandBoundary> allBoundaries = this.miniAppCommandsService.getAllMiniAppCommands(miniAppName);
@@ -74,7 +74,7 @@ public class AdminController {
 	 * @param None
 	 * @return Nothing
 	 */
-	
+
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })
 	public void deleteAllCommandsHistory() {
 		this.miniAppCommandsService.deleteAllCommands();

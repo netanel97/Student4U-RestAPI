@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import jakarta.annotation.PostConstruct;
 import superapp.data.SuperAppObjectEntity;
 import superapp.entities.CreatedBy;
 import superapp.entities.Location;
-import superapp.entities.ObjectDetails;
 import superapp.entities.ObjectId;
 import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.UserId;
@@ -54,15 +52,22 @@ public class ObjectsServiceMockup implements ObjectsService {
 	 * @return ObjectBoundary object boundary
 	 */
 	@Override
-	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary objectBoundary) {
-		if (objectBoundary == null) {
+	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary object) {
+		if (object == null) {
 			throw new RuntimeException("ObjectBoundary is null");
 		}
-		SuperAppObjectEntity superAppObjectEntity = this.boundaryToEntity(objectBoundary);
+		if (object.getCreatedBy() == null) {
+			throw new RuntimeException("CreatedBy object is null");
+		}
+		if (object.getCreatedBy().getUserId() == null) {
+			throw new RuntimeException("UserId object is null");
+		}
+
+		SuperAppObjectEntity superAppObjectEntity = this.boundaryToEntity(object);
 
 		superAppObjectEntity.setCreationTimestamp(new Date());
 		superAppObjectEntity.setObjectId(springApplicationName + DELIMITER + UUID.randomUUID().toString());
-
+		
 		this.databaseMockup.put(superAppObjectEntity.getObjectId(), superAppObjectEntity);
 		return this.entityToBoundary(superAppObjectEntity);
 	}
