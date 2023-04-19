@@ -30,7 +30,7 @@ public class ObjectsServiceMockup implements ObjectsService {
 	/**
 	 * this method injects a configuration value of spring
 	 */
-	@Value("${spring.application.name:2023b.LiranSorokin}")
+	@Value("${spring.application.name:2023b.LiranSorokin-Student4U}")
 	public void setSpringApplicationName(String springApllicationName) {
 		this.springApplicationName = springApllicationName;
 	}
