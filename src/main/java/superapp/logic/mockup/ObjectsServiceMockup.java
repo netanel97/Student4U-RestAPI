@@ -30,7 +30,7 @@ public class ObjectsServiceMockup implements ObjectsService {
 	/**
 	 * this method injects a configuration value of spring
 	 */
-	@Value("${spring.application.name:2023b.LiranSorokin-Student4U}")
+	@Value("${spring.application.name:2023b.Liran.Sorokin-Student4U}")
 	public void setSpringApplicationName(String springApllicationName) {
 		this.springApplicationName = springApllicationName;
 	}
@@ -62,11 +62,20 @@ public class ObjectsServiceMockup implements ObjectsService {
 		if (object.getCreatedBy().getUserId() == null) {
 			throw new RuntimeException("UserId object is null");
 		}
+		if(object.getAlias() == null) {
+			throw new RuntimeException("Alias object is null");
+
+		}
+		if(object.getType() == null) {
+			throw new RuntimeException("Type object is null");
+
+		}
 
 		SuperAppObjectEntity superAppObjectEntity = this.boundaryToEntity(object);
 
 		superAppObjectEntity.setCreationTimestamp(new Date());
 		superAppObjectEntity.setObjectId(springApplicationName + DELIMITER + UUID.randomUUID().toString());
+
 		
 		this.databaseMockup.put(superAppObjectEntity.getObjectId(), superAppObjectEntity);
 		return this.entityToBoundary(superAppObjectEntity);
@@ -116,6 +125,8 @@ public class ObjectsServiceMockup implements ObjectsService {
 		}
 		return this.entityToBoundary(existingObject);
 	}
+
+
 
 	/**
 	 * Get specific object from DB

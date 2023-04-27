@@ -1,6 +1,7 @@
 package superapp.data;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import superapp.entities.ObjectDetails;
 
@@ -13,14 +14,15 @@ public class SuperAppObjectEntity {
 	private Date creationTimestamp;
 	private String location;
 	private String createdBy;
-	private ObjectDetails objectDetails;
+	private HashMap<String, Object> objectDetails;
+
 
 	public SuperAppObjectEntity() {
 		super();
 	}
 
 	public SuperAppObjectEntity(String objectId, String type, String alias, boolean active, String location,
-			String createdBy, ObjectDetails objectDetails) {
+			String createdBy, HashMap<String, Object> objectDetails) {
 		super();
 		this.objectId = objectId;
 		this.type = type;
@@ -88,14 +90,12 @@ public class SuperAppObjectEntity {
 		this.createdBy = createdBy;
 	}
 
-	public ObjectDetails getObjectDetails() {
+	public HashMap<String, Object> getObjectDetails() {
 		return objectDetails;
 	}
-
-	public void setObjectDetails(ObjectDetails objectDetails) {
+	public void setObjectDetails(HashMap<String, Object> objectDetails) {
 		this.objectDetails = objectDetails;
 	}
-
 	@Override
 	public String toString() {
 		return "SuperAppObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", active="

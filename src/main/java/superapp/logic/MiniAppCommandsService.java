@@ -5,7 +5,7 @@ import java.util.List;
 import superapp.entities.MiniAppCommandBoundary;
 
 public interface MiniAppCommandsService {
-	Object invokeCommand(MiniAppCommandBoundary command);
+	public Object invokeCommand(MiniAppCommandBoundary command);
 
 	public List<MiniAppCommandBoundary> getAllCommands();
 	
