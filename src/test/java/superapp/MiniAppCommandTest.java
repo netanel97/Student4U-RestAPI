@@ -1,4 +1,4 @@
-package demo;
+package superapp;
 
 public class MiniAppCommandTest {
 

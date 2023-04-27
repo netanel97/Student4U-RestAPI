@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ObjectId {
 
-	private String springApplicationName;
+	private String superapp;
 	private String internalObjectId;
 
 	public ObjectId() {
@@ -18,11 +18,11 @@ public class ObjectId {
 	}
 
 	public String getSuperApp() {
-		return springApplicationName;
+		return superapp;
 	}
 
-	public void setSuperApp(String springApllicationName) {
-		this.springApplicationName = springApllicationName;
+	public void setSuperApp(String superapp) {
+		this.superapp = superapp;
 	}
 
 	public String getInternalObjectId() {
@@ -35,6 +35,6 @@ public class ObjectId {
 
 	@Override
 	public String toString() {
-		return "ObjectId [springApplicationName=" + springApplicationName + ", internalObjectId=" + internalObjectId + "]";
+		return "ObjectId [springApplicationName=" + superapp + ", internalObjectId=" + internalObjectId + "]";
 	}
 }

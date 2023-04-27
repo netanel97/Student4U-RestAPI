@@ -2,7 +2,7 @@ package superapp.entities;
 
 public class UserId {
 
-	private String springApplicationName;
+	private String superapp;
 	private String email;
 
 	public UserId() {
@@ -15,7 +15,7 @@ public class UserId {
 	}
 
 	public String getSuperApp() {
-		return springApplicationName;
+		return superapp;
 	}
 
 	public String getEmail() {
@@ -23,7 +23,7 @@ public class UserId {
 	}
 
 	public void setSuperApp(String springApplicationName) {
-		this.springApplicationName = springApplicationName;
+		this.superapp = springApplicationName;
 	}
 
 	public void setEmail(String email) {
@@ -32,6 +32,6 @@ public class UserId {
 
 	@Override
 	public String toString() {
-		return "UserID [springApplicationName=" + springApplicationName + ", email=" + email + "]";
+		return "UserID [springApplicationName=" + superapp + ", email=" + email + "]";
 	}
 }

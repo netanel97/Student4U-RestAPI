@@ -1,13 +1,15 @@
 package superapp.data;
 
+
 import java.util.Date;
 import java.util.HashMap;
 
-import superapp.entities.ObjectDetails;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collation = "SuperAppObjects")
 public class SuperAppObjectEntity {
-
-	private String objectId;
+	@Id private String objectId;
 	private String type;
 	private String alias;
 	private boolean active;
