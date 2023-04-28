@@ -2,6 +2,7 @@ package superapp;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 import java.util.HashMap;
 
@@ -14,6 +15,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
+import net.bytebuddy.asm.Advice.This;
 import superapp.entities.CreatedBy;
 import superapp.entities.Location;
 import superapp.entities.ObjectId;
@@ -42,7 +44,7 @@ public class SuperAppObjectTest {
 		this.baseUrl = "http://localhost:" + this.port + "/superapp/objects";
 	}
 	
-
+//
 //	@AfterEach
 //
 //	public void tearDown () {
@@ -110,7 +112,7 @@ public class SuperAppObjectTest {
     	/**
     	GIVEN the server is up
         AND the database is contains the specific object requested
-    	 WHEN I GET /superapp/objects/{superapp}/{internalObjectId}
+    	 WHEN I POST /superapp/objects/{superapp}/{internalObjectId}
     	  with  http://localhost:8084/supperapp/objects/2023b.liran.Sorokin/UUID
     	 * “objectId”:{
 		“superapp”: “2023b.LiranSorokin”,
@@ -139,9 +141,78 @@ public class SuperAppObjectTest {
     }
 //    @Test
 //    public void testSuccessfullPut() {
-//    	SuperAppObjectBoundary actual = this.restTemplate.put(this.baseUrl + "/" + this.springApplicationName + "/" + , );
+//       	/**
+//    	GIVEN the server is up
+//        AND the database is contains the specific object requested
+//    	 WHEN I PUT /superapp/objects/{superapp}/{internalObjectId}
+//    	  with  http://localhost:8084/supperapp/objects/2023b.liran.Sorokin/01fa1383-ab45-41a5-8fd2-76585ad6217d
+//    	{
+//			“type”:”put”,
+//			“alias”:”barca”
+//		}
+//		Then the specific object gets updated.
+//    	 */
 //    	
+//    	SuperAppObjectBoundary newSuperAppObjectBoundary = new SuperAppObjectBoundary();
+//        newSuperAppObjectBoundary.setAlias("put");
+//        newSuperAppObjectBoundary.setType("barca");
+//        this.restTemplate.put(this.baseUrl + "/" + this.springApplicationName + "/" + "01fa1383-ab45-41a5-8fd2-76585ad6217d",
+//        		newSuperAppObjectBoundary,
+//        		SuperAppObjectBoundary.class);
+//        assertThat(this.restTemplate
+//                .getForObject(this.baseUrl + "/" + this.springApplicationName + "/" + "01fa1383-ab45-41a5-8fd2-76585ad6217d", SuperAppObjectBoundary.class))
+//            .isNotNull()
+//            .extracting("alias")
+//            .isEqualTo("put");
+//        assertThat(this.restTemplate
+//                .getForObject(this.baseUrl + "/" + this.springApplicationName + "/" + "01fa1383-ab45-41a5-8fd2-76585ad6217d", SuperAppObjectBoundary.class))
+//        .extracting("type")
+//        .isEqualTo("barca");
+//        
+//    }
+    @Test
+    public void testSuccessGetAll() {
+    	
+    	/**
+        GIVEN the server is up
+        AND the database is  empty / not empty
+       
+       WHEN I GET /superapp/objects
+       
+        Then i get all objects
+
+        */
+    	 SuperAppObjectBoundary[] arr = this.restTemplate
+                 .getForObject(this.baseUrl, SuperAppObjectBoundary[].class);
+    	 assertThat(arr).isNotNull();
+
+    }
+   
+//    @Test
+//    public void testSuccessGetSpecific() {
 //    	
+//    	/**
+//        GIVEN the server is up
+//        AND the database contains the specific object requested
+//       
+//       WHEN I GET /superapp/objects/{superapp}/{internalObjectId}
+//       
+//        Then i get the specific object
+//
+//        */
+//    	
+//    	 assertThat(this.restTemplate
+//                 .getForObject(this.baseUrl + "/" + this.springApplicationName + "/" + "01fa1383-ab45-41a5-8fd2-76585ad6217d", SuperAppObjectBoundary.class))
+//             .isNotNull()
+//             .extracting("objectId")
+//             .extracting("superapp")
+//             .isEqualTo(this.springApplicationName);
+//    	 assertThat(this.restTemplate
+//                 .getForObject(this.baseUrl + "/" + this.springApplicationName + "/" + "01fa1383-ab45-41a5-8fd2-76585ad6217d", SuperAppObjectBoundary.class))
+//             .isNotNull()
+//             .extracting("objectId")
+//             .extracting("internalObjectId")
+//             .isEqualTo("01fa1383-ab45-41a5-8fd2-76585ad6217d");
 //    }
     
     
