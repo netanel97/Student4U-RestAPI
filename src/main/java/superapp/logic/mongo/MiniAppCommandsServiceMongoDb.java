@@ -149,7 +149,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return String
      */
     private String toEntityCommandId(CommandId commandId) {
-        System.out.println("command id is" + commandId);
         return springApplicationName + DELIMITER + commandId.getMiniApp() + DELIMITER
                 + commandId.getInternalCommandId();
     }
@@ -178,7 +177,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return CommandId
      */
     private CommandId toBoundaryCommandId(String commandId) {
-        System.out.println("commandId is" + commandId);
         if (commandId != null) {
             CommandId newCommandId = new CommandId();
             String[] attr = commandId.split(DELIMITER);
