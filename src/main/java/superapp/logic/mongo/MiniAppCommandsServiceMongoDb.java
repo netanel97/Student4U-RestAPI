@@ -25,8 +25,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * this method injects a configuration value of spring
      */
     @Value("${spring.application.name:2023b.Liran.Sorokin-Student4U}")
-    public void setSpringApplicationName(String springApllicationName) {
-        this.springApplicationName = springApllicationName;
+    public void setSpringApplicationName(String springApplicationName) {
+        this.springApplicationName = springApplicationName;
     }
 
     @Autowired
