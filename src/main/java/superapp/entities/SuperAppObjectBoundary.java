@@ -1,7 +1,7 @@
 package superapp.entities;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 
 public class SuperAppObjectBoundary {
 
@@ -12,7 +12,7 @@ public class SuperAppObjectBoundary {
 	private Date creationTimestamp;
 	private Location location;
 	private CreatedBy createdBy;
-	private HashMap<String, Object> objectDetails;
+	private Map<String, Object> objectDetails;
 	
 
 	public SuperAppObjectBoundary() {
@@ -20,7 +20,7 @@ public class SuperAppObjectBoundary {
 	}
 
 	public SuperAppObjectBoundary(ObjectId objectId, String type, String alias, Boolean active, Location location,
-			CreatedBy createdBy, HashMap<String, Object> objectDetails) {
+			CreatedBy createdBy, Map<String, Object> objectDetails) {
 		super();
 		this.objectId = objectId;
 		this.type = type;
@@ -92,10 +92,10 @@ public class SuperAppObjectBoundary {
 		this.createdBy = createdBy;
 	}
 
-	public HashMap<String, Object> getObjectDetails() {
+	public Map<String, Object> getObjectDetails() {
 		return objectDetails;
 	}
-	public void setObjectDetails(HashMap<String, Object> objectDetails) {
+	public void setObjectDetails(Map<String, Object> objectDetails) {
 		this.objectDetails = objectDetails;
 	}
 	@Override

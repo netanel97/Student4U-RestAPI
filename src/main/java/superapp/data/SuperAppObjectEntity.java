@@ -2,12 +2,12 @@ package superapp.data;
 
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collation = "SuperAppObjects")
+@Document(collection = "SuperAppObjects")
 public class SuperAppObjectEntity {
 	@Id private String objectId;
 	private String type;
@@ -16,7 +16,7 @@ public class SuperAppObjectEntity {
 	private Date creationTimestamp;
 	private String location;
 	private String createdBy;
-	private HashMap<String, Object> objectDetails;
+	private Map<String, Object> objectDetails;
 
 
 	public SuperAppObjectEntity() {
@@ -24,7 +24,7 @@ public class SuperAppObjectEntity {
 	}
 
 	public SuperAppObjectEntity(String objectId, String type, String alias, boolean active, String location,
-			String createdBy, HashMap<String, Object> objectDetails) {
+			String createdBy, Map<String, Object> objectDetails) {
 		super();
 		this.objectId = objectId;
 		this.type = type;
@@ -92,10 +92,10 @@ public class SuperAppObjectEntity {
 		this.createdBy = createdBy;
 	}
 
-	public HashMap<String, Object> getObjectDetails() {
+	public Map<String, Object> getObjectDetails() {
 		return objectDetails;
 	}
-	public void setObjectDetails(HashMap<String, Object> objectDetails) {
+	public void setObjectDetails(Map<String, Object> objectDetails) {
 		this.objectDetails = objectDetails;
 	}
 	@Override
