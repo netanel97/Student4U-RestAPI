@@ -1,11 +1,15 @@
 package superapp.data;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.Date;
 import java.util.Map;
 
 
+@Document(collection = "MiniAppCommands")
 public class MiniAppCommandEntity {
-	private String commandId;
+	@Id private String commandId;
 	private String command;
 	private String targetObject;
 	private Date invocationTimestamp;
