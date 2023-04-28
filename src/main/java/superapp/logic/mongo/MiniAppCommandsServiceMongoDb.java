@@ -57,9 +57,10 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
         if (command == null) {
             throw new RuntimeException("miniAppCommandBoundary is null");
         }
-        command.getCommandId().setSuperApp(springApplicationName);
         MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
-        // todo - add databaseCrud.save Logic
+        miniAppCommandEntity.setCommandId(springApplicationName + DELIMITER + command.getCommandId().getMiniApp() + DELIMITER + command.getCommandId().getInternalCommandId());
+
+        this.databaseCrud.save(miniAppCommandEntity);
         return this.entityToBoundary(miniAppCommandEntity);
     }
 
@@ -83,7 +84,14 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
     @Override
     public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName) {
         List<MiniAppCommandBoundary> specificCommands = new ArrayList<>();
-        // todo - add getAllMiniAppCommands Logic
+        List<MiniAppCommandBoundary> allCommands = getAllCommands();
+        for (MiniAppCommandBoundary cmd : allCommands)
+        {
+            if (cmd.getCommandId().getMiniApp().equals(miniAppName))
+            {
+                specificCommands.add(cmd);
+            }
+        }
         return specificCommands;
     }
 
@@ -141,6 +149,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return String
      */
     private String toEntityCommandId(CommandId commandId) {
+        System.out.println("command id is" + commandId);
         return springApplicationName + DELIMITER + commandId.getMiniApp() + DELIMITER
                 + commandId.getInternalCommandId();
     }
@@ -169,6 +178,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return CommandId
      */
     private CommandId toBoundaryCommandId(String commandId) {
+        System.out.println("commandId is" + commandId);
         if (commandId != null) {
             CommandId newCommandId = new CommandId();
             String[] attr = commandId.split(DELIMITER);
