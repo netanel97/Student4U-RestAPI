@@ -45,6 +45,14 @@ public class UsersTest {
 //			.delete("http://localhost:" + this.port +"/superapp/admin/users");
 //	}
 
+//	@Test
+//	public void testUsers() throws Exception {
+//		testTheDatabaseIsCleanOnStartup();
+//		testSuccessfullPost();
+//		testSuccessfullPostUsingSpecificUserGet();
+//		testSuccessGetAll();
+//	}
+	
 	@Test
 	public void testTheDatabaseIsCleanOnStartup() throws Exception {
 		/*
@@ -81,29 +89,27 @@ public class UsersTest {
 
 		UserBoundary actualUser = this.restTemplate.postForObject(this.baseUrl, newUserBoundary, UserBoundary.class);
 
-//		String url = this.baseUrl + "/login/" + springApplicationName + "/" + actualUser.getUserId().getEmail();
+		String url = this.baseUrl + "/login/" + springApplicationName + "/" + actualUser.getUserId().getEmail();
 //
 //		
 		// THEN the database contains a single message with the content "hello"
-//		assertThat(this.restTemplate
-//			.getForObject(url, UserBoundary[].class))
-//			.isNotNull();
-//			.usingRecursiveFieldByFieldElementComparatorIgnoringFields("userId")
-//			.extracting("userId")
-//			.extracting("email")
-//			.isEqualTo(actualUser.getUserId().getEmail());
-//		
-//		assertThat(this.restTemplate
-//			.getForObject(url, UserBoundary[].class))
-//			.isNotNull()
-//			.extracting("avatar")
-//			.isEqualTo(actualUser.getAvatar());
-//		
-//		assertThat(this.restTemplate
-//			.getForObject(url, UserBoundary[].class))
-//			.isNotNull()
-//			.extracting("username")
-//			.isEqualTo(actualUser.getUsername());
+		assertThat(this.restTemplate
+			.getForObject(url, UserBoundary.class))
+			.isNotNull()
+			.extracting("userId.email")
+			.isEqualTo(actualUser.getUserId().getEmail());
+		
+		assertThat(this.restTemplate
+			.getForObject(url, UserBoundary.class))
+			.isNotNull()
+			.extracting("avatar")
+			.isEqualTo(actualUser.getAvatar());
+		
+		assertThat(this.restTemplate
+			.getForObject(url, UserBoundary.class))
+			.isNotNull()
+			.extracting("username")
+			.isEqualTo(actualUser.getUsername());
 
 	}
 
