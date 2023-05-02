@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,12 +66,17 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 		if (object.getCreatedBy().getUserId() == null) {
 			throw new RuntimeException("UserId object is null");
 		}
-		if(object.getAlias() == null) {
-			throw new RuntimeException("Alias object is null");
+		
+		if(!checkEmail(object.getCreatedBy().getUserId().getEmail())) {
+			throw new RuntimeException("The email address is invalid");
+		}
+	
+		if(object.getAlias() == null || object.getAlias().isEmpty()) {
+			throw new RuntimeException("Alias object is null or empty");
 
 		}
-		if(object.getType() == null) {
-			throw new RuntimeException("Type object is null");
+		if(object.getType() == null || object.getType().isEmpty()) {
+			throw new RuntimeException("Type object is null or empty");
 
 		}
 
@@ -81,6 +88,29 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 		superAppObjectEntity = this.databaseCrud.save(superAppObjectEntity);
 		return this.entityToBoundary(superAppObjectEntity);
 	}
+	
+	/**
+	 * 
+	 * @param String email
+	 * @return boolean true if the email valid else false
+	 */
+	private boolean checkEmail(String email) {
+		if(email.isEmpty()) {
+			return false;
+		}
+		String regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}";
+
+//	    Pattern pattern = Pattern.compile(regex);  
+//	    Matcher matcher = pattern.matcher(email);  
+//	    return matcher.matches();
+		
+		return Pattern.compile(regex)
+	      .matcher(email)
+	      .matches();	
+		
+
+	}
+
 
 	/**
 	 * Update existing object in the desired fields
@@ -105,11 +135,11 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 			existingObject.setActive(update.getActive());
 			dirtyFlag = true;
 		}
-		if (update.getAlias() != null) {
+		if (update.getAlias() != null ||  !update.getAlias().isEmpty()) {
 			existingObject.setAlias(update.getAlias());
 			dirtyFlag = true;
 		}
-		if (update.getType() != null) {
+		if (update.getType() != null || !update.getType().isEmpty()) {
 			existingObject.setType(update.getType());
 			dirtyFlag = true;
 		}
