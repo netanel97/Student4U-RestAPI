@@ -135,11 +135,11 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 			existingObject.setActive(update.getActive());
 			dirtyFlag = true;
 		}
-		if (update.getAlias() != null ||  !update.getAlias().isEmpty()) {
+		if (update.getAlias() != null &&  !update.getAlias().isEmpty()) {
 			existingObject.setAlias(update.getAlias());
 			dirtyFlag = true;
 		}
-		if (update.getType() != null || !update.getType().isEmpty()) {
+		if (update.getType() != null && !update.getType().isEmpty()) {
 			existingObject.setType(update.getType());
 			dirtyFlag = true;
 		}
