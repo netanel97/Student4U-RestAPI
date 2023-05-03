@@ -1,8 +1,12 @@
 package superapp.data;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "Users")
 public class UserEntity {
 
-	private String userId;
+	@Id private String userId;
 	private UserRole role;
 	private String userName;
 	private String avatar;
