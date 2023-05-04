@@ -68,10 +68,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
         {
         	throw new RuntimeException("The command's internal ID is empty");
         }
-//        else if (command.getCommandId().getSuperApp() == null)
-//        {
-//        	throw new RuntimeException("The command's superApp field is empty");
-//        }
                 
         MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
         miniAppCommandEntity.setCommandId(superapp + DELIMITER + command.getCommandId().getMiniApp() + DELIMITER + command.getCommandId().getInternalCommandId());

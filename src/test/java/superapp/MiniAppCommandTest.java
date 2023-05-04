@@ -15,6 +15,8 @@ import jakarta.annotation.PostConstruct;
 import superapp.entities.CommandId;
 import superapp.entities.InvokedBy;
 import superapp.entities.MiniAppCommandBoundary;
+import superapp.entities.ObjectId;
+import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.UserId;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -41,7 +43,7 @@ public class MiniAppCommandTest {
 	public void tearDown() {
 		this.restTemplate.delete("http://localhost:" + this.port + "/superapp/admin/miniapp");
 	}
-
+	
 	@Test
 	public void testSuccessfullPostUsingSpecificMiniAppCommandGet() {
 		/**
@@ -49,39 +51,35 @@ public class MiniAppCommandTest {
 		 * 
 		 * WHEN I POST /superapp/miniapp/{miniAppName} with
 		 * 
-		 * “type”:”student”, “alias”:”neta”, “active”:true, “location”:{ “lat”:32.2,
+		 * “type”:”student”, “alias”:”neta”, “active”:true,
+		 * “location”:{ “lat”:32.2,
 		 * “lon”:31.2 }, “createdBy”:{ “userId”:{ “superApp”: “2023b.Liran.Sorokin”,
 		 * “email”: “netanelhabas@gmail.com” } }, “objectDetails”:{}
 		 * 
 		 */
 		CommandId commandId = postMiniAppCommand();
 		// THEN the database contains a single object boundary with the content "test"
-
-		MiniAppCommandBoundary[] arr = this.restTemplate.getForObject(this.deleteOrGetUrl + "/{miniAppName}",
-				MiniAppCommandBoundary[].class, commandId.getMiniApp());
+		
+		MiniAppCommandBoundary[] arr = this.restTemplate.getForObject(this.deleteOrGetUrl + "/{miniAppName}", MiniAppCommandBoundary[].class, commandId.getMiniApp());
 		assertThat(arr).isNotNull().isNotEmpty().hasSize(1);
 
 	}
-
 	/**
 	 * This function post a MiniAppCommandBoundary and creates CommandId
-	 * 
 	 * @return CommandId
 	 */
-	// TODO: need to ask Eyal about try catch
 	private CommandId postMiniAppCommand() {
 		MiniAppCommandBoundary newMiniAppCommandBoundary = createMiniAppCommandBoundary();
-		MiniAppCommandBoundary actual = this.restTemplate.postForObject(this.baseUrl + "/someMiniApp",
-				newMiniAppCommandBoundary, MiniAppCommandBoundary.class);
-//		CommandId commandId = actual.getCommandId();
+		MiniAppCommandBoundary actual = this.restTemplate.postForObject(this.baseUrl + "/someMiniApp" , newMiniAppCommandBoundary,
+				MiniAppCommandBoundary.class);
 
 		return actual.getCommandId();
 
 	}
-
+	
 	private MiniAppCommandBoundary createMiniAppCommandBoundary() {
 		MiniAppCommandBoundary newMiniAppCommandBoundary = new MiniAppCommandBoundary();
-
+		
 		newMiniAppCommandBoundary.setCommand("test");
 		newMiniAppCommandBoundary.setInvokedBy(new InvokedBy(new UserId("netanelhabas@gmail.com")));
 		newMiniAppCommandBoundary.setTargetObject(null);
@@ -91,5 +89,72 @@ public class MiniAppCommandTest {
 		return newMiniAppCommandBoundary;
 
 	}
+	
+	@Test
+	public void testSuccessEmptyGetAllCommands() {
 
+		/**
+		 * GIVEN the server is up AND the database is empty
+		 * 
+		 * WHEN I GET /superapp/admin/miniapp
+		 * 
+		 * Then i get an empty array
+		 * 
+		 */
+		MiniAppCommandBoundary[] arr = this.restTemplate.getForObject(this.deleteOrGetUrl, MiniAppCommandBoundary[].class);
+		assertThat(arr).isNotNull().isEmpty();
+	}
+
+	@Test
+	public void testSuccessGetAllCommands() {
+
+		/**
+		 * GIVEN the server is up AND the database is not empty
+		 * 
+		 * WHEN I GET /superapp/admin/miniapp
+		 * 
+		 * Then i get all commands history
+		 * 
+		 */
+		postMiniAppCommand();
+		postMiniAppCommand();
+		MiniAppCommandBoundary[] arr = this.restTemplate.getForObject(this.deleteOrGetUrl, MiniAppCommandBoundary[].class);
+		assertThat(arr).isNotNull().isNotEmpty().hasSize(2);
+	}
+	
+	@Test
+	public void testSuccessDeleteAllCommands() {
+		/**
+		 * GIVEN the server is up AND the database is empty / not empty
+		 * 
+		 * WHEN i DELETE /superapp/admin/miniapp Then i delete all commands history from DB
+		 **/
+
+		CommandId commandId = postMiniAppCommand();
+		MiniAppCommandBoundary[] arr = this.restTemplate.getForObject(this.deleteOrGetUrl, MiniAppCommandBoundary[].class);
+		assertThat(arr).isNotNull().isNotEmpty().hasSize(1);
+		this.restTemplate.delete(this.deleteOrGetUrl);
+		arr = this.restTemplate.getForObject(this.deleteOrGetUrl, MiniAppCommandBoundary[].class);
+		assertThat(arr).isNotNull().isEmpty();
+
+	}
+	
+	@Test
+	public void testSuccessGetAllSpecificMiniAppCommands() {
+
+		/**
+		 * GIVEN the server is up AND the database is not empty
+		 * 
+		 * WHEN I GET /superapp/admin/miniapp/{miniAppName}
+		 * 
+		 * Then i get all objects
+		 * 
+		 */
+		CommandId commandId = postMiniAppCommand();
+		MiniAppCommandBoundary[] specificCommands = this.restTemplate.getForObject(this.deleteOrGetUrl + "/{miniAppName}", MiniAppCommandBoundary[].class, commandId.getMiniApp());
+		assertThat(specificCommands).isNotNull().isNotEmpty().hasSize(1);
+	}
+
+	
+	
 }
