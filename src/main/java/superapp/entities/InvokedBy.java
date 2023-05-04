@@ -1,7 +1,7 @@
 package superapp.entities;
 
 public class InvokedBy {
-	UserId userId;
+	private UserId userId;
 
 	public InvokedBy() {
 		super();

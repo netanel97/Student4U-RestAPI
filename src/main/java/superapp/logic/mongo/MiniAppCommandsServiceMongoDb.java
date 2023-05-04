@@ -16,6 +16,7 @@ import superapp.entities.MiniAppCommandCrud;
 import superapp.entities.ObjectId;
 import superapp.entities.TargetObject;
 import superapp.entities.UserId;
+import superapp.logic.MiniAppCommandNotFoundException;
 import superapp.logic.MiniAppCommandsService;
 
 @Service
@@ -57,16 +58,19 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
 
     @Override
     public Object invokeCommand(MiniAppCommandBoundary command) {
-        if (command.getCommandId() == null ) {
-            throw new RuntimeException("The command's ID is null");
+    	if (command == null) {
+    		throw new MiniAppCommandNotFoundException("The command is null");
+    	}
+    	else if (command.getCommandId() == null ) {
+            throw new MiniAppCommandNotFoundException("The command's ID is null");
         }
         else if (command.getCommand() == null)
         {
-        	throw new RuntimeException("Command string is empty");
+        	throw new MiniAppCommandNotFoundException("Command string is empty");
         }
         else if (command.getCommandId().getInternalCommandId() == null)
         {
-        	throw new RuntimeException("The command's internal ID is empty");
+        	throw new MiniAppCommandNotFoundException("The command's internal ID is empty");
         }
                 
         MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
