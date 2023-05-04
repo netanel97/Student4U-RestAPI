@@ -61,7 +61,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
     	if (command == null) {
     		throw new MiniAppCommandNotFoundException("The command is null");
     	}
-    	else if (command.getCommandId() == null ) {
+    	else if (command.getCommandId() == null) {
             throw new MiniAppCommandNotFoundException("The command's ID is null");
         }
         else if (command.getCommand() == null)
