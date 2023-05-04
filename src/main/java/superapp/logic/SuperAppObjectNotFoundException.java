@@ -21,5 +21,4 @@ public class SuperAppObjectNotFoundException extends RuntimeException {
     public SuperAppObjectNotFoundException(String message, Throwable cause) {
         super(message, cause);
     }
-
 }

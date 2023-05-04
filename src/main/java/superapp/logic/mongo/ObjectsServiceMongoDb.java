@@ -58,25 +58,25 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 	@Override
 	public SuperAppObjectBoundary createObject(SuperAppObjectBoundary object) {
 		if (object == null) {
-			throw new RuntimeException("ObjectBoundary is null");
+			throw new SuperAppObjectNotFoundException("ObjectBoundary is null");
 		}
 		if (object.getCreatedBy() == null) {
-			throw new RuntimeException("CreatedBy object is null");
+			throw new SuperAppObjectNotFoundException("CreatedBy object is null");
 		}
 		if (object.getCreatedBy().getUserId() == null) {
-			throw new RuntimeException("UserId object is null");
+			throw new SuperAppObjectNotFoundException("UserId object is null");
 		}
 		
 		if(!checkEmail(object.getCreatedBy().getUserId().getEmail())) {
-			throw new RuntimeException("The email address is invalid");
+			throw new SuperAppObjectNotFoundException("The email address is invalid");
 		}
 	
 		if(object.getAlias() == null || object.getAlias().isEmpty()) {
-			throw new RuntimeException("Alias object is null or empty");
+			throw new SuperAppObjectNotFoundException("Alias object is null or empty");
 
 		}
 		if(object.getType() == null || object.getType().isEmpty()) {
-			throw new RuntimeException("Type object is null or empty");
+			throw new SuperAppObjectNotFoundException("Type object is null or empty");
 
 		}
 
@@ -128,7 +128,7 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 		SuperAppObjectEntity existingObject = this.databaseCrud.findById(attr)
 				.orElseThrow(()->new SuperAppObjectNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));
 		if (existingObject == null) {
-			throw new RuntimeException("Could not find object by id: " + internalObjectId);
+			throw new SuperAppObjectNotFoundException("Could not find object by id: " + internalObjectId);
 		}
 		boolean dirtyFlag = false;
 		if (update.getActive() != null) {
