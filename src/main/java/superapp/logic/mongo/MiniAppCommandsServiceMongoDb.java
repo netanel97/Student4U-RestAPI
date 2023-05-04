@@ -1,10 +1,7 @@
 package superapp.logic.mongo;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,13 +9,19 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import superapp.data.MiniAppCommandEntity;
-import superapp.entities.*;
+import superapp.entities.CommandId;
+import superapp.entities.InvokedBy;
+import superapp.entities.MiniAppCommandBoundary;
+import superapp.entities.MiniAppCommandCrud;
+import superapp.entities.ObjectId;
+import superapp.entities.TargetObject;
+import superapp.entities.UserId;
 import superapp.logic.MiniAppCommandsService;
 
 @Service
 public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
     private MiniAppCommandCrud databaseCrud;
-    private String springApplicationName;
+    private String superapp;
     private String DELIMITER = "_";
 
     /**
@@ -26,7 +29,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      */
     @Value("${spring.application.name:2023b.Liran.Sorokin-Student4U}")
     public void setSpringApplicationName(String springApplicationName) {
-        this.springApplicationName = springApplicationName;
+        this.superapp = springApplicationName;
     }
 
     @Autowired
@@ -39,7 +42,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      */
     @PostConstruct
     public void init() {
-        System.err.println("******** " + this.springApplicationName);
+        System.err.println("******** " + this.superapp);
     }
 
     /**
@@ -54,11 +57,24 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
 
     @Override
     public Object invokeCommand(MiniAppCommandBoundary command) {
-        if (command == null) {
-            throw new RuntimeException("miniAppCommandBoundary is null");
+        if (command.getCommandId() == null ) {
+            throw new RuntimeException("The command's ID is null");
         }
+        else if (command.getCommand() == null)
+        {
+        	throw new RuntimeException("Command string is empty");
+        }
+        else if (command.getCommandId().getInternalCommandId() == null)
+        {
+        	throw new RuntimeException("The command's internal ID is empty");
+        }
+//        else if (command.getCommandId().getSuperApp() == null)
+//        {
+//        	throw new RuntimeException("The command's superApp field is empty");
+//        }
+                
         MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
-        miniAppCommandEntity.setCommandId(springApplicationName + DELIMITER + command.getCommandId().getMiniApp() + DELIMITER + command.getCommandId().getInternalCommandId());
+        miniAppCommandEntity.setCommandId(superapp + DELIMITER + command.getCommandId().getMiniApp() + DELIMITER + command.getCommandId().getInternalCommandId());
 
         this.databaseCrud.save(miniAppCommandEntity);
         return this.entityToBoundary(miniAppCommandEntity);
@@ -129,7 +145,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return String
      */
     private String toEntityTargetObject(TargetObject targetObject) {
-        return springApplicationName + DELIMITER + targetObject.getObjectId().getInternalObjectId();
+        return superapp + DELIMITER + targetObject.getObjectId().getInternalObjectId();
     }
 
     /**
@@ -139,7 +155,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return String
      */
     private String toEntityInvokedBy(InvokedBy invokedBy) {
-        return springApplicationName + DELIMITER + invokedBy.getUserId().getEmail();
+        return superapp + DELIMITER + invokedBy.getUserId().getEmail();
     }
 
     /**
@@ -149,7 +165,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return String
      */
     private String toEntityCommandId(CommandId commandId) {
-        return springApplicationName + DELIMITER + commandId.getMiniApp() + DELIMITER
+        return superapp + DELIMITER + commandId.getMiniApp() + DELIMITER
                 + commandId.getInternalCommandId();
     }
 

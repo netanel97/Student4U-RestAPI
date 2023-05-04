@@ -160,7 +160,7 @@ public class SuperAppObjectTest {
 		postSuperAppObject();
 		postSuperAppObject();
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(this.baseUrl, SuperAppObjectBoundary[].class);
-		assertThat(arr).isNotNull().isNotEmpty().hasSize(2);
+		assertThat(arr).isNotEmpty().hasSize(2);
 	}
 
 	@Test
