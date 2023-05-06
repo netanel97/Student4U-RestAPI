@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import superapp.logic.DataManagerWithRelationsSupport;
 
-@RestController
+//@RestController
 public class NewSuperAppObjectController {
 	private DataManagerWithRelationsSupport objects;
 

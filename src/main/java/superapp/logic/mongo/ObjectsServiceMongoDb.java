@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,13 +169,7 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 	@Override
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId) {
 		String attr = objectSuperApp + DELIMITER + internalObjectId;
-
-//		SuperAppObjectEntity requestedObject = this.databaseCrud.findById(attr)
-//				.orElseThrow(()->new SuperAppObjectNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));
-//		if (requestedObject == null) {
-//			throw new RuntimeException("Could not find object by id: " + attr);
-//		} else {
-			return this.databaseCrud.findById(attr).
+		return this.databaseCrud.findById(attr).
 					map(this::entityToBoundary);
 					//.orElseThrow(()->new SuperAppObjectNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));
 //		}
