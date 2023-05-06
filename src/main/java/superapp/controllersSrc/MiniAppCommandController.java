@@ -53,11 +53,8 @@ public class MiniAppCommandController {
 	public Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
 			@PathVariable("miniAppName") String miniAppName) {
 
-		UUID uuid = UUID.randomUUID();
-		miniAppCommandBoundary.setInvocationTimestamp(new Date());
 		CommandId newCommandId = new CommandId();
 		newCommandId.setMiniApp(miniAppName);
-		newCommandId.setInternalCommandId(uuid.toString());
 		miniAppCommandBoundary.setCommandId(newCommandId);
 
 		MiniAppCommandBoundary newMiniAppCommandBoundary = (MiniAppCommandBoundary) miniAppCommandsService

@@ -1,7 +1,9 @@
 package superapp.logic.mongo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +63,12 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
     	if (command == null) {
     		throw new MiniAppCommandNotFoundException("The command is null");
     	}
-    	else if (command.getCommandId() == null) {
+    	
+    	UUID uuid = UUID.randomUUID();
+    	command.setInvocationTimestamp(new Date());
+    	command.getCommandId().setInternalCommandId(uuid.toString());
+    	
+    	if (command.getCommandId() == null) {
             throw new MiniAppCommandNotFoundException("The command's ID is null");
         }
     	else if (command.getCommand() == null || command.getCommand().trim().isEmpty())
@@ -72,6 +79,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
         {
         	throw new MiniAppCommandNotFoundException("The command's internal ID is empty");
         }
+    	
                 
         MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
         miniAppCommandEntity.setCommandId(superapp + DELIMITER + command.getCommandId().getMiniApp() + DELIMITER + command.getCommandId().getInternalCommandId());

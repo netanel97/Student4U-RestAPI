@@ -70,8 +70,8 @@ public class MiniAppCommandTest {
 	 */
 	private CommandId postMiniAppCommand() {
 		MiniAppCommandBoundary newMiniAppCommandBoundary = createMiniAppCommandBoundary();
-		MiniAppCommandBoundary actual = this.restTemplate.postForObject(this.baseUrl + "/someMiniApp" , newMiniAppCommandBoundary,
-				MiniAppCommandBoundary.class);
+		MiniAppCommandBoundary actual = this.restTemplate.postForObject(this.baseUrl + "/{miniAppName}" , newMiniAppCommandBoundary,
+				MiniAppCommandBoundary.class, newMiniAppCommandBoundary.getCommandId().getMiniApp());
 
 		return actual.getCommandId();
 
