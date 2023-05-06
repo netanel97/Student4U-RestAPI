@@ -152,7 +152,10 @@ public class SuperAppObjectEntity {
 	public String toString() {
 		return "SuperAppObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", active="
 				+ active + ", creationTimestamp=" + creationTimestamp + ", location=" + location + ", createdBy="
-				+ createdBy + ", objectDetails=" + objectDetails + "]";
+				+ createdBy + ", objectDetails=" + objectDetails + ", parents=" + parents + ", children=" + children
+				+ "]";
 	}
+
+
 
 }

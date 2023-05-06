@@ -74,7 +74,7 @@ public class UsersTest {
 	public void testSuccessfullPost() {
 		/*
 		 * GIVEN the server is up AND the database is empty 
-		 * WHEN I POST with http://localhost:8084/supperapp/users 
+		 * WHEN I POST with http://localhost:8084/superapp/users 
 		 * {
 		 * 		"email": "Liran@gmail.com",
 		 * 		"username":"Liran"

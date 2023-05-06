@@ -61,7 +61,7 @@ public class SuperAppObjectTest {
 		 */
 		ObjectId objectId = postSuperAppObject();
 		// THEN the database contains a single object boundary with the content "test"
-		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{supperapp}/{internalObjectId}",
+		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
 				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
 				.extracting("alias").isEqualTo("test");
 
@@ -104,26 +104,26 @@ public class SuperAppObjectTest {
 		/**
 		 * GIVEN the server is up AND the database is contains the specific object
 		 * requested WHEN I PUT /superapp/objects/{superapp}/{internalObjectId} with
-		 * http://localhost:8084/supperapp/objects/2023b.liran.Sorokin/01fa1383-ab45-41a5-8fd2-76585ad6217d
+		 * http://localhost:8084/superapp/objects/2023b.liran.Sorokin/01fa1383-ab45-41a5-8fd2-76585ad6217d
 		 * { “type”:”put”, “alias”:”barca” } Then the specific object gets updated.
 		 */
 
 		ObjectId objectId = postSuperAppObject();
 		// THEN the database contains a single object boundary with the content "test"
 		SuperAppObjectBoundary superAppObjectBoundary = this.restTemplate.getForObject(
-				this.baseUrl + "/{supperapp}/{internalObjectId}", SuperAppObjectBoundary.class, objectId.getSuperApp(),
+				this.baseUrl + "/{superapp}/{internalObjectId}", SuperAppObjectBoundary.class, objectId.getSuperApp(),
 				objectId.getInternalObjectId());
 		assertThat(superAppObjectBoundary).isNotNull().extracting("objectId").extracting("internalObjectId")
 				.isEqualTo(objectId.getInternalObjectId());
 		superAppObjectBoundary.setAlias("put");
 		superAppObjectBoundary.setType("barca");
-		this.restTemplate.put(this.baseUrl + "/{supperapp}/{internalObjectId}", superAppObjectBoundary,
+		this.restTemplate.put(this.baseUrl + "/{superapp}/{internalObjectId}", superAppObjectBoundary,
 				superAppObjectBoundary.getObjectId().getSuperApp(),
 				superAppObjectBoundary.getObjectId().getInternalObjectId());
-		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{supperapp}/{internalObjectId}",
+		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
 				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
 				.extracting("alias").isEqualTo("put");
-		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{supperapp}/{internalObjectId}",
+		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
 				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId()))
 				.extracting("type").isEqualTo("barca");
 	}
@@ -169,7 +169,7 @@ public class SuperAppObjectTest {
 		 **/
 
 		ObjectId objectId = postSuperAppObject();
-		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{supperapp}/{internalObjectId}",
+		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
 				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
 				.extracting("objectId").extracting("internalObjectId").isEqualTo(objectId.getInternalObjectId());
 		this.restTemplate.delete(this.deleteUrl);

@@ -331,7 +331,7 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 	@Override
 	public void BindAnExistingObjectToExistingChildObject(String superapp, String internalObjectId, SuperAppObjectIdBoundary childId) {
 		SuperAppObjectEntity parent = this.databaseCrud.findById(internalObjectId)
-				.orElseThrow(()->new RuntimeException("could not find origin message by id: " + internalObjectId));
+				.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
 		String attr = childId.getSuperapp() + DELIMITER + childId.getInternalObjectId();//child
 		SuperAppObjectEntity child = this.databaseCrud.findById(attr)
 				.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + attr));
