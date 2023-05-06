@@ -64,9 +64,9 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
     	else if (command.getCommandId() == null) {
             throw new MiniAppCommandNotFoundException("The command's ID is null");
         }
-        else if (command.getCommand() == null)
+    	else if (command.getCommand() == null || command.getCommand().trim().isEmpty())
         {
-        	throw new MiniAppCommandNotFoundException("Command string is empty");
+            throw new MiniAppCommandNotFoundException("Command string is empty");
         }
         else if (command.getCommandId().getInternalCommandId() == null)
         {
@@ -107,6 +107,10 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
             {
                 specificCommands.add(cmd);
             }
+        }
+        if (specificCommands.size() == 0)
+        {
+            throw new MiniAppCommandNotFoundException("either " + miniAppName + " is non-existent or no commands for " + miniAppName + " were found.");
         }
         return specificCommands;
     }
