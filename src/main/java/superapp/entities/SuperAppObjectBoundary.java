@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Map;
 
 public class SuperAppObjectBoundary {
-
+	
 	private ObjectId objectId;
 	private String type;
 	private String alias;

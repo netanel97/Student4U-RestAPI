@@ -3,6 +3,7 @@ package superapp.logic.mongo;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -17,11 +18,12 @@ import superapp.entities.Location;
 import superapp.entities.ObjectId;
 import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.SuperAppObjectCrud;
+import superapp.entities.SuperAppObjectIdBoundary;
 import superapp.entities.UserId;
-import superapp.logic.ObjectsService;
+import superapp.logic.DataManagerWithRelationsSupport;
 import superapp.logic.SuperAppObjectNotFoundException;
 @Service
-public class ObjectsServiceMongoDb implements ObjectsService {
+public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 	private SuperAppObjectCrud databaseCrud;
 	private String springApplicationName;
 	private final String DELIMITER = "_";
@@ -78,12 +80,11 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 			throw new SuperAppObjectNotFoundException("Type object is null or empty");
 
 		}
-
 		SuperAppObjectEntity superAppObjectEntity = this.boundaryToEntity(object);
 
 		superAppObjectEntity.setCreationTimestamp(new Date());
 		superAppObjectEntity.setObjectId(springApplicationName + DELIMITER + UUID.randomUUID().toString());
-		//put it in db
+		
 		superAppObjectEntity = this.databaseCrud.save(superAppObjectEntity);
 		return this.entityToBoundary(superAppObjectEntity);
 	}
@@ -324,6 +325,53 @@ public class ObjectsServiceMongoDb implements ObjectsService {
 		} else {
 			return null;
 		}
+	}
+
+
+	@Override
+	public void BindAnExistingObjectToExistingChildObject(String superapp, String internalObjectId, SuperAppObjectIdBoundary childId) {
+		SuperAppObjectEntity parent = this.databaseCrud.findById(internalObjectId)
+				.orElseThrow(()->new RuntimeException("could not find origin message by id: " + internalObjectId));
+		String attr = childId.getSuperapp() + DELIMITER + childId.getInternalObjectId();//child
+		SuperAppObjectEntity child = this.databaseCrud.findById(attr)
+				.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + attr));
+		
+		if (!child.addParent(parent) || !parent.addChild(child))//failed to add to the Set
+			throw new SuperAppObjectNotFoundException("Could not bind parent object:" + parent + " to child object: " + child);
+
+		this.databaseCrud.save(child);
+		this.databaseCrud.save(parent);
+
+	}
+
+
+	@Override
+	public List<SuperAppObjectBoundary> getAllChildrenOfAnExistingObject(String superapp, String internalObjectId) {
+		SuperAppObjectEntity parent = 
+				  this.databaseCrud
+					.findById(internalObjectId)
+					.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
+		
+		Set<SuperAppObjectEntity> responsesSet = parent.getChildren();
+		return responsesSet
+				.stream() // Stream<MessageEntity>
+				.map(this::entityToBoundary) // Stream<Message>
+				.toList();
+	}
+
+
+	@Override
+	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp, String internalObjectId) {
+		SuperAppObjectEntity child = 
+				  this.databaseCrud
+					.findById(internalObjectId)
+					.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
+		
+		Set<SuperAppObjectEntity> responsesSet = child.getParents();
+		return responsesSet
+				.stream() // Stream<MessageEntity>
+				.map(this::entityToBoundary) // Stream<Message>
+				.toList();
 	}
 	
 }

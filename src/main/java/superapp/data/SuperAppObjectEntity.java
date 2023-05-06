@@ -123,12 +123,12 @@ public class SuperAppObjectEntity {
 		this.children = children;
 	}
 
-	public void addChild(SuperAppObjectEntity child) {
-		this.children.add(child);
+	public boolean addChild(SuperAppObjectEntity child) {
+		return this.children.add(child);
 	}
 
-	public void addParent(SuperAppObjectEntity parent) {
-		this.parents.add(parent);
+	public boolean addParent(SuperAppObjectEntity parent) {
+		return this.parents.add(parent);
 	}
 
 	@Override
