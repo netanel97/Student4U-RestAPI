@@ -14,15 +14,16 @@ import superapp.data.UserRole;
 import superapp.entities.UserBoundary;
 import superapp.entities.UserCrud;
 import superapp.entities.UserId;
+import superapp.logic.UserNotAcceptableException;
 import superapp.logic.UserNotFoundException;
 import superapp.logic.UsersService;
 
 @Service
-public class UsersServiceMongoDb implements UsersService{
-    private UserCrud databaseCrud;
+public class UsersServiceMongoDb implements UsersService {
+	private UserCrud databaseCrud;
 	private String springApplicationName;
 	private final String DELIMITER = "_";
-	
+
 	/**
 	 * this method injects a configuration value of spring
 	 */
@@ -30,8 +31,7 @@ public class UsersServiceMongoDb implements UsersService{
 	public void setSpringApplicationName(String springApplicationName) {
 		this.springApplicationName = springApplicationName;
 	}
-	
-	
+
 	@Autowired
 	public UsersServiceMongoDb(UserCrud userCrud) {
 		this.databaseCrud = userCrud;
@@ -53,27 +53,27 @@ public class UsersServiceMongoDb implements UsersService{
 	 */
 	@Override
 	public UserBoundary createUser(UserBoundary user) {
-		if(user == null) {
-			throw new RuntimeException("UserBoundary is null");
+		if (user == null) {
+			throw new UserNotAcceptableException("UserBoundary is null");
 		}
-		if(user.getUsername() == null || user.getUsername().isBlank()) {
-			throw new RuntimeException("username is null, empty or blank");
+		if (user.getUsername() == null || user.getUsername().isBlank()) {
+			throw new UserNotAcceptableException("Username is null, empty or blank");
 		}
-		if(user.getAvatar() == null || user.getAvatar().isBlank()) {
-			throw new RuntimeException("Avatar is null, empty or blank");
+		if (user.getAvatar() == null || user.getAvatar().isBlank()) {
+			throw new UserNotAcceptableException("Avatar is null, empty or blank");
 		}
-		if(user.getRole() == null) {
-			throw new RuntimeException("Role is null");
+		if (user.getRole() == null) {
+			throw new UserNotAcceptableException("Role is null");
 		}
-		if(!checkEmail(user.getUserId().getEmail())) {
-			throw new RuntimeException("The email address is invalid");
+		if (!checkEmail(user.getUserId().getEmail())) {
+			throw new UserNotAcceptableException("The email address is invalid");
 		}
-		
+
 		UserEntity userEntity = this.boundaryToEntity(user);
-		
-		//put userEntity in DB
+
+		// put userEntity in DB
 		userEntity = this.databaseCrud.save(userEntity);
-		
+
 		return this.entityToBoundary(userEntity);
 	}
 
@@ -87,9 +87,8 @@ public class UsersServiceMongoDb implements UsersService{
 	@Override
 	public Optional<UserBoundary> login(String userSuperApp, String userEmail) {
 		String userId = userSuperApp + DELIMITER + userEmail;
-		
-		return this.databaseCrud.findById(userId).
-				map(this::entityToBoundary);
+
+		return this.databaseCrud.findById(userId).map(this::entityToBoundary);
 	}
 
 	/**
@@ -105,9 +104,10 @@ public class UsersServiceMongoDb implements UsersService{
 		String attr = userSuperApp + DELIMITER + userEmail;
 
 		UserEntity existingUser = this.databaseCrud.findById(attr)
-				.orElseThrow(()->new UserNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));;
+				.orElseThrow(() -> new UserNotFoundException(
+				"Could not update superapp object by id: " + attr + " because it does not exist"));
 		if (existingUser == null) {
-			throw new RuntimeException("Could not find user by email: " + userEmail);
+			throw new UserNotFoundException("Could not find user by email: " + userEmail);
 		}
 		boolean dirtyFlag = false;
 		if (update.getAvatar() != null && !update.getAvatar().isBlank()) {
@@ -120,14 +120,10 @@ public class UsersServiceMongoDb implements UsersService{
 				existingUser.setRole(role);
 				dirtyFlag = true;
 			} catch (Exception e) {
-				throw new RuntimeException("Could not find role: " + update.getRole());
+				throw new UserNotAcceptableException("Bad role inserted. Could not find role: " + update.getRole());
 			}
 		}
-		if (update.getUserId() != null) {
-			existingUser.setUserId(boundaryToStr(update.getUserId()));
-			dirtyFlag = true;
-		}
-		if (update.getUsername() != null && !update.getAvatar().isBlank()) {
+		if (update.getUsername() != null && !update.getUsername().isBlank()) {
 			existingUser.setUserName(update.getUsername());
 			dirtyFlag = true;
 		}
@@ -135,7 +131,7 @@ public class UsersServiceMongoDb implements UsersService{
 			existingUser = this.databaseCrud.save(existingUser);
 		}
 		return this.entityToBoundary(existingUser);
-		
+
 	}
 
 	/**
@@ -145,12 +141,11 @@ public class UsersServiceMongoDb implements UsersService{
 	 */
 	@Override
 	public List<UserBoundary> getAllUsers() {
-		
-		return this.databaseCrud
-	            .findAll() // List<SuperAppObjectBoundary>
-	            .stream() // Stream<SuperAppObjectBoundary>
-	            .map(this::entityToBoundary) // Stream<SuperAppObject>
-	            .toList(); // List<SuperAppObject>
+
+		return this.databaseCrud.findAll() // List<SuperAppObjectBoundary>
+				.stream() // Stream<SuperAppObjectBoundary>
+				.map(this::entityToBoundary) // Stream<SuperAppObject>
+				.toList(); // List<SuperAppObject>
 	}
 
 	/**
@@ -159,26 +154,24 @@ public class UsersServiceMongoDb implements UsersService{
 	 */
 	@Override
 	public void deleteAllUsers() {
-		this.databaseCrud.deleteAll();		
+		this.databaseCrud.deleteAll();
 	}
-	
-	
+
 	/**
 	 * Check if email is valid.
+	 * 
 	 * @param String email
 	 * @return boolean true if the email valid else false
 	 */
 	private boolean checkEmail(String email) {
-		if(email.isEmpty()) {
+		if (email.isEmpty()) {
 			return false;
 		}
 		String regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}";
 
-		return Pattern.compile(regex)
-	      .matcher(email)
-	      .matches();
+		return Pattern.compile(regex).matcher(email).matches();
 	}
-	
+
 	/**
 	 * Convert user entity to user boundary
 	 * 
@@ -245,6 +238,4 @@ public class UsersServiceMongoDb implements UsersService{
 		return springApplicationName + DELIMITER + userId.getEmail();
 	}
 
-	
-	
 }

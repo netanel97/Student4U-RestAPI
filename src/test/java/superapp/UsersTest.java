@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -22,12 +21,6 @@ public class UsersTest {
 	private String baseAdminUrl;
 	private String baseLoginUrl;
 	private int port;
-	private String springApplicationName;
-
-	@Value("${spring.application.name:2023b.Liran.Sorokin-Student4U}")
-	public void setSpringApplicationName(String springApllicationName) {
-		this.springApplicationName = springApllicationName;
-	}
 
 	@LocalServerPort
 	public void setPort(int port) {
