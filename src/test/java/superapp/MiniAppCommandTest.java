@@ -15,8 +15,6 @@ import jakarta.annotation.PostConstruct;
 import superapp.entities.CommandId;
 import superapp.entities.InvokedBy;
 import superapp.entities.MiniAppCommandBoundary;
-import superapp.entities.ObjectId;
-import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.UserId;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
