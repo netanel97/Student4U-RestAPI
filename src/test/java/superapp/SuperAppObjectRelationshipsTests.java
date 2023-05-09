@@ -42,7 +42,7 @@ public class SuperAppObjectRelationshipsTests {
 	}
 
 	@BeforeEach
-//	@AfterEach
+	@AfterEach
 	public void tearDown() {
 		this.restTemplate.delete("http://localhost:" + this.port + "/superapp/admin/objects");
 	}
