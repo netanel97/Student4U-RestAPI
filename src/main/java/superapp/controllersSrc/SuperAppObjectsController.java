@@ -8,18 +8,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import superapp.entities.SuperAppObjectBoundary;
-import superapp.logic.ObjectsService;
+import superapp.logic.ObjectServiceWithPagainationSupport;
 
 @RestController
 public class SuperAppObjectsController {
 
-	private ObjectsService objectsService;
+	private ObjectServiceWithPagainationSupport objectsService;
 
 	@Autowired
-	private void setObjectsService(ObjectsService objectsService) {
+	private void setObjectsService(ObjectServiceWithPagainationSupport objectsService) {
 		this.objectsService = objectsService;
 	}
 
@@ -53,8 +54,11 @@ public class SuperAppObjectsController {
 			RequestMethod.PUT }, consumes = { MediaType.APPLICATION_JSON_VALUE })
 	public void updateAnObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId,
-			@RequestBody SuperAppObjectBoundary updateBoundary) {
-		this.objectsService.updateAnObject(superapp, internalObjectId, updateBoundary);
+			@RequestBody SuperAppObjectBoundary updateBoundary,
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail){
+		this.objectsService.updateAnObject(superapp, internalObjectId, updateBoundary, userSuperapp, userEmail);
+//		this.objectsService.updateAnObject(superapp, internalObjectId, updateBoundary);
 	}
 
 	/**
@@ -70,11 +74,14 @@ public class SuperAppObjectsController {
 	 * @param @PathVariable("InternalObjectId") String internalObjectId
 	 * @return ObjectBoundary.
 	 */
+	//TODO: need to check if required is true/false
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
 			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public SuperAppObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
-			@PathVariable("InternalObjectId") String internalObjectId) {
-		return this.objectsService.getSpecificObject(superapp, internalObjectId)
+			@PathVariable("InternalObjectId") String internalObjectId,
+			@RequestParam(name = "userSuperapp", required = false) String userSuperapp,
+			@RequestParam(name = "userEmail", required = false) String userEmail) {
+		return this.objectsService.getSpecificObject(superapp, internalObjectId,userSuperapp,userEmail)
 				.orElseThrow(() -> new RuntimeException("Could not find object by id: " + internalObjectId));
 	}
 
@@ -90,8 +97,13 @@ public class SuperAppObjectsController {
 	 */
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public SuperAppObjectBoundary[] getAllObjects() {
-		List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects();
+	public SuperAppObjectBoundary[] getAllObjects(@RequestParam(name = "userSuperapp", required = false) String userSuperapp,
+			@RequestParam(name = "userEmail", required = false) String userEmail,
+			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page)  {
+	//	List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects();
+		List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects(userSuperapp,userEmail,size, page) ;
+
 		return allBoundaries.toArray(new SuperAppObjectBoundary[0]);
 	}
 

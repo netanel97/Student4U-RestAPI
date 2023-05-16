@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -21,9 +23,10 @@ import superapp.entities.SuperAppObjectCrud;
 import superapp.entities.SuperAppObjectIdBoundary;
 import superapp.entities.UserId;
 import superapp.logic.DataManagerWithRelationsSupport;
+import superapp.logic.ObjectServiceWithPagainationSupport;
 import superapp.logic.SuperAppObjectNotFoundException;
 @Service
-public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
+public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSupport {
 	private SuperAppObjectCrud databaseCrud;
 	private String springApplicationName;
 	private final String DELIMITER = "_";
@@ -111,7 +114,6 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 
 	}
 
-
 	/**
 	 * Update existing object in the desired fields
 	 * 
@@ -120,11 +122,25 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 	 * @param SuperAppObjectBoundary object boundary to change its attributes
 	 * @return ObjectBoundary object boundary after update
 	 */
+	
+
 	@Override
+	@Deprecated
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
 			SuperAppObjectBoundary update) {
-		String attr = objectSuperApp + DELIMITER + internalObjectId;
 
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+	}
+	
+	
+	//TODO: need to ask eyal about userSuperapp and userEmail...what is the meaning of this 
+	@Override
+	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
+			SuperAppObjectBoundary update, String userSuperapp, String userEmail) {
+		String attr = objectSuperApp + DELIMITER + internalObjectId;
+		
+		
+		
 		SuperAppObjectEntity existingObject = this.databaseCrud.findById(attr)
 				.orElseThrow(()->new SuperAppObjectNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));
 		if (existingObject == null) {
@@ -156,7 +172,11 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 			existingObject = this.databaseCrud.save(existingObject);
 		}
 		return this.entityToBoundary(existingObject);
+		
+		
+		
 	}
+
 
 
 
@@ -168,6 +188,7 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 	 * @return ObjectBoundary requested object boundary
 	 */
 	@Override
+	@Deprecated
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId) {
 		String attr = objectSuperApp + DELIMITER + internalObjectId;
 		return this.databaseCrud.findById(attr).
@@ -176,6 +197,16 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 //		}
 
 	}
+	
+	
+	//TODO: need to ask eyal about userSuperapp and userEmail
+	@Override
+	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId,
+			String userSuperapp, String userEmail) {
+		String attr = objectSuperApp + DELIMITER + internalObjectId;
+		return this.databaseCrud.findById(attr).
+					map(this::entityToBoundary);
+	}
 
 	/**
 	 * Get all objects from DB
@@ -183,19 +214,29 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 	 * @return Array ObjectBoundary[]
 	 */
 	@Override
+	@Deprecated
 	public List<SuperAppObjectBoundary> getAllObjects() {
+//		return this.databaseCrud
+//	            .findAll() // List<SuperAppObjectBoundary>
+//	            .stream() // Stream<SuperAppObjectBoundary>
+//	            .map(this::entityToBoundary) // Stream<SuperAppObject>
+//	            .toList(); // Lis
+
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+
+	}
+	
+	//TODO: need to check with eyal how to sort by attr in class
+	@Override
+	public List<SuperAppObjectBoundary> getAllObjects(String userSuperapp, String userEmail, int size, int page) {
 		return this.databaseCrud
-	            .findAll() // List<SuperAppObjectBoundary>
+	            .findAll(PageRequest.of(page, size,Direction.ASC,"creationTimestamp","objectId.internalObjectId")) // List<SuperAppObjectBoundary>
 	            .stream() // Stream<SuperAppObjectBoundary>
 	            .map(this::entityToBoundary) // Stream<SuperAppObject>
 	            .toList(); // List<SuperAppObject>
-
 	}
+	
 
-	/**
-	 * Delete all objects from DB
-	 * 
-	 */
 	@Override
 	public void deleteAllObjects() {
 		this.databaseCrud.deleteAll();
@@ -327,10 +368,34 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 		}
 	}
 
-
 	@Override
+	@Deprecated
 	public void BindAnExistingObjectToExistingChildObject(String superapp, String internalObjectId, SuperAppObjectIdBoundary childId) {
-		SuperAppObjectEntity parent = this.databaseCrud.findById(internalObjectId)
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+
+
+	}
+
+	@Deprecated
+	@Override
+	public List<SuperAppObjectBoundary> getAllChildrenOfAnExistingObject(String superapp, String internalObjectId) {
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+
+	}
+
+	@Deprecated
+	@Override
+	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp, String internalObjectId) {
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+
+	}
+
+	//TODO ask eyal about userEmail..
+	@Override
+	public void BindAnExistingObjectToExistingChildObject(String superapp, String internalObjectId, SuperAppObjectIdBoundary childId,
+		String userSuperapp, String userEmail) {
+		String attr1 = superapp + DELIMITER + internalObjectId;
+		SuperAppObjectEntity parent = this.databaseCrud.findById(attr1)
 				.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
 		String attr = childId.getSuperapp() + DELIMITER + childId.getInternalObjectId();//child
 		SuperAppObjectEntity child = this.databaseCrud.findById(attr)
@@ -341,15 +406,17 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 
 		this.databaseCrud.save(child);
 		this.databaseCrud.save(parent);
-
+		
 	}
 
 
 	@Override
-	public List<SuperAppObjectBoundary> getAllChildrenOfAnExistingObject(String superapp, String internalObjectId) {
+	public List<SuperAppObjectBoundary> getAllChildrenOfAnExistingObject(String superapp, String internalObjectId,
+			String userSuperapp, String userEmail, int size, int page) {
+		String attr1 = superapp + DELIMITER + internalObjectId;
 		SuperAppObjectEntity parent = 
 				  this.databaseCrud
-					.findById(internalObjectId)
+					.findById(attr1)
 					.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
 		
 		Set<SuperAppObjectEntity> responsesSet = parent.getChildren();
@@ -361,10 +428,12 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 
 
 	@Override
-	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp, String internalObjectId) {
+	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp, String internalObjectId,
+			String userSuperapp, String userEmail, int size, int page) {
+		String attr1 = superapp + DELIMITER + internalObjectId;
 		SuperAppObjectEntity child = 
 				  this.databaseCrud
-					.findById(internalObjectId)
+					.findById(attr1)
 					.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
 		
 		Set<SuperAppObjectEntity> responsesSet = child.getParents();
@@ -373,5 +442,14 @@ public class ObjectsServiceMongoDb implements DataManagerWithRelationsSupport {
 				.map(this::entityToBoundary) // Stream<Message>
 				.toList();
 	}
+
+
+	
+
+
+
+
+
+	
 	
 }

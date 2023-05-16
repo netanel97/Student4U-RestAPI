@@ -58,7 +58,7 @@ public class MiniAppCommandTest {
 		CommandId commandId = postMiniAppCommand();
 		// THEN the database contains a single object boundary with the content "test"
 		
-		MiniAppCommandBoundary[] arr = this.restTemplate.getForObject(this.deleteOrGetUrl + "/{miniAppName}", MiniAppCommandBoundary[].class, commandId.getMiniApp());
+		MiniAppCommandBoundary[] arr = this.restTemplate.getForObject(this.deleteOrGetUrl + "/{miniAppName}", MiniAppCommandBoundary[].class, commandId.getMiniapp());
 		assertThat(arr).isNotNull().isNotEmpty().hasSize(1);
 
 	}
@@ -69,7 +69,7 @@ public class MiniAppCommandTest {
 	private CommandId postMiniAppCommand() {
 		MiniAppCommandBoundary newMiniAppCommandBoundary = createMiniAppCommandBoundary();
 		MiniAppCommandBoundary actual = this.restTemplate.postForObject(this.baseUrl + "/{miniAppName}" , newMiniAppCommandBoundary,
-				MiniAppCommandBoundary.class, newMiniAppCommandBoundary.getCommandId().getMiniApp());
+				MiniAppCommandBoundary.class, newMiniAppCommandBoundary.getCommandId().getMiniapp());
 
 		return actual.getCommandId();
 
@@ -149,7 +149,7 @@ public class MiniAppCommandTest {
 		 * 
 		 */
 		CommandId commandId = postMiniAppCommand();
-		MiniAppCommandBoundary[] specificCommands = this.restTemplate.getForObject(this.deleteOrGetUrl + "/{miniAppName}", MiniAppCommandBoundary[].class, commandId.getMiniApp());
+		MiniAppCommandBoundary[] specificCommands = this.restTemplate.getForObject(this.deleteOrGetUrl + "/{miniAppName}", MiniAppCommandBoundary[].class, commandId.getMiniapp());
 		assertThat(specificCommands).isNotNull().isNotEmpty().hasSize(1);
 	}
 

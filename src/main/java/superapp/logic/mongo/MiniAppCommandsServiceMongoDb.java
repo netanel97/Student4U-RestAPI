@@ -82,7 +82,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
     	
                 
         MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
-        miniAppCommandEntity.setCommandId(superapp + DELIMITER + command.getCommandId().getMiniApp() + DELIMITER + command.getCommandId().getInternalCommandId());
+        miniAppCommandEntity.setCommandId(superapp + DELIMITER + command.getCommandId().getMiniapp() + DELIMITER + command.getCommandId().getInternalCommandId());
 
         this.databaseCrud.save(miniAppCommandEntity);
         return this.entityToBoundary(miniAppCommandEntity);
@@ -111,7 +111,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
         List<MiniAppCommandBoundary> allCommands = getAllCommands();
         for (MiniAppCommandBoundary cmd : allCommands)
         {
-            if (cmd.getCommandId().getMiniApp().equals(miniAppName))
+            if (cmd.getCommandId().getMiniapp().equals(miniAppName))
             {
                 specificCommands.add(cmd);
             }
@@ -177,7 +177,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return String
      */
     private String toEntityCommandId(CommandId commandId) {
-        return superapp + DELIMITER + commandId.getMiniApp() + DELIMITER
+        return superapp + DELIMITER + commandId.getMiniapp() + DELIMITER
                 + commandId.getInternalCommandId();
     }
 
@@ -208,7 +208,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
         if (commandId != null) {
             CommandId newCommandId = new CommandId();
             String[] attr = commandId.split(DELIMITER);
-            newCommandId.setSuperApp(attr[0]);
+            newCommandId.setSuperapp(commandId);
             newCommandId.setMiniApp(attr[1]);
             newCommandId.setInternalCommandId(attr[2]);
             return newCommandId;

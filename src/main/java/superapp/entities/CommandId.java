@@ -2,7 +2,7 @@ package superapp.entities;
 
 public class CommandId {
 
-	private String superApp;
+	private String superapp;
 	private String miniApp;
 	private String internalCommandId;
 	
@@ -17,14 +17,14 @@ public class CommandId {
 	}
 	
 	public String getSuperApp() {
-		return superApp;
+		return superapp;
 	}
 	
-	public void setSuperApp(String springApllicationName) {
-		this.superApp = springApllicationName;
+	public void setSuperapp(String superapp) {
+		this.superapp = superapp;
 	}
 	
-	public String getMiniApp() {
+	public String getMiniapp() {
 		return miniApp;
 	}
 	
@@ -42,7 +42,7 @@ public class CommandId {
 
 	@Override
 	public String toString() {
-		return "CommandId [springApplicationName=" + superApp + ", miniApp=" + miniApp + ", internalCommandId=" + internalCommandId
+		return "CommandId [superapp=" + superapp + ", miniApp=" + miniApp + ", internalCommandId=" + internalCommandId
 				+ "]";
 	}
 	
