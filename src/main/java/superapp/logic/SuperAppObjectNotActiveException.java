@@ -1,5 +1,9 @@
 package superapp.logic;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(code = HttpStatus.NOT_FOUND)
 public class SuperAppObjectNotActiveException extends RuntimeException{
 
 	/**

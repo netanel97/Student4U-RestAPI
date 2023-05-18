@@ -21,9 +21,9 @@ public class SuperAppObjectEntity {
 	private String location;
 	private String createdBy;
 	private Map<String, Object> objectDetails;
-	@DBRef
+	@DBRef(lazy = true)
 	private Set<SuperAppObjectEntity> parents = new HashSet<>();
-	@DBRef
+	@DBRef(lazy = true)
 	private Set<SuperAppObjectEntity> children = new HashSet<>();
 
 	public SuperAppObjectEntity() {

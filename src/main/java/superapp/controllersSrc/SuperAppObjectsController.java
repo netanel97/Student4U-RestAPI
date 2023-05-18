@@ -79,8 +79,8 @@ public class SuperAppObjectsController {
 			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public SuperAppObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId,
-			@RequestParam(name = "userSuperapp", required = false) String userSuperapp,
-			@RequestParam(name = "userEmail", required = false) String userEmail) {
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail) {
 		return this.objectsService.getSpecificObject(superapp, internalObjectId,userSuperapp,userEmail)
 				.orElseThrow(() -> new RuntimeException("Could not find object by id: " + internalObjectId));
 	}
@@ -97,8 +97,9 @@ public class SuperAppObjectsController {
 	 */
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public SuperAppObjectBoundary[] getAllObjects(@RequestParam(name = "userSuperapp", required = false) String userSuperapp,
-			@RequestParam(name = "userEmail", required = false) String userEmail,
+	public SuperAppObjectBoundary[] getAllObjects(
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
 			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page)  {
 	//	List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects();

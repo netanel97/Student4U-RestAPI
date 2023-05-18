@@ -28,8 +28,10 @@ import superapp.entities.UserId;
 import superapp.logic.ObjectServiceWithPagainationSupport;
 import superapp.logic.SuperAppObjectNotActiveException;
 import superapp.logic.SuperAppObjectNotFoundException;
+import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotAcceptableException;
 import superapp.logic.UserNotFoundException;
+
 @Service
 public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSupport {
 	private SuperAppObjectCrud databaseCrud;
@@ -45,13 +47,12 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 		this.springApplicationName = springApplicationName;
 	}
 
-	
 	@Autowired
 	public ObjectsServiceMongoDb(SuperAppObjectCrud superAppObjectCrud, UserCrud userCrud) {
 		this.databaseCrud = superAppObjectCrud;
 		this.userCrud = userCrud;
 	}
-	
+
 	/**
 	 * this method is invoked after values are injected to instance
 	 */
@@ -77,16 +78,16 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 		if (object.getCreatedBy().getUserId() == null) {
 			throw new SuperAppObjectNotFoundException("UserId object is null");
 		}
-		
-		if(!checkEmail(object.getCreatedBy().getUserId().getEmail())) {
+
+		if (!checkEmail(object.getCreatedBy().getUserId().getEmail())) {
 			throw new SuperAppObjectNotFoundException("The email address is invalid");
 		}
-	
-		if(object.getAlias() == null || object.getAlias().isEmpty()) {
+
+		if (object.getAlias() == null || object.getAlias().isEmpty()) {
 			throw new SuperAppObjectNotFoundException("Alias object is null or empty");
 
 		}
-		if(object.getType() == null || object.getType().isEmpty()) {
+		if (object.getType() == null || object.getType().isEmpty()) {
 			throw new SuperAppObjectNotFoundException("Type object is null or empty");
 
 		}
@@ -94,18 +95,18 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 
 		superAppObjectEntity.setCreationTimestamp(new Date());
 		superAppObjectEntity.setObjectId(springApplicationName + DELIMITER + UUID.randomUUID().toString());
-		
+
 		superAppObjectEntity = this.databaseCrud.save(superAppObjectEntity);
 		return this.entityToBoundary(superAppObjectEntity);
 	}
-	
+
 	/**
 	 * 
 	 * @param String email
 	 * @return boolean true if the email valid else false
 	 */
 	private boolean checkEmail(String email) {
-		if(email.isEmpty()) {
+		if (email.isEmpty()) {
 			return false;
 		}
 		String regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}";
@@ -113,11 +114,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 //	    Pattern pattern = Pattern.compile(regex);  
 //	    Matcher matcher = pattern.matcher(email);  
 //	    return matcher.matches();
-		
-		return Pattern.compile(regex)
-	      .matcher(email)
-	      .matches();	
-		
+
+		return Pattern.compile(regex).matcher(email).matches();
 
 	}
 
@@ -129,7 +127,6 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 	 * @param SuperAppObjectBoundary object boundary to change its attributes
 	 * @return ObjectBoundary object boundary after update
 	 */
-	
 
 	@Override
 	@Deprecated
@@ -138,59 +135,51 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 
 		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 	}
-	
-	
+
 	@Override
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
 			SuperAppObjectBoundary update, String userSuperapp, String userEmail) {
 		String attr = objectSuperApp + DELIMITER + internalObjectId;
 		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
-				.orElseThrow(()->new UserNotFoundException("could not find user by id: " + userId));
-		if(user.getRole() == UserRole.SUPERAPP_USER) {
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
 			SuperAppObjectEntity existingObject = this.databaseCrud.findById(attr)
-					.orElseThrow(()->new SuperAppObjectNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));
-			
-			if (existingObject == null) {
-				throw new SuperAppObjectNotFoundException("Could not find object by id: " + internalObjectId);
+					.orElseThrow(() -> new SuperAppObjectNotFoundException(
+							"could not update superapp object by id: " + attr + " because it does not exist"));
+//			if (!existingObject.isActive()) {
+//				throw new SuperAppObjectNotActiveException("Superapp object not active!");
+//			} // TODO: need to ask Eyal if we need to check active on PUT with SUPER APP USER
+			boolean dirtyFlag = false;
+			if (update.getActive() != null) {
+				existingObject.setActive(update.getActive());
+				dirtyFlag = true;
 			}
-			if(existingObject.isActive()) {
-				boolean dirtyFlag = false;
-				if (update.getActive() != null) {
-					existingObject.setActive(update.getActive());
-					dirtyFlag = true;
-				}
-				if (update.getAlias() != null &&  !update.getAlias().isEmpty()) {
-					existingObject.setAlias(update.getAlias());
-					dirtyFlag = true;
-				}
-				if (update.getType() != null && !update.getType().isEmpty()) {
-					existingObject.setType(update.getType());
-					dirtyFlag = true;
-				}
-				if (update.getLocation() != null) {
-					existingObject.setLocation(this.boundaryToStr(update.getLocation()));
-					dirtyFlag = true;
-				}
-				if (update.getObjectDetails() != null) {
-					existingObject.setObjectDetails(update.getObjectDetails());
-					dirtyFlag = true;
-				}
-		
-				if (dirtyFlag) {
-					existingObject = this.databaseCrud.save(existingObject);
-				}
-				return this.entityToBoundary(existingObject);
+			if (update.getAlias() != null && !update.getAlias().isEmpty()) {
+				existingObject.setAlias(update.getAlias());
+				dirtyFlag = true;
 			}
-			else {
-				throw new SuperAppObjectNotActiveException("Superapp object not active!");
+			if (update.getType() != null && !update.getType().isEmpty()) {
+				existingObject.setType(update.getType());
+				dirtyFlag = true;
 			}
-		}
-		else {
-			throw new UserNotAcceptableException("User doesn't have permissions!");
+			if (update.getLocation() != null) {
+				existingObject.setLocation(this.boundaryToStr(update.getLocation()));
+				dirtyFlag = true;
+			}
+			if (update.getObjectDetails() != null) {
+				existingObject.setObjectDetails(update.getObjectDetails());
+				dirtyFlag = true;
+			}
+
+			if (dirtyFlag) {
+				existingObject = this.databaseCrud.save(existingObject);
+			}
+			return this.entityToBoundary(existingObject);
+		} else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
 	}
-
 
 	/**
 	 * Get specific object from DB
@@ -203,27 +192,34 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 	@Deprecated
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId) {
 		String attr = objectSuperApp + DELIMITER + internalObjectId;
-		return this.databaseCrud.findById(attr).
-					map(this::entityToBoundary);
-					//.orElseThrow(()->new SuperAppObjectNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));
+		return this.databaseCrud.findById(attr).map(this::entityToBoundary);
+		// .orElseThrow(()->new SuperAppObjectNotFoundException("could not update
+		// superapp object by id: " + attr + " because it does not exist"));
 //		}
 
 	}
-	
-	
+
 	@Override
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId,
 			String userSuperapp, String userEmail) {
 		String attr = objectSuperApp + DELIMITER + internalObjectId;
 		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
-				.orElseThrow(()->new UserNotFoundException("could not find user by id: " + userId));
-		if(user.getRole() == UserRole.SUPERAPP_USER) {
-			return this.databaseCrud.findById(attr).
-					map(this::entityToBoundary);
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		SuperAppObjectEntity superAppObjectEntity = this.databaseCrud.findById(attr)
+				.orElseThrow(() -> new SuperAppObjectNotFoundException("Could not find superapp with id: " + attr));
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return Optional.of(superAppObjectEntity).map(this::entityToBoundary);
+		}else if (user.getRole() == UserRole.MINIAPP_USER) {
+			if(superAppObjectEntity.isActive()) {
+				return Optional.of(superAppObjectEntity).map(this::entityToBoundary);
+			}
+			else {
+				throw new SuperAppObjectNotActiveException("Supper app object is not active");
+			}
 		}
 		else {
-			throw new UserNotAcceptableException("User doesn't have permissions!");
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
 	}
 
@@ -244,28 +240,127 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 
 	}
-	
+
 	@Override
 	public List<SuperAppObjectBoundary> getAllObjects(String userSuperapp, String userEmail, int size, int page) {
 		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
-				.orElseThrow(()->new UserNotFoundException("could not find user by id: " + userId));
-		if(user.getRole() == UserRole.SUPERAPP_USER) {
-			return this.databaseCrud
-		            .findAll(PageRequest.of(page, size,Direction.ASC,"creationTimestamp","objectId")) // List<SuperAppObjectBoundary>
-		            .stream() // Stream<SuperAppObjectBoundary>
-		            .map(this::entityToBoundary) // Stream<SuperAppObject>
-		            .toList(); // List<SuperAppObject>
-		}
-		else {
-			throw new UserNotAcceptableException("User doesn't have permissions!");
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud.findAll(PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		}else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud.findAllByActiveIsTrue(true,PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		} else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
 	}
-	
 
 	@Override
 	public void deleteAllObjects() {
 		this.databaseCrud.deleteAll();
+	}
+
+	@Override
+	public void BindAnExistingObjectToExistingChildObject(String superapp, String internalObjectId,
+			SuperAppObjectIdBoundary childId, String userSuperapp, String userEmail) {
+		String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			String attr1 = superapp + DELIMITER + internalObjectId;
+			SuperAppObjectEntity parent = this.databaseCrud.findById(attr1)
+					.orElseThrow(() -> new SuperAppObjectNotFoundException(
+							"could not find origin message by id: " + internalObjectId));
+			String attr = childId.getSuperapp() + DELIMITER + childId.getInternalObjectId();// child
+			SuperAppObjectEntity child = this.databaseCrud.findById(attr).orElseThrow(
+					() -> new SuperAppObjectNotFoundException("could not find origin message by id: " + attr));
+			
+			
+//			if (!child.isActive() || !parent.isActive()) {
+//				throw new SuperAppObjectNotActiveException("At least one of the superapp objects is not active!");
+//			}
+//			// TODO: need to ask Eyal if we need to check active on PUT with SUPER APP USER
+
+			if (!child.addParent(parent) || !parent.addChild(child))// failed to add to the Set
+				throw new SuperAppObjectNotFoundException(
+						"Could not bind parent object:" + parent + " to child object: " + child);
+
+			this.databaseCrud.save(child);
+			this.databaseCrud.save(parent);
+		} else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
+		}
+
+	}
+
+	@Override
+	public List<SuperAppObjectBoundary> getAllChildrenOfAnExistingObject(String superapp, String internalObjectId,
+			String userSuperapp, String userEmail, int size, int page) {
+		String userId = userSuperapp + DELIMITER + userEmail;
+		String attr = superapp + DELIMITER + internalObjectId;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			SuperAppObjectEntity parent = this.databaseCrud.findById(attr)
+					.orElseThrow(() -> new SuperAppObjectNotFoundException(
+							"could not find origin message by id: " + internalObjectId));
+
+			Set<SuperAppObjectEntity> responsesSet = parent.getChildren();
+			return responsesSet.stream() // Stream<MessageEntity>
+					.map(this::entityToBoundary) // Stream<Message>
+					.toList();
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			SuperAppObjectEntity parent = this.databaseCrud.findById(attr)
+					.orElseThrow(() -> new SuperAppObjectNotFoundException(
+							"could not find origin message by id: " + internalObjectId));
+			if (!parent.isActive()) {
+				throw new SuperAppObjectNotActiveException("Supper app object is not active");
+			}
+			Set<SuperAppObjectEntity> superAppObjectEntities = parent.getChildren();
+			return superAppObjectEntities.stream() // Stream<MessageEntity>
+					.map(this::entityToBoundary) // Stream<Message>
+					.toList();
+		} else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
+		}
+	}
+
+	@Override
+	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp, String internalObjectId,
+			String userSuperapp, String userEmail, int size, int page) {
+		String userId = userSuperapp + DELIMITER + userEmail;
+		String attr = superapp + DELIMITER + internalObjectId;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			SuperAppObjectEntity child = this.databaseCrud.findById(attr)
+					.orElseThrow(() -> new SuperAppObjectNotFoundException(
+							"could not find origin message by id: " + internalObjectId));
+			Set<SuperAppObjectEntity> responsesSet = child.getParents();
+			return responsesSet.stream() // Stream<MessageEntity>
+					.map(this::entityToBoundary) // Stream<Message>
+					.toList();
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			SuperAppObjectEntity child = this.databaseCrud.findById(attr)
+					.orElseThrow(() -> new SuperAppObjectNotFoundException(
+							"could not find origin message by id: " + internalObjectId));
+			if (child.isActive()) {
+				throw new SuperAppObjectNotActiveException("Supper app object is not active");
+			}
+			Set<SuperAppObjectEntity> responsesSet = child.getParents();
+			return responsesSet.stream() // Stream<MessageEntity>
+					.map(this::entityToBoundary) // Stream<Message>
+					.toList();
+
+		} else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
+		}
 	}
 
 	/**
@@ -394,66 +489,4 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 		}
 	}
 
-	//TODO ask eyal about userEmail..
-	@Override
-	public void BindAnExistingObjectToExistingChildObject(String superapp, String internalObjectId, SuperAppObjectIdBoundary childId,
-		String userSuperapp, String userEmail) {
-		String attr1 = superapp + DELIMITER + internalObjectId;
-		SuperAppObjectEntity parent = this.databaseCrud.findById(attr1)
-				.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
-		String attr = childId.getSuperapp() + DELIMITER + childId.getInternalObjectId();//child
-		SuperAppObjectEntity child = this.databaseCrud.findById(attr)
-				.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + attr));
-		
-		if (!child.addParent(parent) || !parent.addChild(child))//failed to add to the Set
-			throw new SuperAppObjectNotFoundException("Could not bind parent object:" + parent + " to child object: " + child);
-
-		this.databaseCrud.save(child);
-		this.databaseCrud.save(parent);
-		
-	}
-
-
-	@Override
-	public List<SuperAppObjectBoundary> getAllChildrenOfAnExistingObject(String superapp, String internalObjectId,
-			String userSuperapp, String userEmail, int size, int page) {
-		String attr1 = superapp + DELIMITER + internalObjectId;
-		SuperAppObjectEntity parent = 
-				  this.databaseCrud
-					.findById(attr1)
-					.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
-		
-		Set<SuperAppObjectEntity> responsesSet = parent.getChildren();
-		return responsesSet
-				.stream() // Stream<MessageEntity>
-				.map(this::entityToBoundary) // Stream<Message>
-				.toList();
-	}
-
-
-	@Override
-	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp, String internalObjectId,
-			String userSuperapp, String userEmail, int size, int page) {
-		String attr1 = superapp + DELIMITER + internalObjectId;
-		SuperAppObjectEntity child = 
-				  this.databaseCrud
-					.findById(attr1)
-					.orElseThrow(()->new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
-		
-		Set<SuperAppObjectEntity> responsesSet = child.getParents();
-		return responsesSet
-				.stream() // Stream<MessageEntity>
-				.map(this::entityToBoundary) // Stream<Message>
-				.toList();
-	}
-
-
-	
-
-
-
-
-
-	
-	
 }
