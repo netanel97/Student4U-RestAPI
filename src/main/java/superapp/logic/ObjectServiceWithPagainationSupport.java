@@ -6,7 +6,7 @@ import java.util.Optional;
 import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.SuperAppObjectIdBoundary;
 
-public interface ObjectServiceWithPagainationSupport extends DataManagerWithRelationsSupport{
+public interface ObjectServiceWithPagainationSupport extends ObjectsService{
 
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
 			SuperAppObjectBoundary update,String userSuperapp,String userEmail);
@@ -25,12 +25,4 @@ public interface ObjectServiceWithPagainationSupport extends DataManagerWithRela
 	
 	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp,String internalObjectId,String userSuperapp,String userEmail,int size,int page);
 
-
-	
-
-
-
-
-
-	
 }

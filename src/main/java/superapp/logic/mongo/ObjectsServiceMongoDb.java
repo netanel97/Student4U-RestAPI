@@ -15,19 +15,25 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import superapp.data.SuperAppObjectEntity;
+import superapp.data.UserEntity;
+import superapp.data.UserRole;
 import superapp.entities.CreatedBy;
 import superapp.entities.Location;
 import superapp.entities.ObjectId;
 import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.SuperAppObjectCrud;
 import superapp.entities.SuperAppObjectIdBoundary;
+import superapp.entities.UserCrud;
 import superapp.entities.UserId;
-import superapp.logic.DataManagerWithRelationsSupport;
 import superapp.logic.ObjectServiceWithPagainationSupport;
+import superapp.logic.SuperAppObjectNotActiveException;
 import superapp.logic.SuperAppObjectNotFoundException;
+import superapp.logic.UserNotAcceptableException;
+import superapp.logic.UserNotFoundException;
 @Service
 public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSupport {
 	private SuperAppObjectCrud databaseCrud;
+	private UserCrud userCrud;
 	private String springApplicationName;
 	private final String DELIMITER = "_";
 
@@ -41,8 +47,9 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 
 	
 	@Autowired
-	public ObjectsServiceMongoDb(SuperAppObjectCrud superAppObjectCrud) {
+	public ObjectsServiceMongoDb(SuperAppObjectCrud superAppObjectCrud, UserCrud userCrud) {
 		this.databaseCrud = superAppObjectCrud;
+		this.userCrud = userCrud;
 	}
 	
 	/**
@@ -133,51 +140,56 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 	}
 	
 	
-	//TODO: need to ask eyal about userSuperapp and userEmail...what is the meaning of this 
 	@Override
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
 			SuperAppObjectBoundary update, String userSuperapp, String userEmail) {
 		String attr = objectSuperApp + DELIMITER + internalObjectId;
+		String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(()->new UserNotFoundException("could not find user by id: " + userId));
+		if(user.getRole() == UserRole.SUPERAPP_USER) {
+			SuperAppObjectEntity existingObject = this.databaseCrud.findById(attr)
+					.orElseThrow(()->new SuperAppObjectNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));
+			
+			if (existingObject == null) {
+				throw new SuperAppObjectNotFoundException("Could not find object by id: " + internalObjectId);
+			}
+			if(existingObject.isActive()) {
+				boolean dirtyFlag = false;
+				if (update.getActive() != null) {
+					existingObject.setActive(update.getActive());
+					dirtyFlag = true;
+				}
+				if (update.getAlias() != null &&  !update.getAlias().isEmpty()) {
+					existingObject.setAlias(update.getAlias());
+					dirtyFlag = true;
+				}
+				if (update.getType() != null && !update.getType().isEmpty()) {
+					existingObject.setType(update.getType());
+					dirtyFlag = true;
+				}
+				if (update.getLocation() != null) {
+					existingObject.setLocation(this.boundaryToStr(update.getLocation()));
+					dirtyFlag = true;
+				}
+				if (update.getObjectDetails() != null) {
+					existingObject.setObjectDetails(update.getObjectDetails());
+					dirtyFlag = true;
+				}
 		
-		
-		
-		SuperAppObjectEntity existingObject = this.databaseCrud.findById(attr)
-				.orElseThrow(()->new SuperAppObjectNotFoundException("could not update superapp object by id: " + attr + " because it does not exist"));
-		if (existingObject == null) {
-			throw new SuperAppObjectNotFoundException("Could not find object by id: " + internalObjectId);
+				if (dirtyFlag) {
+					existingObject = this.databaseCrud.save(existingObject);
+				}
+				return this.entityToBoundary(existingObject);
+			}
+			else {
+				throw new SuperAppObjectNotActiveException("Superapp object not active!");
+			}
 		}
-		boolean dirtyFlag = false;
-		if (update.getActive() != null) {
-			existingObject.setActive(update.getActive());
-			dirtyFlag = true;
+		else {
+			throw new UserNotAcceptableException("User doesn't have permissions!");
 		}
-		if (update.getAlias() != null &&  !update.getAlias().isEmpty()) {
-			existingObject.setAlias(update.getAlias());
-			dirtyFlag = true;
-		}
-		if (update.getType() != null && !update.getType().isEmpty()) {
-			existingObject.setType(update.getType());
-			dirtyFlag = true;
-		}
-		if (update.getLocation() != null) {
-			existingObject.setLocation(this.boundaryToStr(update.getLocation()));
-			dirtyFlag = true;
-		}
-		if (update.getObjectDetails() != null) {
-			existingObject.setObjectDetails(update.getObjectDetails());
-			dirtyFlag = true;
-		}
-
-		if (dirtyFlag) {
-			existingObject = this.databaseCrud.save(existingObject);
-		}
-		return this.entityToBoundary(existingObject);
-		
-		
-		
 	}
-
-
 
 
 	/**
@@ -199,13 +211,20 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 	}
 	
 	
-	//TODO: need to ask eyal about userSuperapp and userEmail
 	@Override
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId,
 			String userSuperapp, String userEmail) {
 		String attr = objectSuperApp + DELIMITER + internalObjectId;
-		return this.databaseCrud.findById(attr).
+		String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(()->new UserNotFoundException("could not find user by id: " + userId));
+		if(user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud.findById(attr).
 					map(this::entityToBoundary);
+		}
+		else {
+			throw new UserNotAcceptableException("User doesn't have permissions!");
+		}
 	}
 
 	/**
@@ -226,14 +245,21 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 
 	}
 	
-	//TODO: need to check with eyal how to sort by attr in class
 	@Override
 	public List<SuperAppObjectBoundary> getAllObjects(String userSuperapp, String userEmail, int size, int page) {
-		return this.databaseCrud
-	            .findAll(PageRequest.of(page, size,Direction.ASC,"creationTimestamp","objectId.internalObjectId")) // List<SuperAppObjectBoundary>
-	            .stream() // Stream<SuperAppObjectBoundary>
-	            .map(this::entityToBoundary) // Stream<SuperAppObject>
-	            .toList(); // List<SuperAppObject>
+		String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(()->new UserNotFoundException("could not find user by id: " + userId));
+		if(user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud
+		            .findAll(PageRequest.of(page, size,Direction.ASC,"creationTimestamp","objectId")) // List<SuperAppObjectBoundary>
+		            .stream() // Stream<SuperAppObjectBoundary>
+		            .map(this::entityToBoundary) // Stream<SuperAppObject>
+		            .toList(); // List<SuperAppObject>
+		}
+		else {
+			throw new UserNotAcceptableException("User doesn't have permissions!");
+		}
 	}
 	
 
@@ -366,28 +392,6 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 		} else {
 			return null;
 		}
-	}
-
-	@Override
-	@Deprecated
-	public void BindAnExistingObjectToExistingChildObject(String superapp, String internalObjectId, SuperAppObjectIdBoundary childId) {
-		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
-
-
-	}
-
-	@Deprecated
-	@Override
-	public List<SuperAppObjectBoundary> getAllChildrenOfAnExistingObject(String superapp, String internalObjectId) {
-		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
-
-	}
-
-	@Deprecated
-	@Override
-	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp, String internalObjectId) {
-		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
-
 	}
 
 	//TODO ask eyal about userEmail..
