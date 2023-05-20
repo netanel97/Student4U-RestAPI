@@ -2,7 +2,6 @@ package superapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 import java.util.HashMap;
 
 import org.junit.jupiter.api.AfterEach;
@@ -26,6 +25,7 @@ public class SuperAppObjectTest {
 	private String baseUrl;
 	private String deleteUrl;
 	private int port;
+	private final String DELIMITER = "_";
 
 	@LocalServerPort
 	public void setPort(int port) {
@@ -45,6 +45,7 @@ public class SuperAppObjectTest {
 		this.restTemplate.delete("http://localhost:" + this.port + "/superapp/admin/objects");
 	}
 
+	//TODO: need to check active and permission if not
 	@Test
 	public void testSuccessfullPostUsingSpecificSuperappObjectGet() {
 		/**
@@ -61,10 +62,11 @@ public class SuperAppObjectTest {
 		 */
 		ObjectId objectId = postSuperAppObject();
 		// THEN the database contains a single object boundary with the content "test"
-		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
+		//TODO: check with user permission and without user permission
+		assertThat(this.restTemplate.getForObject(
+				this.baseUrl + "/{superapp}/{internalObjectId}" + "?userSuperapp={userSuperapp}&userEmail={userEmail}",
 				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
-				.extracting("alias").isEqualTo("test");
-
+				.extracting("objectId").isEqualTo(objectId.getSuperApp() + DELIMITER + objectId.getInternalObjectId());
 	}
 
 	/**
@@ -72,7 +74,6 @@ public class SuperAppObjectTest {
 	 * 
 	 * @return ObjectId
 	 */
-	// TODO: need to ask Eyal about try catch
 	private ObjectId postSuperAppObject() {
 		SuperAppObjectBoundary newSuperAppObjectBoundary = createObjectBoundary();
 		SuperAppObjectBoundary actual = this.restTemplate.postForObject(this.baseUrl, newSuperAppObjectBoundary,
@@ -86,7 +87,6 @@ public class SuperAppObjectTest {
 	 * 
 	 * @return SuperAppObjectBoundary
 	 */
-
 	private SuperAppObjectBoundary createObjectBoundary() {
 		SuperAppObjectBoundary newSuperAppObjectBoundary = new SuperAppObjectBoundary();
 		newSuperAppObjectBoundary.setAlias("test");
@@ -99,6 +99,7 @@ public class SuperAppObjectTest {
 
 	}
 
+	//TODO: need to check permission
 	@Test
 	public void testSuccessPut() {
 		/**
@@ -111,8 +112,8 @@ public class SuperAppObjectTest {
 		ObjectId objectId = postSuperAppObject();
 		// THEN the database contains a single object boundary with the content "test"
 		SuperAppObjectBoundary superAppObjectBoundary = this.restTemplate.getForObject(
-				this.baseUrl + "/{superapp}/{internalObjectId}", SuperAppObjectBoundary.class, objectId.getSuperApp(),
-				objectId.getInternalObjectId());
+				this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
+				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId());
 		assertThat(superAppObjectBoundary).isNotNull().extracting("objectId").extracting("internalObjectId")
 				.isEqualTo(objectId.getInternalObjectId());
 		superAppObjectBoundary.setAlias("put");
@@ -128,6 +129,7 @@ public class SuperAppObjectTest {
 				.extracting("type").isEqualTo("barca");
 	}
 
+	//TODO: need to check active and permission if not
 	@Test
 	public void testSuccessEmptyGetAll() {
 
@@ -139,10 +141,14 @@ public class SuperAppObjectTest {
 		 * Then i get an empty array
 		 * 
 		 */
-		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(this.baseUrl, SuperAppObjectBoundary[].class);
+		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
+				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
+				SuperAppObjectBoundary[].class);
 		assertThat(arr).isNotNull().isEmpty();
 	}
 
+	
+	//TODO: need to check active and permission if not
 	@Test
 	public void testSuccessGetAll() {
 
@@ -156,7 +162,9 @@ public class SuperAppObjectTest {
 		 */
 		postSuperAppObject();
 		postSuperAppObject();
-		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(this.baseUrl, SuperAppObjectBoundary[].class);
+		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
+				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
+				SuperAppObjectBoundary[].class);
 		assertThat(arr).isNotEmpty().hasSize(2);
 	}
 

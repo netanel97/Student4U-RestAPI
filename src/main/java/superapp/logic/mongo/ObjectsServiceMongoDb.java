@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -210,15 +212,13 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 				.orElseThrow(() -> new SuperAppObjectNotFoundException("Could not find superapp with id: " + attr));
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
 			return Optional.of(superAppObjectEntity).map(this::entityToBoundary);
-		}else if (user.getRole() == UserRole.MINIAPP_USER) {
-			if(superAppObjectEntity.isActive()) {
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			if (superAppObjectEntity.isActive()) {
 				return Optional.of(superAppObjectEntity).map(this::entityToBoundary);
-			}
-			else {
+			} else {
 				throw new SuperAppObjectNotActiveException("Supper app object is not active");
 			}
-		}
-		else {
+		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
 	}
@@ -251,9 +251,12 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 					.stream() // Stream<SuperAppObjectBoundary>
 					.map(this::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
-		}else if (user.getRole() == UserRole.MINIAPP_USER) {
-			return this.databaseCrud.findAllByActiveIsTrue(true,PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud
+					.findAllByActiveIsTrue(true,
+							PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
 					.stream() // Stream<SuperAppObjectBoundary>
+					.filter(object->object.isActive())
 					.map(this::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 		} else {
@@ -280,8 +283,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 			String attr = childId.getSuperapp() + DELIMITER + childId.getInternalObjectId();// child
 			SuperAppObjectEntity child = this.databaseCrud.findById(attr).orElseThrow(
 					() -> new SuperAppObjectNotFoundException("could not find origin message by id: " + attr));
-			
-			
+
 //			if (!child.isActive() || !parent.isActive()) {
 //				throw new SuperAppObjectNotActiveException("At least one of the superapp objects is not active!");
 //			}
@@ -290,7 +292,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 			if (!child.addParent(parent) || !parent.addChild(child))// failed to add to the Set
 				throw new SuperAppObjectNotFoundException(
 						"Could not bind parent object:" + parent + " to child object: " + child);
-
+			parent.addChild(child);
+			child.addParent(parent);
 			this.databaseCrud.save(child);
 			this.databaseCrud.save(parent);
 		} else {
@@ -322,10 +325,9 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 			if (!parent.isActive()) {
 				throw new SuperAppObjectNotActiveException("Supper app object is not active");
 			}
-			Set<SuperAppObjectEntity> superAppObjectEntities = parent.getChildren();
-			return superAppObjectEntities.stream() // Stream<MessageEntity>
-					.map(this::entityToBoundary) // Stream<Message>
-					.toList();
+			Set<SuperAppObjectEntity> superAppObjectEntities = parent.getChildren().stream()
+					.filter(child -> child.isActive()).collect(Collectors.toSet());
+			return superAppObjectEntities.stream().map(this::entityToBoundary).toList();
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
@@ -353,7 +355,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 			if (child.isActive()) {
 				throw new SuperAppObjectNotActiveException("Supper app object is not active");
 			}
-			Set<SuperAppObjectEntity> responsesSet = child.getParents();
+			Set<SuperAppObjectEntity> responsesSet = child.getParents().stream().filter(parent -> parent.isActive())
+					.collect(Collectors.toSet());
 			return responsesSet.stream() // Stream<MessageEntity>
 					.map(this::entityToBoundary) // Stream<Message>
 					.toList();
