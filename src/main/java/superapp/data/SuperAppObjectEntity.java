@@ -12,13 +12,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "SuperAppObjects")
 public class SuperAppObjectEntity {
-	
-	@Id private String objectId;
+
+	@Id
+	private String objectId;
 	private String type;
 	private String alias;
 	private boolean active;
 	private Date creationTimestamp;
-	private String location;
+	private Double lat;
+	private Double lng;
 	private String createdBy;
 	private Map<String, Object> objectDetails;
 	@DBRef(lazy = true)
@@ -30,7 +32,7 @@ public class SuperAppObjectEntity {
 		super();
 	}
 
-	public SuperAppObjectEntity(String objectId, String type, String alias, boolean active, String location,
+	public SuperAppObjectEntity(String objectId, String type, String alias, boolean active, Double lat, Double lng,
 			String createdBy, Map<String, Object> objectDetails) {
 		super();
 		this.objectId = objectId;
@@ -38,7 +40,9 @@ public class SuperAppObjectEntity {
 		this.alias = alias;
 		this.active = active;
 		this.creationTimestamp = new Date();
-		this.location = location;
+		this.lat = lat;
+		this.lng = lng;
+//		this.location = location;
 		this.createdBy = createdBy;
 		this.objectDetails = objectDetails;
 	}
@@ -75,20 +79,28 @@ public class SuperAppObjectEntity {
 		this.active = active;
 	}
 
+	public Double getLat() {
+		return lat;
+	}
+
+	public void setLat(Double lat) {
+		this.lat = lat;
+	}
+
+	public Double getLng() {
+		return lng;
+	}
+
+	public void setLng(Double lng) {
+		this.lng = lng;
+	}
+
 	public Date getCreationTimestamp() {
 		return creationTimestamp;
 	}
 
 	public void setCreationTimestamp(Date creationTimestamp) {
 		this.creationTimestamp = creationTimestamp;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
 	}
 
 	public String getCreatedBy() {
@@ -151,11 +163,9 @@ public class SuperAppObjectEntity {
 	@Override
 	public String toString() {
 		return "SuperAppObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", active="
-				+ active + ", creationTimestamp=" + creationTimestamp + ", location=" + location + ", createdBy="
+				+ active + ", creationTimestamp=" + creationTimestamp + ", lat=" + lat + ", lng=" + lng + ", createdBy="
 				+ createdBy + ", objectDetails=" + objectDetails + ", parents=" + parents + ", children=" + children
 				+ "]";
 	}
-
-
 
 }

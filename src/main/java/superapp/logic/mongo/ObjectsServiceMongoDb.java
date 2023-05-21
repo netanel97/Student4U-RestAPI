@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ import superapp.logic.ObjectServiceWithPagainationSupport;
 import superapp.logic.SuperAppObjectNotActiveException;
 import superapp.logic.SuperAppObjectNotFoundException;
 import superapp.logic.UnauthorizedAccessException;
-import superapp.logic.UserNotAcceptableException;
 import superapp.logic.UserNotFoundException;
 
 @Service
@@ -40,6 +38,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 	private UserCrud userCrud;
 	private String springApplicationName;
 	private final String DELIMITER = "_";
+	private String unauthorizedUserMessage = "User doesn't have permissions!";
 
 	/**
 	 * this method injects a configuration value of spring
@@ -166,7 +165,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 				dirtyFlag = true;
 			}
 			if (update.getLocation() != null) {
-				existingObject.setLocation(this.boundaryToStr(update.getLocation()));
+				existingObject.setLat(update.getLocation().getLat());
+				existingObject.setLng(update.getLocation().getLng());
 				dirtyFlag = true;
 			}
 			if (update.getObjectDetails() != null) {
@@ -256,8 +256,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 					.findAllByActiveIsTrue(true,
 							PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
 					.stream() // Stream<SuperAppObjectBoundary>
-					.filter(object->object.isActive())
-					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.filter(object -> object.isActive()).map(this::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
@@ -367,6 +366,116 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 	}
 
 	/**
+	 * Search DB for objects by their type.
+	 * 
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param type     object type
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@Override
+	public List<SuperAppObjectBoundary> searchObjectsByType(String superapp, String email, String type, int size,
+			int page) {
+		String userId = superapp + DELIMITER + email;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud.findAllByType(type, PageRequest.of(page, size, Direction.ASC, "type", "id"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud
+					.findAllByTypeAndActiveIsTrue(type, PageRequest.of(page, size, Direction.ASC, "type", "id"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		} else {
+			throw new UnauthorizedAccessException(unauthorizedUserMessage);
+		}
+	}
+
+	/**
+	 * Search DB for objects by their alias.
+	 * 
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param alias    object alias
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@Override
+	public List<SuperAppObjectBoundary> searchObjectsByAlias(String superapp, String email, String alias, int size,
+			int page) {
+		String userId = superapp + DELIMITER + email;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud.findAllByAlias(alias, PageRequest.of(page, size, Direction.ASC, "type", "id"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud
+					.findAllByAliasAndActiveIsTrue(alias, PageRequest.of(page, size, Direction.ASC, "type", "id"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		} else {
+			throw new UnauthorizedAccessException(unauthorizedUserMessage);
+		}
+	}
+
+	/**
+	 * Search DB for objects in a square area around the point.
+	 * 
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param lat      latitude
+	 * @param lng      longitude
+	 * @param distance distance
+	 * @param units    distance units
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@Override
+	public List<SuperAppObjectBoundary> searchObjectsByLocation(String superapp, String email, double lat, double lng,
+			double distance, String units, int size, int page) {
+		String userId = superapp + DELIMITER + email;
+
+		double minLat = lat - distance, maxLat = lat + distance, minLng = lng - distance, maxLng = lng + distance;
+
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud
+					.findAllByLatBetweenAndLngBetween(minLat, maxLat, minLng, maxLng,
+							PageRequest.of(page, size, Direction.ASC, "type", "id"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud
+					.findAllByLatBetweenAndLngBetweenAndActiveIsTrue(minLat, maxLat, minLng, maxLng,
+							PageRequest.of(page, size, Direction.ASC, "type", "id"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		} else {
+			throw new UnauthorizedAccessException(unauthorizedUserMessage);
+		}
+	}
+
+	/**
 	 * Convert super app object entity to object boundary
 	 * 
 	 * @param SuperAppObjectEntity super app object entity
@@ -378,7 +487,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 		objectBoundary.setAlias(superAppObjectEntity.getAlias());
 		objectBoundary.setCreatedBy(this.toBoundaryAsCreatedBy(superAppObjectEntity.getCreatedBy()));
 		objectBoundary.setCreationTimestamp(superAppObjectEntity.getCreationTimestamp());
-		objectBoundary.setLocation(this.toBoundaryAsLocation(superAppObjectEntity.getLocation()));
+		objectBoundary
+				.setLocation(this.toBoundaryAsLocation(superAppObjectEntity.getLat(), superAppObjectEntity.getLng()));
 		objectBoundary.setObjectDetails(superAppObjectEntity.getObjectDetails());
 		objectBoundary.setObjectId(this.toBoundaryAsObjectId(superAppObjectEntity.getObjectId()));
 		objectBoundary.setType(superAppObjectEntity.getType());
@@ -402,7 +512,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 
 		superAppObjectEntity.setAlias(objectBoundary.getAlias());
 		superAppObjectEntity.setCreatedBy(this.boundaryToStr(objectBoundary.getCreatedBy()));
-		superAppObjectEntity.setLocation(this.boundaryToStr(objectBoundary.getLocation()));
+		superAppObjectEntity.setLat(objectBoundary.getLocation().getLat());
+		superAppObjectEntity.setLng(objectBoundary.getLocation().getLng());
 		superAppObjectEntity.setObjectDetails(objectBoundary.getObjectDetails());
 		superAppObjectEntity.setType(objectBoundary.getType());
 
@@ -420,18 +531,10 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 		return springApplicationName + DELIMITER + boundaryStr;
 	}
 
-	/**
-	 * Converts from the inserted 'Location' object to String
-	 * 
-	 * @param object
-	 * @return String location latitude followed by delimiter and location
-	 *         longitude.
-	 */
-	private String boundaryToStr(Location location) {
-		String boundaryStr = location.getLat().toString() + DELIMITER + location.getLng().toString();
-		return boundaryStr;
-	}
-
+//	private String boundaryToStr(Location location) {
+//		String boundaryStr = location.getLat().toString() + DELIMITER + location.getLng().toString();
+//		return boundaryStr;
+//	}
 	/**
 	 * Converts String to 'ObjectId' object
 	 * 
@@ -478,13 +581,12 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 	 * @param locationStr location string
 	 * @return Location.
 	 */
-	private Location toBoundaryAsLocation(String locationStr) {
-		if (locationStr != null) {
-			String[] attr = locationStr.split(DELIMITER);
+	private Location toBoundaryAsLocation(Double lat, Double lng) {
+		if (lat != null && lng != null) {
 
 			Location location = new Location();
-			location.setLat(Double.parseDouble(attr[0]));
-			location.setLng(Double.parseDouble(attr[1]));
+			location.setLat(lat);
+			location.setLng(lng);
 
 			return location;
 		} else {

@@ -56,7 +56,7 @@ public class SuperAppObjectsController {
 			@PathVariable("InternalObjectId") String internalObjectId,
 			@RequestBody SuperAppObjectBoundary updateBoundary,
 			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
-			@RequestParam(name = "userEmail", required = true) String userEmail){
+			@RequestParam(name = "userEmail", required = true) String userEmail) {
 		this.objectsService.updateAnObject(superapp, internalObjectId, updateBoundary, userSuperapp, userEmail);
 //		this.objectsService.updateAnObject(superapp, internalObjectId, updateBoundary);
 	}
@@ -74,14 +74,14 @@ public class SuperAppObjectsController {
 	 * @param @PathVariable("InternalObjectId") String internalObjectId
 	 * @return ObjectBoundary.
 	 */
-	//TODO: need to check if required is true/false
+	// TODO: need to check if required is true/false
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
 			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public SuperAppObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,
 			@PathVariable("InternalObjectId") String internalObjectId,
 			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
 			@RequestParam(name = "userEmail", required = true) String userEmail) {
-		return this.objectsService.getSpecificObject(superapp, internalObjectId,userSuperapp,userEmail)
+		return this.objectsService.getSpecificObject(superapp, internalObjectId, userSuperapp, userEmail)
 				.orElseThrow(() -> new RuntimeException("Could not find object by id: " + internalObjectId));
 	}
 
@@ -101,11 +101,87 @@ public class SuperAppObjectsController {
 			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
 			@RequestParam(name = "userEmail", required = true) String userEmail,
 			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page)  {
-	//	List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects();
-		List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects(userSuperapp,userEmail,size, page) ;
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+		// List<SuperAppObjectBoundary> allBoundaries =
+		// this.objectsService.getAllObjects();
+		List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects(userSuperapp, userEmail, size,
+				page);
 
 		return allBoundaries.toArray(new SuperAppObjectBoundary[0]);
+	}
+
+	/**
+	 * Search for objects in DB by their type
+	 * 
+	 * @param type         object type
+	 * @param userSuperapp user's superapp name
+	 * @param userEmail    user's email
+	 * @param size         how many items in page
+	 * @param page         current page
+	 * @return Array of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@RequestMapping(path = { "/superapp/objects/search/byType/{type}" }, method = { RequestMethod.GET }, produces = {
+			MediaType.APPLICATION_JSON_VALUE })
+	public SuperAppObjectBoundary[] searchObjectsByType(@PathVariable("type") String type,
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
+			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+		List<SuperAppObjectBoundary> allTypeBoundaries = this.objectsService.searchObjectsByType(userSuperapp,
+				userEmail, type, size, page);
+
+		return allTypeBoundaries.toArray(new SuperAppObjectBoundary[0]);
+	}
+
+	/**
+	 * Search for objects in DB by their alias.
+	 * 
+	 * @param alias        object alias
+	 * @param userSuperapp user's superapp name
+	 * @param userEmail    user's email
+	 * @param size         how many items in page
+	 * @param page         current page
+	 * @return Array of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@RequestMapping(path = { "/superapp/objects/search/byAlias/{alias}" }, method = { RequestMethod.GET }, produces = {
+			MediaType.APPLICATION_JSON_VALUE })
+	public SuperAppObjectBoundary[] searchObjectsByAlias(@PathVariable("alias") String alias,
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
+			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+		List<SuperAppObjectBoundary> allAliasBoundaries = this.objectsService.searchObjectsByAlias(userSuperapp,
+				userEmail, alias, size, page);
+
+		return allAliasBoundaries.toArray(new SuperAppObjectBoundary[0]);
+	}
+
+	/**
+	 * Search DB for objects in a square area around the point.
+	 * 
+	 * @param lat          latitude
+	 * @param lng          longitude
+	 * @param distance     distance
+	 * @param units        distance units
+	 * @param userSuperapp superapp name
+	 * @param userEmail    user email
+	 * @param size         how many items in page
+	 * @param page         current page
+	 * @return Array of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@RequestMapping(path = { "/superapp/objects/search/byLocation/{lat}/{lng}/{distance}" }, method = {
+			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
+	public SuperAppObjectBoundary[] searchObjectsByLocation(@PathVariable("lat") Double lat,
+			@PathVariable("lng") Double lng, @PathVariable("distance") Double distance,
+			@RequestParam(name = "units", required = false, defaultValue = "NEUTRAL") String units,
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
+			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+		List<SuperAppObjectBoundary> allLocationBoundaries = this.objectsService.searchObjectsByLocation(userSuperapp,
+				userEmail, lat, lng, distance, units, size, page);
+
+		return allLocationBoundaries.toArray(new SuperAppObjectBoundary[0]);
 	}
 
 }
