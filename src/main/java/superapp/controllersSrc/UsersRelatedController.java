@@ -12,13 +12,14 @@ import superapp.entities.NewUserBoundary;
 import superapp.entities.UserBoundary;
 import superapp.entities.UserId;
 import superapp.logic.UsersService;
+import superapp.logic.UsersServiceWithPaginationSupport;
 
 @RestController
 public class UsersRelatedController {
-	private UsersService usersService;
+	private UsersServiceWithPaginationSupport usersService;
 
 	@Autowired
-	public void setUsersService(UsersService usersService) {
+	public void setUsersService(UsersServiceWithPaginationSupport usersService) {
 		this.usersService = usersService;
 	}
 

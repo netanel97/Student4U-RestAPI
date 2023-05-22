@@ -6,20 +6,25 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import superapp.data.UserEntity;
 import superapp.data.UserRole;
+import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.UserBoundary;
 import superapp.entities.UserCrud;
 import superapp.entities.UserId;
+import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotAcceptableException;
 import superapp.logic.UserNotFoundException;
 import superapp.logic.UsersService;
+import superapp.logic.UsersServiceWithPaginationSupport;
 
 @Service
-public class UsersServiceMongoDb implements UsersService {
+public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 	private UserCrud databaseCrud;
 	private String springApplicationName;
 	private final String DELIMITER = "_";
@@ -139,13 +144,35 @@ public class UsersServiceMongoDb implements UsersService {
 	 * 
 	 * @return List<UserBoundary>
 	 */
+	
 	@Override
+	@Deprecated
 	public List<UserBoundary> getAllUsers() {
+//		return this.databaseCrud
+//	            .findAll() // List<SuperAppObjectBoundary>
+//	            .stream() // Stream<SuperAppObjectBoundary>
+//	            .map(this::entityToBoundary) // Stream<SuperAppObject>
+//	            .toList(); // Lis
 
-		return this.databaseCrud.findAll() // List<SuperAppObjectBoundary>
-				.stream() // Stream<SuperAppObjectBoundary>
-				.map(this::entityToBoundary) // Stream<SuperAppObject>
-				.toList(); // List<SuperAppObject>
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+
+	}
+	
+	
+	@Override
+	public List<UserBoundary> getAllUsers(String userSuperapp, String userEmail, int size, int page) {
+		
+		String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.databaseCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.ADMIN) {
+			return this.databaseCrud.findAll(PageRequest.of(page, size, Direction.ASC, "userId")) // List<UserEntity>
+					.stream() // Stream<UserEntity>
+					.map(this::entityToBoundary) // Stream<UserBoundary>
+					.toList(); // List<UserBoundary>
+		} else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
+		}
 	}
 
 	/**
@@ -153,8 +180,25 @@ public class UsersServiceMongoDb implements UsersService {
 	 * 
 	 */
 	@Override
+	@Deprecated
 	public void deleteAllUsers() {
 		this.databaseCrud.deleteAll();
+		
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+	}
+	
+	@Override
+	public void deleteAllUsers(String userSuperapp, String userEmail) {
+		String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.databaseCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		
+		if (user.getRole() == UserRole.ADMIN) {
+			this.databaseCrud.deleteAll();
+		} 
+		else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
+		}	
 	}
 
 	/**

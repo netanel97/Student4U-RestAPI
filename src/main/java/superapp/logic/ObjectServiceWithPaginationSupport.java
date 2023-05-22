@@ -6,7 +6,7 @@ import java.util.Optional;
 import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.SuperAppObjectIdBoundary;
 
-public interface ObjectServiceWithPagainationSupport extends ObjectsService {
+public interface ObjectServiceWithPaginationSupport extends ObjectsService {
 
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
 			SuperAppObjectBoundary update, String userSuperapp, String userEmail);
@@ -32,4 +32,5 @@ public interface ObjectServiceWithPagainationSupport extends ObjectsService {
 
 	public List<SuperAppObjectBoundary> searchObjectsByType(String superapp, String email, String type, int size, int page);
 
+	public void deleteAllObjects(String userSuperapp, String userEmail);
 }

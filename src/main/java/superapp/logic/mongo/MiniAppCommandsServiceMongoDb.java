@@ -7,23 +7,32 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import superapp.data.MiniAppCommandEntity;
+import superapp.data.UserEntity;
+import superapp.data.UserRole;
 import superapp.entities.CommandId;
 import superapp.entities.InvokedBy;
 import superapp.entities.MiniAppCommandBoundary;
 import superapp.entities.MiniAppCommandCrud;
 import superapp.entities.ObjectId;
 import superapp.entities.TargetObject;
+import superapp.entities.UserCrud;
 import superapp.entities.UserId;
 import superapp.logic.MiniAppCommandNotFoundException;
 import superapp.logic.MiniAppCommandsService;
+import superapp.logic.MiniAppCommandsServiceWithPaginationSupport;
+import superapp.logic.UnauthorizedAccessException;
+import superapp.logic.UserNotFoundException;
 
 @Service
-public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
+public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWithPaginationSupport {
     private MiniAppCommandCrud databaseCrud;
+    private UserCrud userCrud;
     private String superapp;
     private String DELIMITER = "_";
 
@@ -36,8 +45,9 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
     }
 
     @Autowired
-    public MiniAppCommandsServiceMongoDb(MiniAppCommandCrud miniAppCommandCrud) {
+    public MiniAppCommandsServiceMongoDb(MiniAppCommandCrud miniAppCommandCrud, UserCrud userCrud) {
         this.databaseCrud = miniAppCommandCrud;
+        this.userCrud = userCrud;
     }
 
     /**
@@ -94,8 +104,26 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return List<MiniAppCommandBoundary>
      */
     @Override
+    @Deprecated
     public List<MiniAppCommandBoundary> getAllCommands() {
+    	
         return this.databaseCrud.findAll().stream().map(this::entityToBoundary).toList();
+    }
+    
+    @Override
+    public List<MiniAppCommandBoundary> getAllCommands(String userSuperapp, String userEmail, int size, int page) {
+    	String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.ADMIN) {
+			return this.databaseCrud.findAll(PageRequest.of(page, size, Direction.ASC, "invocationTimestamp", "commandId")) // List<MiniAppCommandEntity>
+					.stream() // Stream<MiniAppCommandEntity>
+					.map(this::entityToBoundary) // Stream<MiniAppCommandEntity>
+					.toList(); // List<MiniAppCommandBoundary>
+		} else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
+		}
+       
     }
 
     /**
@@ -106,9 +134,28 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * @return List<MiniAppCommandBoundary>
      */
     @Override
+    @Deprecated
     public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName) {
         List<MiniAppCommandBoundary> specificCommands = new ArrayList<>();
         List<MiniAppCommandBoundary> allCommands = getAllCommands();
+        for (MiniAppCommandBoundary cmd : allCommands)
+        {
+            if (cmd.getCommandId().getMiniapp().equals(miniAppName))
+            {
+                specificCommands.add(cmd);
+            }
+        }
+        if (specificCommands.size() == 0)
+        {
+            throw new MiniAppCommandNotFoundException("either " + miniAppName + " is non-existent or no commands for " + miniAppName + " were found.");
+        }
+        return specificCommands;
+    }
+    
+    @Override
+    public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName, String userSuperapp, String userEmail, int size, int page) {
+        List<MiniAppCommandBoundary> specificCommands = new ArrayList<>();
+        List<MiniAppCommandBoundary> allCommands = getAllCommands(userSuperapp, userEmail, size, page);
         for (MiniAppCommandBoundary cmd : allCommands)
         {
             if (cmd.getCommandId().getMiniapp().equals(miniAppName))
@@ -260,9 +307,24 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsService {
      * Delete all users from DB
      */
     @Override
+    @Deprecated
     public void deleteAllCommands() {
         this.databaseCrud.deleteAll();
 
+    }
+    
+    @Override
+    public void deleteAllCommands(String userSuperapp, String userEmail) {
+    	String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		
+		if (user.getRole() == UserRole.ADMIN) {
+			this.databaseCrud.deleteAll();
+		} 
+		else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
+		}	
     }
 
 }

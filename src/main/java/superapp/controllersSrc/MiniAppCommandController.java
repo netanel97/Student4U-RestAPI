@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import superapp.entities.CommandId;
 import superapp.entities.MiniAppCommandBoundary;
 import superapp.logic.MiniAppCommandsService;
+import superapp.logic.MiniAppCommandsServiceWithPaginationSupport;
 
 /**
  * The MiniAppCommandController class offers a means to execute commands on a
@@ -23,10 +24,10 @@ import superapp.logic.MiniAppCommandsService;
 
 @RestController
 public class MiniAppCommandController {
-	private MiniAppCommandsService miniAppCommandsService;
+	private MiniAppCommandsServiceWithPaginationSupport miniAppCommandsService;
 
 	@Autowired
-	public void setMiniAppCommandsService(MiniAppCommandsService miniAppCommandsService) {
+	public void setMiniAppCommandsService(MiniAppCommandsServiceWithPaginationSupport miniAppCommandsService) {
 		this.miniAppCommandsService = miniAppCommandsService;
 	}
 

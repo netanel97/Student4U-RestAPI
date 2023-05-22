@@ -7,33 +7,37 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import superapp.entities.MiniAppCommandBoundary;
 import superapp.entities.UserBoundary;
 import superapp.logic.MiniAppCommandsService;
+import superapp.logic.MiniAppCommandsServiceWithPaginationSupport;
+import superapp.logic.ObjectServiceWithPaginationSupport;
 import superapp.logic.ObjectsService;
 import superapp.logic.UsersService;
+import superapp.logic.UsersServiceWithPaginationSupport;
 
 @RestController
 public class AdminController {
 
-	private UsersService usersService;
-	private ObjectsService objectsService;
-	private MiniAppCommandsService miniAppCommandsService;
+	private UsersServiceWithPaginationSupport usersService;
+	private ObjectServiceWithPaginationSupport objectsService;
+	private MiniAppCommandsServiceWithPaginationSupport miniAppCommandsService;
 
 	@Autowired
-	public void setUsersService(UsersService usersService) {
+	public void setUsersService(UsersServiceWithPaginationSupport usersService) {
 		this.usersService = usersService;
 	}
 
 	@Autowired
-	public void setObjectsService(ObjectsService objectsService) {
+	public void setObjectsService(ObjectServiceWithPaginationSupport objectsService) {
 		this.objectsService = objectsService;
 	}
 
 	@Autowired
-	public void setMiniAppCommandsService(MiniAppCommandsService miniAppCommandsService) {
+	public void setMiniAppCommandsService(MiniAppCommandsServiceWithPaginationSupport miniAppCommandsService) {
 		this.miniAppCommandsService = miniAppCommandsService;
 	}
 
@@ -46,9 +50,13 @@ public class AdminController {
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 
-	public MiniAppCommandBoundary[] getAllMiniAppCommandsHistory() {
+	public MiniAppCommandBoundary[] getAllMiniAppCommandsHistory(
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
+			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
 
-		List<MiniAppCommandBoundary> allBoundaries = this.miniAppCommandsService.getAllCommands();
+		List<MiniAppCommandBoundary> allBoundaries = this.miniAppCommandsService.getAllCommands(userSuperapp, userEmail, size, page);
 		return allBoundaries.toArray(new MiniAppCommandBoundary[0]);
 	}
 
@@ -61,9 +69,14 @@ public class AdminController {
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 
-	public MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(@PathVariable("miniAppName") String miniAppName) {
+	public MiniAppCommandBoundary[] specificMiniAppCommandBoundaries(
+			@PathVariable("miniAppName") String miniAppName,
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
+			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page){
 
-		List<MiniAppCommandBoundary> allBoundaries = this.miniAppCommandsService.getAllMiniAppCommands(miniAppName);
+		List<MiniAppCommandBoundary> allBoundaries = this.miniAppCommandsService.getAllMiniAppCommands(miniAppName, userSuperapp, userEmail, size, page);
 		return allBoundaries.toArray(new MiniAppCommandBoundary[0]);
 
 	}
@@ -76,8 +89,10 @@ public class AdminController {
 	 */
 
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })
-	public void deleteAllCommandsHistory() {
-		this.miniAppCommandsService.deleteAllCommands();
+	public void deleteAllCommandsHistory(
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail) {
+		this.miniAppCommandsService.deleteAllCommands(userSuperapp, userEmail);
 	}
 
 	/**
@@ -88,8 +103,10 @@ public class AdminController {
 	 */
 
 	@RequestMapping(path = { "/superapp/admin/users" }, method = { RequestMethod.DELETE })
-	public void deleteAllUsers() {
-		this.usersService.deleteAllUsers();
+	public void deleteAllUsers(
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail) {
+		this.usersService.deleteAllUsers(userSuperapp, userEmail);
 	}
 
 	/**
@@ -100,8 +117,12 @@ public class AdminController {
 	 */
 	@RequestMapping(path = { "/superapp/admin/users" }, method = { RequestMethod.GET }, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public UserBoundary[] getAllUsers() {
-		List<UserBoundary> allBoundaries = this.usersService.getAllUsers();
+	public UserBoundary[] getAllUsers(
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
+			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
+			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+		List<UserBoundary> allBoundaries = this.usersService.getAllUsers(userSuperapp, userEmail, size, page);
 		return allBoundaries.toArray(new UserBoundary[0]);
 	}
 
@@ -112,8 +133,10 @@ public class AdminController {
 	 * @return Nothing
 	 */
 	@RequestMapping(path = { "/superapp/admin/objects" }, method = { RequestMethod.DELETE })
-	public void deleteAllObjectsInTheSuperApp() {
-		this.objectsService.deleteAllObjects();
+	public void deleteAllObjectsInTheSuperApp(
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail) {
+		this.objectsService.deleteAllObjects(userSuperapp, userEmail);
 	}
 
 }

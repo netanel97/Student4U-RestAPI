@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import superapp.entities.SuperAppObjectBoundary;
-import superapp.logic.ObjectServiceWithPagainationSupport;
+import superapp.logic.ObjectServiceWithPaginationSupport;
 
 @RestController
 public class SuperAppObjectsController {
 
-	private ObjectServiceWithPagainationSupport objectsService;
+	private ObjectServiceWithPaginationSupport objectsService;
 
 	@Autowired
-	private void setObjectsService(ObjectServiceWithPagainationSupport objectsService) {
+	private void setObjectsService(ObjectServiceWithPaginationSupport objectsService) {
 		this.objectsService = objectsService;
 	}
 

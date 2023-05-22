@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import superapp.entities.SuperAppObjectBoundary;
 import superapp.entities.SuperAppObjectIdBoundary;
-import superapp.logic.ObjectServiceWithPagainationSupport;
+import superapp.logic.ObjectServiceWithPaginationSupport;
 
 @RestController
 public class NewSuperAppObjectController {
-	private ObjectServiceWithPagainationSupport objects;
+	private ObjectServiceWithPaginationSupport objects;
 
 	@Autowired
-	public NewSuperAppObjectController(ObjectServiceWithPagainationSupport objects) {
+	public NewSuperAppObjectController(ObjectServiceWithPaginationSupport objects) {
 		super();
 		this.objects = objects;
 	}

@@ -26,14 +26,14 @@ import superapp.entities.SuperAppObjectCrud;
 import superapp.entities.SuperAppObjectIdBoundary;
 import superapp.entities.UserCrud;
 import superapp.entities.UserId;
-import superapp.logic.ObjectServiceWithPagainationSupport;
+import superapp.logic.ObjectServiceWithPaginationSupport;
 import superapp.logic.SuperAppObjectNotActiveException;
 import superapp.logic.SuperAppObjectNotFoundException;
 import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotFoundException;
 
 @Service
-public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSupport {
+public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport {
 	private SuperAppObjectCrud databaseCrud;
 	private UserCrud userCrud;
 	private String springApplicationName;
@@ -262,10 +262,27 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
 	}
-
+	
 	@Override
+	@Deprecated
 	public void deleteAllObjects() {
 		this.databaseCrud.deleteAll();
+		
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+	}
+
+	@Override
+	public void deleteAllObjects(String userSuperapp, String userEmail) {
+		String userId = userSuperapp + DELIMITER + userEmail;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		
+		if (user.getRole() == UserRole.ADMIN) {
+			this.databaseCrud.deleteAll();
+		} 
+		else {
+			throw new UnauthorizedAccessException("User doesn't have permissions!");
+		}	
 	}
 
 	@Override
@@ -593,5 +610,6 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPagainationSuppor
 			return null;
 		}
 	}
+
 
 }
