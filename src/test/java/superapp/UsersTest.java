@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
@@ -20,6 +21,7 @@ public class UsersTest {
 	private String baseUrl;
 	private String baseAdminUrl;
 	private String baseLoginUrl;
+	private UserBoundary superappUser;
 	private int port;
 
 	@LocalServerPort
@@ -33,6 +35,8 @@ public class UsersTest {
 		this.baseUrl = "http://localhost:" + this.port + "/superapp/users";
 		this.baseLoginUrl = "http://localhost:" + this.port + "/superapp/users/login/{superapp}/{email}";
 		this.baseAdminUrl = "http://localhost:" + this.port + "/superapp/admin/users";
+		NewUserBoundary newUserBoundary = createNewUserBoundary("gal@gmail.com", "gal", "ADMIN", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
 	}
 
 	/**
@@ -41,8 +45,16 @@ public class UsersTest {
 	@AfterEach
 	public void tearDown () {
 		this.restTemplate
-			.delete(baseAdminUrl);
+			.delete(baseAdminUrl + "?userSuperapp=2023b.Liran.Sorokin-Student4U&userEmail=Liran@gmail.com");
 	}
+	
+//	@AfterEach
+//	public void tearDown (
+//			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+//			@RequestParam(name = "userEmail", required = true) String userEmail) {
+//		this.restTemplate
+//			.delete(baseAdminUrl + "?userSuperapp={superapp}&userEmail={email}");
+//	}
 
 	
 	@Test
@@ -119,7 +131,7 @@ public class UsersTest {
 
 		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperApp(), postUserId.getEmail());
 
-		String extarctingValueEmail = "userId.email";
+		String extarctingValueEmail = "userId";
 		String checkingValueEmail = postUser.getUserId().getEmail();
 
 		assertGetUserToPostUser(getUser, extarctingValueEmail, checkingValueEmail);
@@ -238,7 +250,7 @@ public class UsersTest {
 		NewUserBoundary newUserBoundary = new NewUserBoundary();
 		newUserBoundary.setEmail("Liran@gmail.com");
 		newUserBoundary.setUsername("Liran");
-		newUserBoundary.setRole("MINIAPP_USER");
+		newUserBoundary.setRole("ADMIN");
 		newUserBoundary.setAvatar("K");
 
 		return newUserBoundary;
@@ -271,7 +283,8 @@ public class UsersTest {
 	private void assertGetUserToPostUser(UserBoundary savedUser, String extarctingValue, String checkingValue) {
 		assertThat(savedUser)
 			.isNotNull()
-			.extracting(extarctingValue)
+			.extracting("userId")
+			.extracting("email")
 			.isEqualTo(checkingValue);
 	}
 
@@ -301,7 +314,8 @@ public class UsersTest {
 	 * @return
 	 */
 	private UserBoundary[] getAllUsersFromDB() {
-		return this.restTemplate.getForObject(this.baseAdminUrl, UserBoundary[].class);
+		return this.restTemplate.getForObject(this.baseAdminUrl + "?userSuperapp={superapp}&userEmail={email}"
+				, UserBoundary[].class, superappUser.getUserId().getSuperApp(), superappUser.getUserId().getEmail());
 	}
 	
 	

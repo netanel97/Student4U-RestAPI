@@ -41,7 +41,7 @@ public class SuperAppObjectTest {
 		this.restTemplate = new RestTemplate();
 		this.baseUrl = "http://localhost:" + this.port + "/superapp/objects";
 		this.deleteUrl = "http://localhost:" + this.port + "/superapp/admin/objects";
-		this.baseUrl = "http://localhost:" + this.port + "/superapp/users";
+		this.userUrl = "http://localhost:" + this.port + "/superapp/users";
 		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
 		this.superappUser = postNewUserToDB(newUserBoundary);
 	}
@@ -194,7 +194,7 @@ public class SuperAppObjectTest {
 				.extracting("objectId").extracting("internalObjectId").isEqualTo(objectId.getInternalObjectId());
 		this.restTemplate.delete(this.deleteUrl);
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
-				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
+				this.deleteUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
 				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperApp(),
 				this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotNull().isEmpty();
