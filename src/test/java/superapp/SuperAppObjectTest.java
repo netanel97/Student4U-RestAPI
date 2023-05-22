@@ -15,8 +15,10 @@ import org.springframework.web.client.RestTemplate;
 import jakarta.annotation.PostConstruct;
 import superapp.entities.CreatedBy;
 import superapp.entities.Location;
+import superapp.entities.NewUserBoundary;
 import superapp.entities.ObjectId;
 import superapp.entities.SuperAppObjectBoundary;
+import superapp.entities.UserBoundary;
 import superapp.entities.UserId;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -26,6 +28,8 @@ public class SuperAppObjectTest {
 	private String deleteUrl;
 	private int port;
 	private final String DELIMITER = "_";
+	private UserBoundary superappUser;
+	private String userUrl;
 
 	@LocalServerPort
 	public void setPort(int port) {
@@ -37,15 +41,18 @@ public class SuperAppObjectTest {
 		this.restTemplate = new RestTemplate();
 		this.baseUrl = "http://localhost:" + this.port + "/superapp/objects";
 		this.deleteUrl = "http://localhost:" + this.port + "/superapp/admin/objects";
+		this.baseUrl = "http://localhost:" + this.port + "/superapp/users";
+		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
 	}
 
 	@BeforeEach
 	@AfterEach
 	public void tearDown() {
-		this.restTemplate.delete("http://localhost:" + this.port + "/superapp/admin/objects");
+		this.restTemplate.delete(deleteUrl);
 	}
 
-	//TODO: need to check active and permission if not
+	// TODO: need to check active and permission if not
 	@Test
 	public void testSuccessfullPostUsingSpecificSuperappObjectGet() {
 		/**
@@ -62,10 +69,11 @@ public class SuperAppObjectTest {
 		 */
 		ObjectId objectId = postSuperAppObject();
 		// THEN the database contains a single object boundary with the content "test"
-		//TODO: check with user permission and without user permission
+		// TODO: check with user permission and without user permission
 		assertThat(this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}" + "?userSuperapp={userSuperapp}&userEmail={userEmail}",
-				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
+				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail())).isNotNull()
 				.extracting("objectId").isEqualTo(objectId.getSuperApp() + DELIMITER + objectId.getInternalObjectId());
 	}
 
@@ -99,7 +107,7 @@ public class SuperAppObjectTest {
 
 	}
 
-	//TODO: need to check permission
+	// TODO: need to check permission
 	@Test
 	public void testSuccessPut() {
 		/**
@@ -113,14 +121,17 @@ public class SuperAppObjectTest {
 		// THEN the database contains a single object boundary with the content "test"
 		SuperAppObjectBoundary superAppObjectBoundary = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
-				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId());
+				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail());
 		assertThat(superAppObjectBoundary).isNotNull().extracting("objectId").extracting("internalObjectId")
 				.isEqualTo(objectId.getInternalObjectId());
 		superAppObjectBoundary.setAlias("put");
 		superAppObjectBoundary.setType("barca");
-		this.restTemplate.put(this.baseUrl + "/{superapp}/{internalObjectId}", superAppObjectBoundary,
-				superAppObjectBoundary.getObjectId().getSuperApp(),
-				superAppObjectBoundary.getObjectId().getInternalObjectId());
+		this.restTemplate.put(
+				this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
+				superAppObjectBoundary, superAppObjectBoundary.getObjectId().getSuperApp(),
+				superAppObjectBoundary.getObjectId().getInternalObjectId(), this.superappUser.getUserId().getSuperApp(),
+				this.superappUser.getUserId().getEmail());
 		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
 				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
 				.extracting("alias").isEqualTo("put");
@@ -129,7 +140,7 @@ public class SuperAppObjectTest {
 				.extracting("type").isEqualTo("barca");
 	}
 
-	//TODO: need to check active and permission if not
+	// TODO: need to check active and permission if not
 	@Test
 	public void testSuccessEmptyGetAll() {
 
@@ -143,12 +154,12 @@ public class SuperAppObjectTest {
 		 */
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
-				SuperAppObjectBoundary[].class);
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperApp(),
+				this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotNull().isEmpty();
 	}
 
-	
-	//TODO: need to check active and permission if not
+	// TODO: need to check active and permission if not
 	@Test
 	public void testSuccessGetAll() {
 
@@ -164,7 +175,8 @@ public class SuperAppObjectTest {
 		postSuperAppObject();
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
-				SuperAppObjectBoundary[].class);
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperApp(),
+				this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotEmpty().hasSize(2);
 	}
 
@@ -181,9 +193,39 @@ public class SuperAppObjectTest {
 				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
 				.extracting("objectId").extracting("internalObjectId").isEqualTo(objectId.getInternalObjectId());
 		this.restTemplate.delete(this.deleteUrl);
-		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(this.baseUrl, SuperAppObjectBoundary[].class);
+		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
+				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperApp(),
+				this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotNull().isEmpty();
+	}
 
+	/**
+	 * Create a custom NewUserBoundary object.
+	 * 
+	 * @param email
+	 * @param username
+	 * @param role
+	 * @param avatar
+	 * @return
+	 */
+	private NewUserBoundary createNewUserBoundary(String email, String username, String role, String avatar) {
+		NewUserBoundary newUserBoundary = new NewUserBoundary();
+		newUserBoundary.setEmail(email);
+		newUserBoundary.setUsername(username);
+		newUserBoundary.setRole(role);
+		newUserBoundary.setAvatar(avatar);
+		return newUserBoundary;
+	}
+
+	/**
+	 * Post New User to DB
+	 * 
+	 * @param newUserBoundary the new user
+	 * @return the UserBoundary created as a result of CRUD Post method
+	 */
+	private UserBoundary postNewUserToDB(NewUserBoundary newUserBoundary) {
+		return this.restTemplate.postForObject(this.userUrl, newUserBoundary, UserBoundary.class);
 	}
 
 }
