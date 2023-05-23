@@ -10,9 +10,15 @@ import superapp.data.SuperAppObjectEntity;
 
 public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity, String> {
 	
-	public List<SuperAppObjectEntity> findAllByActiveIsTrue(
-			@Param("active") boolean active, 
-			Pageable pageable);
+	public List<SuperAppObjectEntity> findAllByActiveIsTrue(Pageable pageable);
+	
+	public List<SuperAppObjectEntity> findByParentsContainingAndActiveIsTrue(SuperAppObjectEntity parent,Pageable pageable);
+	
+	public List<SuperAppObjectEntity> findByChildrenContainingAndActiveIsTrue(SuperAppObjectEntity child,Pageable pageable);
+	
+	public List<SuperAppObjectEntity> findByParentsContaining(SuperAppObjectEntity parent,Pageable pageable);
+	
+	public List<SuperAppObjectEntity> findByChildrenContaining(SuperAppObjectEntity child,Pageable pageable);
 	
 	public List<SuperAppObjectEntity> findAllByType(
 			@Param("type") String type, 

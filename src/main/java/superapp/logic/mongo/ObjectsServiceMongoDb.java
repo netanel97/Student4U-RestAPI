@@ -253,8 +253,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 					.toList(); // List<SuperAppObject>
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
 			return this.databaseCrud
-					.findAllByActiveIsTrue(true,
-							PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
+					.findAllByActiveIsTrue(PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
 					.stream() // Stream<SuperAppObjectBoundary>
 					.filter(object -> object.isActive()).map(this::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
@@ -262,12 +261,12 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
 	}
-	
+
 	@Override
 	@Deprecated
 	public void deleteAllObjects() {
 		this.databaseCrud.deleteAll();
-		
+
 		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 	}
 
@@ -276,13 +275,12 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
-		
+
 		if (user.getRole() == UserRole.ADMIN) {
 			this.databaseCrud.deleteAll();
-		} 
-		else {
+		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
-		}	
+		}
 	}
 
 	@Override
@@ -325,25 +323,22 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		String attr = superapp + DELIMITER + internalObjectId;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		SuperAppObjectEntity parent = this.databaseCrud.findById(attr)
+				.orElseThrow(() -> new SuperAppObjectNotFoundException(
+						"could not find origin message by id: " + internalObjectId));
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
-			SuperAppObjectEntity parent = this.databaseCrud.findById(attr)
-					.orElseThrow(() -> new SuperAppObjectNotFoundException(
-							"could not find origin message by id: " + internalObjectId));
-
-			Set<SuperAppObjectEntity> responsesSet = parent.getChildren();
-			return responsesSet.stream() // Stream<MessageEntity>
+			List<SuperAppObjectEntity> children = this.databaseCrud.findByParentsContaining(parent,
+					PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId"));
+			return children.stream() // Stream<MessageEntity>
 					.map(this::entityToBoundary) // Stream<Message>
 					.toList();
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
-			SuperAppObjectEntity parent = this.databaseCrud.findById(attr)
-					.orElseThrow(() -> new SuperAppObjectNotFoundException(
-							"could not find origin message by id: " + internalObjectId));
 			if (!parent.isActive()) {
 				throw new SuperAppObjectNotActiveException("Supper app object is not active");
 			}
-			Set<SuperAppObjectEntity> superAppObjectEntities = parent.getChildren().stream()
-					.filter(child -> child.isActive()).collect(Collectors.toSet());
-			return superAppObjectEntities.stream().map(this::entityToBoundary).toList();
+			List<SuperAppObjectEntity> children = this.databaseCrud.findByParentsContainingAndActiveIsTrue(parent,
+					PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId"));
+			return children.stream().map(this::entityToBoundary).toList();
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
@@ -356,27 +351,23 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		String attr = superapp + DELIMITER + internalObjectId;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		SuperAppObjectEntity child = this.databaseCrud.findById(attr).orElseThrow(
+				() -> new SuperAppObjectNotFoundException("could not find origin message by id: " + internalObjectId));
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
-			SuperAppObjectEntity child = this.databaseCrud.findById(attr)
-					.orElseThrow(() -> new SuperAppObjectNotFoundException(
-							"could not find origin message by id: " + internalObjectId));
-			Set<SuperAppObjectEntity> responsesSet = child.getParents();
-			return responsesSet.stream() // Stream<MessageEntity>
+			List<SuperAppObjectEntity> parents = this.databaseCrud.findByChildrenContaining(child,
+					PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId"));
+			return parents.stream() // Stream<MessageEntity>
 					.map(this::entityToBoundary) // Stream<Message>
 					.toList();
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
-			SuperAppObjectEntity child = this.databaseCrud.findById(attr)
-					.orElseThrow(() -> new SuperAppObjectNotFoundException(
-							"could not find origin message by id: " + internalObjectId));
 			if (child.isActive()) {
 				throw new SuperAppObjectNotActiveException("Supper app object is not active");
 			}
-			Set<SuperAppObjectEntity> responsesSet = child.getParents().stream().filter(parent -> parent.isActive())
-					.collect(Collectors.toSet());
-			return responsesSet.stream() // Stream<MessageEntity>
+			List<SuperAppObjectEntity> parents = this.databaseCrud.findByChildrenContainingAndActiveIsTrue(child,
+					PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId"));
+			return parents.stream() // Stream<MessageEntity>
 					.map(this::entityToBoundary) // Stream<Message>
 					.toList();
-
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
@@ -399,14 +390,14 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
-			return this.databaseCrud.findAllByType(type, PageRequest.of(page, size, Direction.ASC, "type", "id"))
+			return this.databaseCrud.findAllByType(type, PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
 					.stream() // Stream<SuperAppObjectBoundary>
 					.map(this::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
 			return this.databaseCrud
-					.findAllByTypeAndActiveIsTrue(type, PageRequest.of(page, size, Direction.ASC, "type", "id"))
+					.findAllByTypeAndActiveIsTrue(type, PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
 					.stream() // Stream<SuperAppObjectBoundary>
 					.map(this::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
@@ -610,6 +601,5 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			return null;
 		}
 	}
-
 
 }
