@@ -120,14 +120,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 
 	}
 
-	/**
-	 * Update existing object in the desired fields
-	 * 
-	 * @param String                 Application name
-	 * @param String                 Internal object id
-	 * @param SuperAppObjectBoundary object boundary to change its attributes
-	 * @return ObjectBoundary object boundary after update
-	 */
+
 
 	@Override
 	@Deprecated
@@ -137,6 +130,16 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 	}
 
+	/**
+	 * Update existing object in the desired fields
+	 * 
+	 * @param String                 Application name
+	 * @param String                 Internal object id
+	 * @param SuperAppObjectBoundary object boundary to change its attributes
+	 * @param String                 userSuperapp
+	 * @param String                 userEmail
+	 * @return ObjectBoundary object boundary after update
+	 */
 	@Override
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
 			SuperAppObjectBoundary update, String userSuperapp, String userEmail) {
@@ -183,13 +186,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
-	/**
-	 * Get specific object from DB
-	 * 
-	 * @param String Application name
-	 * @param String internalObjectId
-	 * @return ObjectBoundary requested object boundary
-	 */
+
 	@Override
 	@Deprecated
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId) {
@@ -200,7 +197,14 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 //		}
 
 	}
-
+	
+	/**
+	 * Get specific object from DB
+	 * 
+	 * @param String Application name
+	 * @param String internalObjectId
+	 * @return ObjectBoundary requested object boundary
+	 */
 	@Override
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId,
 			String userSuperapp, String userEmail) {
@@ -223,24 +227,21 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
-	/**
-	 * Get all objects from DB
-	 * 
-	 * @return Array ObjectBoundary[]
-	 */
+
 	@Override
 	@Deprecated
 	public List<SuperAppObjectBoundary> getAllObjects() {
-//		return this.databaseCrud
-//	            .findAll() // List<SuperAppObjectBoundary>
-//	            .stream() // Stream<SuperAppObjectBoundary>
-//	            .map(this::entityToBoundary) // Stream<SuperAppObject>
-//	            .toList(); // Lis
-
 		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 
 	}
-
+	/**
+	 * Get all objects from DB
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return Array ObjectBoundary[]
+	 */
 	@Override
 	public List<SuperAppObjectBoundary> getAllObjects(String userSuperapp, String userEmail, int size, int page) {
 		String userId = userSuperapp + DELIMITER + userEmail;
@@ -283,6 +284,17 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
+	/**
+	 * Update children field of parent in DB.
+	 * If use is MINIAPP_USER show only active children.
+	 * 
+	 * @param superapp
+	 * @param internalObjectId
+	 * @param childId     how many items in page
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
 	@Override
 	public void BindAnExistingObjectToExistingChildObject(String superapp, String internalObjectId,
 			SuperAppObjectIdBoundary childId, String userSuperapp, String userEmail) {
@@ -297,12 +309,6 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			String attr = childId.getSuperapp() + DELIMITER + childId.getInternalObjectId();// child
 			SuperAppObjectEntity child = this.databaseCrud.findById(attr).orElseThrow(
 					() -> new SuperAppObjectNotFoundException("could not find origin message by id: " + attr));
-
-//			if (!child.isActive() || !parent.isActive()) {
-//				throw new SuperAppObjectNotActiveException("At least one of the superapp objects is not active!");
-//			}
-//			// TODO: need to ask Eyal if we need to check active on PUT with SUPER APP USER
-
 			if (!child.addParent(parent) || !parent.addChild(child))// failed to add to the Set
 				throw new SuperAppObjectNotFoundException(
 						"Could not bind parent object:" + parent + " to child object: " + child);
@@ -316,6 +322,18 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 
 	}
 
+	/**
+	 * Search DB for children objects of a parent.
+	 * If use is MINIAPP_USER show only active children.
+	 * 
+	 * @param superapp
+	 * @param internalObjectId
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
 	@Override
 	public List<SuperAppObjectBoundary> getAllChildrenOfAnExistingObject(String superapp, String internalObjectId,
 			String userSuperapp, String userEmail, int size, int page) {
@@ -344,6 +362,18 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
+	/**
+	 * Search DB for parents objects of a child.
+	 * If use is MINIAPP_USER show only active parents.
+	 * 
+	 * @param superapp
+	 * @param internalObjectId
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
 	@Override
 	public List<SuperAppObjectBoundary> getAnArrayWithObjectParent(String superapp, String internalObjectId,
 			String userSuperapp, String userEmail, int size, int page) {

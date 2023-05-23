@@ -71,7 +71,7 @@ public class SuperAppObjectTest {
 		// THEN the database contains a single object boundary with the content "test"
 		// TODO: check with user permission and without user permission
 		assertThat(this.restTemplate.getForObject(
-				this.baseUrl + "/{superapp}/{internalObjectId}" + "?userSuperapp={userSuperapp}&userEmail={userEmail}",
+				this.baseUrl + "/{superapp}/{internalObjectId}",
 				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId(),
 				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail())).isNotNull()
 				.extracting("objectId").isEqualTo(objectId.getSuperApp() + DELIMITER + objectId.getInternalObjectId());
@@ -166,7 +166,7 @@ public class SuperAppObjectTest {
 		/**
 		 * GIVEN the server is up AND the database is not empty
 		 * 
-		 * WHEN I GET /superapp/objects
+		 * WHEN I GET /superapp/objects?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}
 		 * 
 		 * Then i get all objects
 		 * 
