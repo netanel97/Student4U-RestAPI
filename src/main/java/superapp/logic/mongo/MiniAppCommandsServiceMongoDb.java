@@ -128,21 +128,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		command.setInvocationTimestamp(new Date());
 		command.getCommandId().setInternalCommandId(uuid.toString());
 
-		if (command.getCommandId() == null) {
-			throw new MiniAppCommandNotFoundException("The command's ID is null");
-		}
-		if (command.getCommand() == null || command.getCommand().trim().isEmpty()) {
-			throw new MiniAppCommandNotFoundException("Command string is empty");
-		}
-		if (command.getCommandId().getInternalCommandId() == null) {
-			throw new MiniAppCommandNotFoundException("The command's internal ID is empty");
-		}
-		if (command.getTargetObject() == null) {
-			throw new MiniAppCommandNotFoundException("The command's target object is null");
-		}
-		if (command.getTargetObject().getObjectId() == null) {
-			throw new MiniAppCommandNotFoundException("The command's target object ID is null");
-		}
+		checkCommand(command);
+		
 
 		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
 		miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + DELIMITER
@@ -156,6 +143,42 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
 		}
 
+	}
+
+	private void checkCommand(MiniAppCommandBoundary command) {
+		if (command.getCommandId() == null) {
+			throw new MiniAppCommandNotFoundException("The command's ID is null");
+		}
+		if (command.getCommandId().getInternalCommandId() == null) {
+			throw new MiniAppCommandNotFoundException("The command's internal ID is empty");
+		}
+		if (command.getCommand() == null || command.getCommand().trim().isEmpty()) {
+			throw new MiniAppCommandNotFoundException("Command string is empty");
+		}
+		if (command.getTargetObject() == null) {
+			throw new MiniAppCommandNotFoundException("The command's target object is null");
+		}
+		TargetObject targetObject = command.getTargetObject();
+		if (targetObject.getObjectId() == null) {
+			throw new MiniAppCommandNotFoundException("The command's target object ID is null");
+		}
+		ObjectId targetObjectId = targetObject.getObjectId();
+		if (targetObjectId.getInternalObjectId().isBlank() || targetObjectId.getSuperapp().isBlank()) {
+			throw new MiniAppCommandNotFoundException("The command's target object internal ID is empty");
+		}
+		if(command.getInvokedBy() == null) {
+			throw new MiniAppCommandNotFoundException("The command's InvokedBy is null");
+		}
+		if(command.getInvokedBy().getUserId() == null) {
+			throw new MiniAppCommandNotFoundException("The command's user ID is null");
+		}
+		UserId userId = command.getInvokedBy().getUserId();
+		if(userId.getEmail().isBlank()) {
+			throw new MiniAppCommandNotFoundException("The command's user email is empty");
+		}
+		if(userId.getSuperapp().isBlank()) {
+			throw new MiniAppCommandNotFoundException("The command's superapp is empty");
+		}
 	}
 
 	@Override
