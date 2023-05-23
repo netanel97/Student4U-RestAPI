@@ -94,7 +94,7 @@ public class UsersTest {
 		UserId postUserId = postUser.getUserId();
 		
 //		String url = this.baseUrl + "/login/" + springApplicationName + "/" + postUser.getUserId().getEmail();
-		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperApp(), postUserId.getEmail());
+		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperapp(), postUserId.getEmail());
 
 		String extarctingValueEmail = "userId.email",
 				extarctingValueAvatar = "avatar",
@@ -129,7 +129,7 @@ public class UsersTest {
 		UserBoundary postUser = postNewUserToDB(newUserBoundary);
 		UserId postUserId = postUser.getUserId();
 
-		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperApp(), postUserId.getEmail());
+		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperapp(), postUserId.getEmail());
 
 		String extarctingValueEmail = "userId";
 		String checkingValueEmail = postUser.getUserId().getEmail();
@@ -158,7 +158,7 @@ public class UsersTest {
 		UserBoundary postUser = postNewUserToDB(newUserBoundary);
 		UserId postUserId = postUser.getUserId();
 
-		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperApp(), postUserId.getEmail());
+		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperapp(), postUserId.getEmail());
 		UserId getUserId = getUser.getUserId();
 
 		String newUsername = "abc", newAvatar = "abab", newRole = "SUPERAPP_USER";
@@ -169,7 +169,7 @@ public class UsersTest {
 //				.getForObject(baseLoginUrl, UserBoundary.class, postUser.getUserId());
 		
 		this.restTemplate
-		.put(baseUrl + "/{superapp}/{userEmail}", getUser, getUserId.getSuperApp(), getUserId.getEmail());
+		.put(baseUrl + "/{superapp}/{userEmail}", getUser, getUserId.getSuperapp(), getUserId.getEmail());
 		
 		String extarctingValueUsername = "username";
 		String extarctingValueAvatar = "avatar";
@@ -178,7 +178,7 @@ public class UsersTest {
 		String checkingValueAvatar = getUser.getAvatar();
 		String checkingValueRole = getUser.getRole();
 		
-		UserBoundary getUpdatedUser = getSavedUserFromDB(getUserId.getSuperApp(), getUserId.getEmail());
+		UserBoundary getUpdatedUser = getSavedUserFromDB(getUserId.getSuperapp(), getUserId.getEmail());
 		
 		assertGetUserToPostUser(getUpdatedUser, extarctingValueUsername, checkingValueUsername);
 		assertGetUserToPostUser(getUpdatedUser, extarctingValueAvatar, checkingValueAvatar);
@@ -315,7 +315,7 @@ public class UsersTest {
 	 */
 	private UserBoundary[] getAllUsersFromDB() {
 		return this.restTemplate.getForObject(this.baseAdminUrl + "?userSuperapp={superapp}&userEmail={email}"
-				, UserBoundary[].class, superappUser.getUserId().getSuperApp(), superappUser.getUserId().getEmail());
+				, UserBoundary[].class, superappUser.getUserId().getSuperapp(), superappUser.getUserId().getEmail());
 	}
 	
 	

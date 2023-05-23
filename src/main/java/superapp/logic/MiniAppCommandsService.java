@@ -5,6 +5,8 @@ import java.util.List;
 import superapp.entities.MiniAppCommandBoundary;
 
 public interface MiniAppCommandsService {
+	
+	@Deprecated
 	public Object invokeCommand(MiniAppCommandBoundary command);
 
 	@Deprecated

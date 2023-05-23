@@ -72,9 +72,9 @@ public class SuperAppObjectTest {
 		// TODO: check with user permission and without user permission
 		assertThat(this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}",
-				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail())).isNotNull()
-				.extracting("objectId").isEqualTo(objectId.getSuperApp() + DELIMITER + objectId.getInternalObjectId());
+				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail())).isNotNull()
+				.extracting("objectId").isEqualTo(objectId.getSuperapp() + DELIMITER + objectId.getInternalObjectId());
 	}
 
 	/**
@@ -121,22 +121,22 @@ public class SuperAppObjectTest {
 		// THEN the database contains a single object boundary with the content "test"
 		SuperAppObjectBoundary superAppObjectBoundary = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
-				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail());
+				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 		assertThat(superAppObjectBoundary).isNotNull().extracting("objectId").extracting("internalObjectId")
 				.isEqualTo(objectId.getInternalObjectId());
 		superAppObjectBoundary.setAlias("put");
 		superAppObjectBoundary.setType("barca");
 		this.restTemplate.put(
 				this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
-				superAppObjectBoundary, superAppObjectBoundary.getObjectId().getSuperApp(),
-				superAppObjectBoundary.getObjectId().getInternalObjectId(), this.superappUser.getUserId().getSuperApp(),
+				superAppObjectBoundary, superAppObjectBoundary.getObjectId().getSuperapp(),
+				superAppObjectBoundary.getObjectId().getInternalObjectId(), this.superappUser.getUserId().getSuperapp(),
 				this.superappUser.getUserId().getEmail());
 		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
-				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
+				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId())).isNotNull()
 				.extracting("alias").isEqualTo("put");
 		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
-				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId()))
+				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId()))
 				.extracting("type").isEqualTo("barca");
 	}
 
@@ -154,7 +154,7 @@ public class SuperAppObjectTest {
 		 */
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
-				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperApp(),
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(),
 				this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotNull().isEmpty();
 	}
@@ -175,7 +175,7 @@ public class SuperAppObjectTest {
 		postSuperAppObject();
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
-				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperApp(),
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(),
 				this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotEmpty().hasSize(2);
 	}
@@ -190,12 +190,12 @@ public class SuperAppObjectTest {
 
 		ObjectId objectId = postSuperAppObject();
 		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
-				SuperAppObjectBoundary.class, objectId.getSuperApp(), objectId.getInternalObjectId())).isNotNull()
+				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId())).isNotNull()
 				.extracting("objectId").extracting("internalObjectId").isEqualTo(objectId.getInternalObjectId());
 		this.restTemplate.delete(this.deleteUrl);
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.deleteUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
-				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperApp(),
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(),
 				this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotNull().isEmpty();
 	}

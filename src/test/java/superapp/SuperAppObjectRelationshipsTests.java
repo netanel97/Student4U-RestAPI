@@ -66,15 +66,15 @@ public class SuperAppObjectRelationshipsTests {
 
 
 		SuperAppObjectIdBoundary newObjectIdBoundaryParent = new SuperAppObjectIdBoundary();
-		newObjectIdBoundaryParent.setSuperapp(parent.getSuperApp());
+		newObjectIdBoundaryParent.setSuperapp(parent.getSuperapp());
 		newObjectIdBoundaryParent.setInternalObjectId(parent.getInternalObjectId());
 
 		SuperAppObjectIdBoundary newObjectIdBoundary1 = new SuperAppObjectIdBoundary();
-		newObjectIdBoundary1.setSuperapp(child1.getSuperApp());
+		newObjectIdBoundary1.setSuperapp(child1.getSuperapp());
 		newObjectIdBoundary1.setInternalObjectId(child1.getInternalObjectId());
 
 		SuperAppObjectIdBoundary newObjectIdBoundary2 = new SuperAppObjectIdBoundary();
-		newObjectIdBoundary2.setSuperapp(child2.getSuperApp());
+		newObjectIdBoundary2.setSuperapp(child2.getSuperapp());
 		newObjectIdBoundary2.setInternalObjectId(child2.getInternalObjectId());
 
 		// WHEN I PUT /superapp/objects/{superapp}/{internalObjectId}/children
@@ -82,30 +82,30 @@ public class SuperAppObjectRelationshipsTests {
 		/// parent will have 2 children : child1, child2
 
 		this.restTemplate.put(this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + USER, newObjectIdBoundary1,
-				parent.getSuperApp(), parent.getSuperApp() + "_" + parent.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail());
+				parent.getSuperapp(), parent.getSuperapp() + "_" + parent.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 
 		this.restTemplate.put(this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + USER, newObjectIdBoundary2,
-				parent.getSuperApp(), parent.getSuperApp() + "_" + parent.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail());
+				parent.getSuperapp(), parent.getSuperapp() + "_" + parent.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 
 		/// child1 will have 2 parents : child2, parent
 
 		this.restTemplate.put(this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + USER, newObjectIdBoundary1,
-				child2.getSuperApp(), child2.getSuperApp() + "_" + child2.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail());
+				child2.getSuperapp(), child2.getSuperapp() + "_" + child2.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 
 		// THEN a relationship will be created between messages
 		SuperAppObjectBoundary[] arrParent = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + USER, SuperAppObjectBoundary[].class,
-				parent.getSuperApp(), parent.getSuperApp() + "_" + parent.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail());
+				parent.getSuperapp(), parent.getSuperapp() + "_" + parent.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 		assertThat(arrParent).isNotEmpty().hasSize(2);
 
 		SuperAppObjectBoundary[] arrChild = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}" + PARENTS + USER, SuperAppObjectBoundary[].class,
-				child1.getSuperApp(), child1.getSuperApp() + "_" + child1.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(), this.superappUser.getUserId().getEmail());
+				child1.getSuperapp(), child1.getSuperapp() + "_" + child1.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 		assertThat(arrChild).isNotEmpty().hasSize(2);
 	}
 	
@@ -120,8 +120,8 @@ public class SuperAppObjectRelationshipsTests {
 		// THEN the server responds with 2xx status
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}" + PARENTS + USER, SuperAppObjectBoundary[].class,
-				parent.getSuperApp(), parent.getSuperApp() + "_" + parent.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(),this.superappUser.getUserId().getEmail());
+				parent.getSuperapp(), parent.getSuperapp() + "_" + parent.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(),this.superappUser.getUserId().getEmail());
 
 		assertThat(arr).isEmpty();
 
@@ -137,8 +137,8 @@ public class SuperAppObjectRelationshipsTests {
 		// THEN the server responds with 2xx status
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + USER, SuperAppObjectBoundary[].class,
-				parent.getSuperApp(), parent.getSuperApp() + "_" + parent.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperApp(),this.superappUser.getUserId().getEmail());
+				parent.getSuperapp(), parent.getSuperapp() + "_" + parent.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(),this.superappUser.getUserId().getEmail());
 		assertThat(arr).isEmpty();
 	}
 

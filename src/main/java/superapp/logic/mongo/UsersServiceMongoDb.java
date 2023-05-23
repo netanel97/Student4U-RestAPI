@@ -242,7 +242,7 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 		if (userId != null) {
 			UserId newUserId = new UserId();
 			String[] attr = userId.split(DELIMITER);
-			newUserId.setSuperApp(attr[0]);
+			newUserId.setSuperapp(attr[0]);
 			newUserId.setEmail(attr[1]);
 			return newUserId;
 		} else {

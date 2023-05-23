@@ -3,20 +3,20 @@ package superapp.entities;
 public class CommandId {
 
 	private String superapp;
-	private String miniApp;
+	private String miniapp;
 	private String internalCommandId;
 	
 	public CommandId() {
 		super();
 	}
 	
-	public CommandId(String miniApp, String internalCommandId) {
+	public CommandId(String miniapp, String internalCommandId) {
 		super();
-		this.miniApp = miniApp;
+		this.miniapp = miniapp;
 		this.internalCommandId = internalCommandId;
 	}
 	
-	public String getSuperApp() {
+	public String getSuperapp() {
 		return superapp;
 	}
 	
@@ -25,11 +25,11 @@ public class CommandId {
 	}
 	
 	public String getMiniapp() {
-		return miniApp;
+		return miniapp;
 	}
 	
-	public void setMiniApp(String miniApp) {
-		this.miniApp = miniApp;
+	public void setMiniapp(String miniApp) {
+		this.miniapp = miniApp;
 	}
 	
 	public String getInternalCommandId() {
@@ -42,7 +42,7 @@ public class CommandId {
 
 	@Override
 	public String toString() {
-		return "CommandId [superapp=" + superapp + ", miniApp=" + miniApp + ", internalCommandId=" + internalCommandId
+		return "CommandId [superapp=" + superapp + ", miniapp=" + miniapp + ", internalCommandId=" + internalCommandId
 				+ "]";
 	}
 	

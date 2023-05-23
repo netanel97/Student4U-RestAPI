@@ -584,7 +584,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			String[] attr = objectStr.split(DELIMITER);
 
 			ObjectId objectId = new ObjectId();
-			objectId.setSuperApp(attr[0]);
+			objectId.setSuperapp(attr[0]);
 			objectId.setInternalObjectId(attr[1]);
 
 			return objectId;
@@ -605,7 +605,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 
 			CreatedBy createdBy = new CreatedBy();
 			createdBy.setUserId(new UserId(attr[1]));
-			createdBy.getUserId().setSuperApp(attr[0]);
+			createdBy.getUserId().setSuperapp(attr[0]);
 
 			return createdBy;
 		} else {

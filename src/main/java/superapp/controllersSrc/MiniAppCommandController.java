@@ -6,11 +6,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import superapp.entities.CommandId;
 import superapp.entities.MiniAppCommandBoundary;
-import superapp.logic.MiniAppCommandsService;
 import superapp.logic.MiniAppCommandsServiceWithPaginationSupport;
 
 /**
@@ -43,20 +42,44 @@ public class MiniAppCommandController {
 	 * @param @PathVariable("miniAppName") String miniAppName
 	 * @return Object
 	 */
+//	@RequestMapping(path = { "/superapp/miniapp/{miniAppName}" }, method = { RequestMethod.POST }, produces = {
+//			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
+//			consumes = { MediaType.APPLICATION_JSON_VALUE }) // takes a JSON as argument
+//	@Deprecated
+//	public Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
+//			@PathVariable("miniAppName") String miniAppName) {
+//
+//		CommandId newCommandId = new CommandId();
+//		newCommandId.setMiniApp(miniAppName);
+//		miniAppCommandBoundary.setCommandId(newCommandId);
+//
+//		MiniAppCommandBoundary newMiniAppCommandBoundary = (MiniAppCommandBoundary) miniAppCommandsService
+//				.invokeCommand(miniAppCommandBoundary);
+//		return newMiniAppCommandBoundary;
+//
+//	}
 
+	/**
+	 * This function processes an HTTP POST request to execute a command for a
+	 * specific mini app. It requires two parameters to be passed: the mini app's
+	 * name for which the command is to be executed, and the command itself. The
+	 * function returns the command object that was initially provided as a
+	 * parameter.
+	 *
+	 * @param @RequestBody                 MiniAppCommandBoundary
+	 *                                     miniAppCommandBoundary
+	 * @param @PathVariable("miniAppName") String miniAppName
+	 * @return Object
+	 */
 	@RequestMapping(path = { "/superapp/miniapp/{miniAppName}" }, method = { RequestMethod.POST }, produces = {
 			MediaType.APPLICATION_JSON_VALUE }, // returns a new JSON
 			consumes = { MediaType.APPLICATION_JSON_VALUE }) // takes a JSON as argument
-
 	public Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
-			@PathVariable("miniAppName") String miniAppName) {
-
-		CommandId newCommandId = new CommandId();
-		newCommandId.setMiniApp(miniAppName);
-		miniAppCommandBoundary.setCommandId(newCommandId);
+			@PathVariable("miniAppName") String miniAppName,
+			@RequestParam(name = "async", required = false, defaultValue = "false") Boolean asyncFlag) {
 
 		MiniAppCommandBoundary newMiniAppCommandBoundary = (MiniAppCommandBoundary) miniAppCommandsService
-				.invokeCommand(miniAppCommandBoundary);
+				.invokeCommand(miniAppCommandBoundary, miniAppName, asyncFlag);
 		return newMiniAppCommandBoundary;
 
 	}

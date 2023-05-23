@@ -14,7 +14,7 @@ public class UserId {
 		this.email = email;
 	}
 
-	public String getSuperApp() {
+	public String getSuperapp() {
 		return superapp;
 	}
 
@@ -22,8 +22,8 @@ public class UserId {
 		return email;
 	}
 
-	public void setSuperApp(String springApplicationName) {
-		this.superapp = springApplicationName;
+	public void setSuperapp(String superapp) {
+		this.superapp = superapp;
 	}
 
 	public void setEmail(String email) {
@@ -32,6 +32,6 @@ public class UserId {
 
 	@Override
 	public String toString() {
-		return "UserID [springApplicationName=" + superapp + ", email=" + email + "]";
+		return "UserID [superapp=" + superapp + ", email=" + email + "]";
 	}
 }

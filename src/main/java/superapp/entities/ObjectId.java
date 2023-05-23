@@ -17,11 +17,11 @@ public class ObjectId {
 		this.internalObjectId = internalObjectId;
 	}
 
-	public String getSuperApp() {
+	public String getSuperapp() {
 		return superapp;
 	}
 
-	public void setSuperApp(String superapp) {
+	public void setSuperapp(String superapp) {
 		this.superapp = superapp;
 	}
 
@@ -35,6 +35,6 @@ public class ObjectId {
 
 	@Override
 	public String toString() {
-		return "ObjectId [springApplicationName=" + superapp + ", internalObjectId=" + internalObjectId + "]";
+		return "ObjectId [superapp=" + superapp + ", internalObjectId=" + internalObjectId + "]";
 	}
 }
