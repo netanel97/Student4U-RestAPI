@@ -391,7 +391,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 			String[] attr = targetObject.split(DELIMITER);
 			ObjectId newObjectId = new ObjectId();
 			newObjectId.setSuperapp(attr[0]);
-			System.err.println("attr 0: " + attr[0]);
 			newObjectId.setInternalObjectId(attr[1]);
 			TargetObject newTargetObject = new TargetObject();
 			newTargetObject.setObjectId(newObjectId);
