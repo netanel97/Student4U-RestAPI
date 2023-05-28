@@ -2,7 +2,7 @@ package superapp.logic;
 
 import java.util.List;
 
-import superapp.entities.MiniAppCommandBoundary;
+import superapp.boundaries.command.MiniAppCommandBoundary;
 
 public interface MiniAppCommandsServiceWithPaginationSupport extends MiniAppCommandsService{
 	

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.jms.annotation.JmsListener;
@@ -16,21 +17,24 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
+import superapp.boundaries.command.CommandId;
+import superapp.boundaries.command.InvokedBy;
+import superapp.boundaries.command.MiniAppCommandBoundary;
+import superapp.boundaries.command.TargetObject;
+import superapp.boundaries.object.ObjectId;
+import superapp.boundaries.user.UserId;
+import superapp.dal.MiniAppCommandCrud;
+import superapp.dal.UserCrud;
 import superapp.data.MiniAppCommandEntity;
 import superapp.data.UserEntity;
 import superapp.data.UserRole;
-import superapp.entities.CommandId;
-import superapp.entities.InvokedBy;
-import superapp.entities.MiniAppCommandBoundary;
-import superapp.entities.MiniAppCommandCrud;
-import superapp.entities.ObjectId;
-import superapp.entities.TargetObject;
-import superapp.entities.UserCrud;
-import superapp.entities.UserId;
 import superapp.logic.MiniAppCommandNotFoundException;
 import superapp.logic.MiniAppCommandsServiceWithPaginationSupport;
+import superapp.logic.MiniAppForum;
+import superapp.logic.MiniAppService;
 import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotFoundException;
+import superapp.utils.MiniAppCommandConverter;
 
 @Service
 public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWithPaginationSupport {
@@ -40,6 +44,9 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	private String DELIMITER = "_";
 	private ObjectMapper jackson;
 	private JmsTemplate jmsTemplate;
+	private MiniAppService miniAppCommandService;
+	private ApplicationContext applicationContext;
+	private MiniAppCommandConverter miniAppCommandConverter;
 
 	/**
 	 * this method injects a configuration value of spring
@@ -50,9 +57,12 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	}
 
 	@Autowired
-	public MiniAppCommandsServiceMongoDb(MiniAppCommandCrud miniAppCommandCrud, UserCrud userCrud) {
+	public MiniAppCommandsServiceMongoDb(MiniAppCommandCrud miniAppCommandCrud, UserCrud userCrud,ApplicationContext applicationContext,
+			MiniAppCommandConverter miniAppCommandConverter) {
 		this.databaseCrud = miniAppCommandCrud;
 		this.userCrud = userCrud;
+		this.applicationContext = applicationContext;
+		this.miniAppCommandConverter = miniAppCommandConverter;
 	}
 
 	@Autowired
@@ -82,28 +92,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	@Override
 	@Deprecated
 	public Object invokeCommand(MiniAppCommandBoundary command) {
-		if (command == null) {
-			throw new MiniAppCommandNotFoundException("The command is null");
-		}
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 
-		UUID uuid = UUID.randomUUID();
-		command.setInvocationTimestamp(new Date());
-		command.getCommandId().setInternalCommandId(uuid.toString());
-
-		if (command.getCommandId() == null) {
-			throw new MiniAppCommandNotFoundException("The command's ID is null");
-		} else if (command.getCommand() == null || command.getCommand().trim().isEmpty()) {
-			throw new MiniAppCommandNotFoundException("Command string is empty");
-		} else if (command.getCommandId().getInternalCommandId() == null) {
-			throw new MiniAppCommandNotFoundException("The command's internal ID is empty");
-		}
-
-		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
-		miniAppCommandEntity.setCommandId(superapp + DELIMITER + command.getCommandId().getMiniapp() + DELIMITER
-				+ command.getCommandId().getInternalCommandId());
-
-		this.databaseCrud.save(miniAppCommandEntity);
-		return this.entityToBoundary(miniAppCommandEntity);
 	}
 
 	/**
@@ -127,8 +117,9 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		UUID uuid = UUID.randomUUID();
 		command.setInvocationTimestamp(new Date());
 		command.getCommandId().setInternalCommandId(uuid.toString());
-
-		checkCommand(command);
+		
+		checkValidCommand(command);
+		Object commandResult = this.chooseCommand(command);
 		
 
 		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
@@ -139,10 +130,32 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 			return aSyncHandleCommand(command);
 		} else {
 			this.databaseCrud.save(miniAppCommandEntity);
-			return this.entityToBoundary(miniAppCommandEntity);
+			return this.miniAppCommandConverter.entityToBoundary(miniAppCommandEntity);
 
 		}
 
+	}
+
+	private Object chooseCommand(MiniAppCommandBoundary command) {
+		String miniApp = command.getCommandId().getMiniapp();
+		switch (miniApp) {
+		case "Forum": {
+            this.miniAppCommandService = this.applicationContext.getBean("Forum", MiniAppForum.class);
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + miniApp);
+		}
+		return this.miniAppCommandService.runCommand(command); 
+	}
+
+	private void checkValidCommand(MiniAppCommandBoundary command) {
+	  this.checkCommand(command);
+		String userId = command.getInvokedBy().getUserId().getSuperapp() + DELIMITER + command.getInvokedBy().getUserId().getEmail();
+		UserEntity userEntity = this.userCrud.findById(userId).orElseThrow(()-> new UserNotFoundException("User not found"));
+	    if(userEntity.getRole() != UserRole.MINIAPP_USER) {
+	    	throw new UnauthorizedAccessException("The user is not allowed");
+	    }
 	}
 
 	private void checkCommand(MiniAppCommandBoundary command) {
@@ -226,8 +239,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	@Override
 	@Deprecated
 	public List<MiniAppCommandBoundary> getAllCommands() {
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 
-		return this.databaseCrud.findAll().stream().map(this::entityToBoundary).toList();
 	}
 
 	@Override
@@ -239,7 +252,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 			return this.databaseCrud
 					.findAll(PageRequest.of(page, size, Direction.ASC, "invocationTimestamp", "commandId")) // List<MiniAppCommandEntity>
 					.stream() // Stream<MiniAppCommandEntity>
-					.map(this::entityToBoundary) // Stream<MiniAppCommandEntity>
+					.map(this.miniAppCommandConverter::entityToBoundary) // Stream<MiniAppCommandEntity>
 					.toList(); // List<MiniAppCommandBoundary>
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
@@ -257,18 +270,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	@Override
 	@Deprecated
 	public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName) {
-		List<MiniAppCommandBoundary> specificCommands = new ArrayList<>();
-		List<MiniAppCommandBoundary> allCommands = getAllCommands();
-		for (MiniAppCommandBoundary cmd : allCommands) {
-			if (cmd.getCommandId().getMiniapp().equals(miniAppName)) {
-				specificCommands.add(cmd);
-			}
-		}
-		if (specificCommands.size() == 0) {
-			throw new MiniAppCommandNotFoundException(
-					"either " + miniAppName + " is non-existent or no commands for " + miniAppName + " were found.");
-		}
-		return specificCommands;
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+
 	}
 
 	@Override
@@ -345,80 +348,13 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		return superapp + DELIMITER + commandId.getMiniapp() + DELIMITER + commandId.getInternalCommandId();
 	}
 
-	/**
-	 * Convert miniapp command entity to miniapp command boundary
-	 *
-	 * @param MiniAppCommandEntity
-	 * @return MiniAppCommandBoundary
-	 */
-	private MiniAppCommandBoundary entityToBoundary(MiniAppCommandEntity miniAppCommandEntity) {
-		MiniAppCommandBoundary miniAppCommandBoundary = new MiniAppCommandBoundary();
-		miniAppCommandBoundary.setCommand(miniAppCommandEntity.getCommand());
-		miniAppCommandBoundary.setCommandAttributes(miniAppCommandEntity.getCommandAttributes());
-		miniAppCommandBoundary.setCommandId(this.toBoundaryCommandId(miniAppCommandEntity.getCommandId()));
-		miniAppCommandBoundary.setInvokedBy(this.toBoundaryInvokedBy(miniAppCommandEntity.getInvokedBy()));
-		miniAppCommandBoundary.setTargetObject(this.toBoundaryTargetObject(miniAppCommandEntity.getTargetObject()));
-		miniAppCommandBoundary.setInvocationTimestamp(miniAppCommandEntity.getInvocationTimestamp());
-		return miniAppCommandBoundary;
-	}
 
-	/**
-	 * Convert String to CommandId object for boundary
-	 *
-	 * @param String
-	 * @return CommandId
-	 */
-	private CommandId toBoundaryCommandId(String commandId) {
-		if (commandId != null) {
-			CommandId newCommandId = new CommandId();
-			String[] attr = commandId.split(DELIMITER);
-			newCommandId.setSuperapp(commandId);
-			newCommandId.setMiniapp(attr[1]);
-			newCommandId.setInternalCommandId(attr[2]);
-			return newCommandId;
-		} else
-			return null;
-	}
 
-	/**
-	 * Convert String to TargetObject object for boundary
-	 *
-	 * @param String
-	 * @return TargetObject
-	 */
-	private TargetObject toBoundaryTargetObject(String targetObject) {
-		if (targetObject != null) {
-			String[] attr = targetObject.split(DELIMITER);
-			ObjectId newObjectId = new ObjectId();
-			newObjectId.setSuperapp(attr[0]);
-			newObjectId.setInternalObjectId(attr[1]);
-			TargetObject newTargetObject = new TargetObject();
-			newTargetObject.setObjectId(newObjectId);
-			return newTargetObject;
-		} else
-			return null;
 
-	}
 
-	/**
-	 * Convert String to InvokedBy object for boundary
-	 *
-	 * @param String
-	 * @return InvokedBy
-	 */
-	private InvokedBy toBoundaryInvokedBy(String invokedBy) {
-		if (invokedBy != null) {
-			String[] attr = invokedBy.split(DELIMITER);
-			UserId newUserId = new UserId();
-			newUserId.setSuperapp(attr[0]);
-			newUserId.setEmail(attr[1]);
-			InvokedBy newInvokedBy = new InvokedBy();
-			newInvokedBy.setUserId(newUserId);
+	
 
-			return newInvokedBy;
-		} else
-			return null;
-	}
+	
 
 	/**
 	 * Delete all users from DB
@@ -426,7 +362,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	@Override
 	@Deprecated
 	public void deleteAllCommands() {
-		this.databaseCrud.deleteAll();
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+
 
 	}
 

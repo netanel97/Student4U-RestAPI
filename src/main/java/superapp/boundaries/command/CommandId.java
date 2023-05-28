@@ -1,4 +1,4 @@
-package superapp.entities;
+package superapp.boundaries.command;
 
 public class CommandId {
 

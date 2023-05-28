@@ -1,14 +1,15 @@
-package superapp.entities;
+package superapp.boundaries.object;
 
-public class InvokedBy {
+import superapp.boundaries.user.UserId;
+
+public class CreatedBy {
 	private UserId userId;
 
-	public InvokedBy() {
+	public CreatedBy() {
 		super();
-
 	}
-	
-	public InvokedBy(UserId userId) {
+
+	public CreatedBy(UserId userId) {
 		super();
 		this.userId = userId;
 	}
@@ -23,8 +24,7 @@ public class InvokedBy {
 
 	@Override
 	public String toString() {
-		return "InvokedBy [userId=" + userId + "]";
+		return "CreatedBy [userId=" + userId + "]";
 	}
-	
-	
-}	
+
+}

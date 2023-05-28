@@ -1,4 +1,6 @@
-package superapp.entities;
+package superapp.boundaries.command;
+
+import superapp.boundaries.object.ObjectId;
 
 public class TargetObject {
 	ObjectId objectId;

@@ -1,4 +1,4 @@
-package superapp.entities;
+package superapp.boundaries.object;
 
 import java.util.Date;
 import java.util.Map;
@@ -15,6 +15,9 @@ public class SuperAppObjectBoundary {
 	private Map<String, Object> objectDetails;
 	
 
+	
+	
+	
 	public SuperAppObjectBoundary() {
 		super();
 	}

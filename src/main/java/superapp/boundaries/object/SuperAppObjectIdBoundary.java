@@ -1,20 +1,11 @@
-package superapp.entities;
+package superapp.boundaries.object;
 
-import org.springframework.stereotype.Component;
-
-@Component
-public class ObjectId {
-
+public class SuperAppObjectIdBoundary {
 	private String superapp;
 	private String internalObjectId;
-
-	public ObjectId() {
-		super();
-	};
-
-	public ObjectId(String internalObjectId) {
-		super();
-		this.internalObjectId = internalObjectId;
+	
+	public SuperAppObjectIdBoundary() {
+	
 	}
 
 	public String getSuperapp() {
@@ -35,6 +26,9 @@ public class ObjectId {
 
 	@Override
 	public String toString() {
-		return "ObjectId [superapp=" + superapp + ", internalObjectId=" + internalObjectId + "]";
+		return "SuperAppObjectIdBoundary [superapp=" + superapp + ", internalObjectId=" + internalObjectId + "]";
 	}
+	
+
+
 }

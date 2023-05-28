@@ -8,10 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import superapp.entities.NewUserBoundary;
-import superapp.entities.UserBoundary;
-import superapp.entities.UserId;
-import superapp.logic.UsersService;
+import superapp.boundaries.user.NewUserBoundary;
+import superapp.boundaries.user.UserBoundary;
+import superapp.boundaries.user.UserId;
 import superapp.logic.UsersServiceWithPaginationSupport;
 
 @RestController

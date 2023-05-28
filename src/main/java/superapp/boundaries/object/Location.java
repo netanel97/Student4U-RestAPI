@@ -1,4 +1,4 @@
-package superapp.entities;
+package superapp.boundaries.object;
 
 public class Location {
 	private Double lat;

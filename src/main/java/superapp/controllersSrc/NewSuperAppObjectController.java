@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import superapp.entities.SuperAppObjectBoundary;
-import superapp.entities.SuperAppObjectIdBoundary;
+import superapp.boundaries.object.SuperAppObjectBoundary;
+import superapp.boundaries.object.SuperAppObjectIdBoundary;
 import superapp.logic.ObjectServiceWithPaginationSupport;
 
 @RestController

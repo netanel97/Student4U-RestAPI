@@ -3,8 +3,8 @@ package superapp.logic;
 import java.util.List;
 import java.util.Optional;
 
-import superapp.entities.SuperAppObjectBoundary;
-import superapp.entities.SuperAppObjectIdBoundary;
+import superapp.boundaries.object.SuperAppObjectBoundary;
+import superapp.boundaries.object.SuperAppObjectIdBoundary;
 
 public interface ObjectServiceWithPaginationSupport extends ObjectsService {
 

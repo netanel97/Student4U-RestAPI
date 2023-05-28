@@ -11,23 +11,22 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
+import superapp.boundaries.user.UserBoundary;
+import superapp.dal.UserCrud;
 import superapp.data.UserEntity;
 import superapp.data.UserRole;
-import superapp.entities.SuperAppObjectBoundary;
-import superapp.entities.UserBoundary;
-import superapp.entities.UserCrud;
-import superapp.entities.UserId;
 import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotAcceptableException;
 import superapp.logic.UserNotFoundException;
-import superapp.logic.UsersService;
 import superapp.logic.UsersServiceWithPaginationSupport;
+import superapp.utils.UserConverter;
 
 @Service
 public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 	private UserCrud databaseCrud;
 	private String springApplicationName;
 	private final String DELIMITER = "_";
+	private UserConverter userConverter;
 
 	/**
 	 * this method injects a configuration value of spring
@@ -38,8 +37,10 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 	}
 
 	@Autowired
-	public UsersServiceMongoDb(UserCrud userCrud) {
+	public UsersServiceMongoDb(UserCrud userCrud, UserConverter userConverter) {
 		this.databaseCrud = userCrud;
+		this.userConverter = userConverter;
+		
 	}
 
 	/**
@@ -74,12 +75,12 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 			throw new UserNotAcceptableException("The email address is invalid");
 		}
 
-		UserEntity userEntity = this.boundaryToEntity(user);
+		UserEntity userEntity = this.userConverter.boundaryToEntity(user);
 
 		// put userEntity in DB
 		userEntity = this.databaseCrud.save(userEntity);
 
-		return this.entityToBoundary(userEntity);
+		return this.userConverter.entityToBoundary(userEntity);
 	}
 
 	/**
@@ -93,7 +94,7 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 	public Optional<UserBoundary> login(String userSuperApp, String userEmail) {
 		String userId = userSuperApp + DELIMITER + userEmail;
 
-		return this.databaseCrud.findById(userId).map(this::entityToBoundary);
+		return this.databaseCrud.findById(userId).map(this.userConverter::entityToBoundary);
 	}
 
 	/**
@@ -135,7 +136,7 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 		if (dirtyFlag) {
 			existingUser = this.databaseCrud.save(existingUser);
 		}
-		return this.entityToBoundary(existingUser);
+		return this.userConverter.entityToBoundary(existingUser);
 
 	}
 
@@ -148,11 +149,6 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 	@Override
 	@Deprecated
 	public List<UserBoundary> getAllUsers() {
-//		return this.databaseCrud
-//	            .findAll() // List<SuperAppObjectBoundary>
-//	            .stream() // Stream<SuperAppObjectBoundary>
-//	            .map(this::entityToBoundary) // Stream<SuperAppObject>
-//	            .toList(); // Lis
 
 		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 
@@ -168,7 +164,7 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 		if (user.getRole() == UserRole.ADMIN) {
 			return this.databaseCrud.findAll(PageRequest.of(page, size, Direction.ASC, "userId")) // List<UserEntity>
 					.stream() // Stream<UserEntity>
-					.map(this::entityToBoundary) // Stream<UserBoundary>
+					.map(this.userConverter::entityToBoundary) // Stream<UserBoundary>
 					.toList(); // List<UserBoundary>
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
@@ -181,9 +177,7 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 	 */
 	@Override
 	@Deprecated
-	public void deleteAllUsers() {
-		this.databaseCrud.deleteAll();
-		
+	public void deleteAllUsers() {		
 		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 	}
 	
@@ -215,71 +209,6 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
 
 		return Pattern.compile(regex).matcher(email).matches();
 	}
-
-	/**
-	 * Convert user entity to user boundary
-	 * 
-	 * @param UserEntity user entity
-	 * @return UserBoundary
-	 */
-	private UserBoundary entityToBoundary(UserEntity userEntity) {
-		UserBoundary userBoundary = new UserBoundary();
-		userBoundary.setAvatar(userEntity.getAvatar());
-		userBoundary.setRole(userEntity.getRole().toString());
-		userBoundary.setUserId(this.toBoundaryUserId(userEntity.getUserId()));
-		userBoundary.setUsername(userEntity.getUserName());
-		return userBoundary;
-
-	}
-
-	/**
-	 * Convert from String user id to UserId
-	 * 
-	 * @param String user id
-	 * @return UserId
-	 */
-	private UserId toBoundaryUserId(String userId) {
-		if (userId != null) {
-			UserId newUserId = new UserId();
-			String[] attr = userId.split(DELIMITER);
-			newUserId.setSuperapp(attr[0]);
-			newUserId.setEmail(attr[1]);
-			return newUserId;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Convert from user Boundary to user Entity
-	 * 
-	 * @param UserBoundary user boundary
-	 * @return UserEntity user entity
-	 */
-	private UserEntity boundaryToEntity(UserBoundary userBoundary) {
-		UserEntity userEntity = new UserEntity();
-		userEntity.setAvatar(userBoundary.getAvatar());
-
-		try {
-			UserRole role = UserRole.valueOf(userBoundary.getRole());
-			userEntity.setRole(role);
-		} catch (Exception e) {
-			throw new RuntimeException("Could not find role: " + userBoundary.getRole());
-		}
-		userEntity.setUserId(this.boundaryToStr(userBoundary.getUserId()));
-		userEntity.setUserName(userBoundary.getUsername());
-		return userEntity;
-
-	}
-
-	/**
-	 * Convert from UserId to string with delimiter
-	 * 
-	 * @param UserId user id
-	 * @return String application name followed by delimiter and user email
-	 */
-	private String boundaryToStr(UserId userId) {
-		return springApplicationName + DELIMITER + userId.getEmail();
-	}
+	
 
 }

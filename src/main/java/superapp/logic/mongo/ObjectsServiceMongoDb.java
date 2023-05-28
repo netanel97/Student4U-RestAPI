@@ -3,10 +3,8 @@ package superapp.logic.mongo;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,22 +13,21 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
+import superapp.boundaries.object.CreatedBy;
+
+import superapp.boundaries.object.SuperAppObjectBoundary;
+import superapp.boundaries.object.SuperAppObjectIdBoundary;
+import superapp.dal.SuperAppObjectCrud;
+import superapp.dal.UserCrud;
 import superapp.data.SuperAppObjectEntity;
 import superapp.data.UserEntity;
 import superapp.data.UserRole;
-import superapp.entities.CreatedBy;
-import superapp.entities.Location;
-import superapp.entities.ObjectId;
-import superapp.entities.SuperAppObjectBoundary;
-import superapp.entities.SuperAppObjectCrud;
-import superapp.entities.SuperAppObjectIdBoundary;
-import superapp.entities.UserCrud;
-import superapp.entities.UserId;
 import superapp.logic.ObjectServiceWithPaginationSupport;
 import superapp.logic.SuperAppObjectNotActiveException;
 import superapp.logic.SuperAppObjectNotFoundException;
 import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotFoundException;
+import superapp.utils.ObjectConverter;
 
 @Service
 public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport {
@@ -39,6 +36,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 	private String springApplicationName;
 	private final String DELIMITER = "_";
 	private String unauthorizedUserMessage = "User doesn't have permissions!";
+	private ObjectConverter objectConverter;
 
 	/**
 	 * this method injects a configuration value of spring
@@ -49,9 +47,10 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 	}
 
 	@Autowired
-	public ObjectsServiceMongoDb(SuperAppObjectCrud superAppObjectCrud, UserCrud userCrud) {
+	public ObjectsServiceMongoDb(SuperAppObjectCrud superAppObjectCrud, UserCrud userCrud,ObjectConverter objectConverter) {
 		this.databaseCrud = superAppObjectCrud;
 		this.userCrud = userCrud;
+		this.objectConverter = objectConverter;
 	}
 
 	/**
@@ -98,7 +97,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		superAppObjectEntity.setObjectId(springApplicationName + DELIMITER + UUID.randomUUID().toString());
 
 		superAppObjectEntity = this.databaseCrud.save(superAppObjectEntity);
-		return this.entityToBoundary(superAppObjectEntity);
+		return this.objectConverter.entityToBoundary(superAppObjectEntity);
 	}
 
 	/**
@@ -180,21 +179,18 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			if (dirtyFlag) {
 				existingObject = this.databaseCrud.save(existingObject);
 			}
-			return this.entityToBoundary(existingObject);
+			return this.objectConverter.entityToBoundary(existingObject);
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
 	}
 
-
 	@Override
 	@Deprecated
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId) {
-		String attr = objectSuperApp + DELIMITER + internalObjectId;
-		return this.databaseCrud.findById(attr).map(this::entityToBoundary);
-		// .orElseThrow(()->new SuperAppObjectNotFoundException("could not update
-		// superapp object by id: " + attr + " because it does not exist"));
-//		}
+		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
+
+
 
 	}
 	
@@ -215,10 +211,10 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		SuperAppObjectEntity superAppObjectEntity = this.databaseCrud.findById(attr)
 				.orElseThrow(() -> new SuperAppObjectNotFoundException("Could not find superapp with id: " + attr));
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
-			return Optional.of(superAppObjectEntity).map(this::entityToBoundary);
+			return Optional.of(superAppObjectEntity).map(this.objectConverter::entityToBoundary);
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
 			if (superAppObjectEntity.isActive()) {
-				return Optional.of(superAppObjectEntity).map(this::entityToBoundary);
+				return Optional.of(superAppObjectEntity).map(this.objectConverter::entityToBoundary);
 			} else {
 				throw new SuperAppObjectNotActiveException("Supper app object is not active");
 			}
@@ -250,13 +246,13 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
 			return this.databaseCrud.findAll(PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
 					.stream() // Stream<SuperAppObjectBoundary>
-					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
 			return this.databaseCrud
 					.findAllByActiveIsTrue(PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId")) // List<SuperAppObjectBoundary>
 					.stream() // Stream<SuperAppObjectBoundary>
-					.filter(object -> object.isActive()).map(this::entityToBoundary) // Stream<SuperAppObject>
+					.filter(object -> object.isActive()).map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
@@ -348,7 +344,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			List<SuperAppObjectEntity> children = this.databaseCrud.findByParentsContaining(parent,
 					PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId"));
 			return children.stream() // Stream<MessageEntity>
-					.map(this::entityToBoundary) // Stream<Message>
+					.map(this.objectConverter::entityToBoundary) // Stream<Message>
 					.toList();
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
 			if (!parent.isActive()) {
@@ -356,7 +352,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			}
 			List<SuperAppObjectEntity> children = this.databaseCrud.findByParentsContainingAndActiveIsTrue(parent,
 					PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId"));
-			return children.stream().map(this::entityToBoundary).toList();
+			return children.stream().map(this.objectConverter::entityToBoundary).toList();
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
 		}
@@ -387,7 +383,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			List<SuperAppObjectEntity> parents = this.databaseCrud.findByChildrenContaining(child,
 					PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId"));
 			return parents.stream() // Stream<MessageEntity>
-					.map(this::entityToBoundary) // Stream<Message>
+					.map(this.objectConverter::entityToBoundary) // Stream<Message>
 					.toList();
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
 			if (child.isActive()) {
@@ -396,7 +392,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			List<SuperAppObjectEntity> parents = this.databaseCrud.findByChildrenContainingAndActiveIsTrue(child,
 					PageRequest.of(page, size, Direction.ASC, "creationTimestamp", "objectId"));
 			return parents.stream() // Stream<MessageEntity>
-					.map(this::entityToBoundary) // Stream<Message>
+					.map(this.objectConverter::entityToBoundary) // Stream<Message>
 					.toList();
 		} else {
 			throw new UnauthorizedAccessException("User doesn't have permissions!");
@@ -422,14 +418,14 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
 			return this.databaseCrud.findAllByType(type, PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
 					.stream() // Stream<SuperAppObjectBoundary>
-					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
 			return this.databaseCrud
 					.findAllByTypeAndActiveIsTrue(type, PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
 					.stream() // Stream<SuperAppObjectBoundary>
-					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 		} else {
 			throw new UnauthorizedAccessException(unauthorizedUserMessage);
@@ -456,14 +452,14 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
 			return this.databaseCrud.findAllByAlias(alias, PageRequest.of(page, size, Direction.ASC, "type", "id"))
 					.stream() // Stream<SuperAppObjectBoundary>
-					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
 			return this.databaseCrud
 					.findAllByAliasAndActiveIsTrue(alias, PageRequest.of(page, size, Direction.ASC, "type", "id"))
 					.stream() // Stream<SuperAppObjectBoundary>
-					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 		} else {
 			throw new UnauthorizedAccessException(unauthorizedUserMessage);
@@ -498,7 +494,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 					.findAllByLatBetweenAndLngBetween(minLat, maxLat, minLng, maxLng,
 							PageRequest.of(page, size, Direction.ASC, "type", "id"))
 					.stream() // Stream<SuperAppObjectBoundary>
-					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 
 		} else if (user.getRole() == UserRole.MINIAPP_USER) {
@@ -506,29 +502,24 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 					.findAllByLatBetweenAndLngBetweenAndActiveIsTrue(minLat, maxLat, minLng, maxLng,
 							PageRequest.of(page, size, Direction.ASC, "type", "id"))
 					.stream() // Stream<SuperAppObjectBoundary>
-					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
 					.toList(); // List<SuperAppObject>
 		} else {
 			throw new UnauthorizedAccessException(unauthorizedUserMessage);
 		}
 	}
 
-	/**
-	 * Convert super app object entity to object boundary
-	 * 
-	 * @param SuperAppObjectEntity super app object entity
-	 * @return ObjectBoundary
-	 */
+
 	private SuperAppObjectBoundary entityToBoundary(SuperAppObjectEntity superAppObjectEntity) {
 		SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();
 		objectBoundary.setActive(superAppObjectEntity.isActive());
 		objectBoundary.setAlias(superAppObjectEntity.getAlias());
-		objectBoundary.setCreatedBy(this.toBoundaryAsCreatedBy(superAppObjectEntity.getCreatedBy()));
+		objectBoundary.setCreatedBy(this.objectConverter.toBoundaryAsCreatedBy(superAppObjectEntity.getCreatedBy()));
 		objectBoundary.setCreationTimestamp(superAppObjectEntity.getCreationTimestamp());
 		objectBoundary
-				.setLocation(this.toBoundaryAsLocation(superAppObjectEntity.getLat(), superAppObjectEntity.getLng()));
+				.setLocation(this.objectConverter.toBoundaryAsLocation(superAppObjectEntity.getLat(), superAppObjectEntity.getLng()));
 		objectBoundary.setObjectDetails(superAppObjectEntity.getObjectDetails());
-		objectBoundary.setObjectId(this.toBoundaryAsObjectId(superAppObjectEntity.getObjectId()));
+		objectBoundary.setObjectId(this.objectConverter.toBoundaryAsObjectId(superAppObjectEntity.getObjectId()));
 		objectBoundary.setType(superAppObjectEntity.getType());
 		return objectBoundary;
 	}
@@ -573,63 +564,13 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 //		String boundaryStr = location.getLat().toString() + DELIMITER + location.getLng().toString();
 //		return boundaryStr;
 //	}
-	/**
-	 * Converts String to 'ObjectId' object
-	 * 
-	 * @param objectStr object string
-	 * @return ObjectId.
-	 */
-	private ObjectId toBoundaryAsObjectId(String objectStr) {
-		if (objectStr != null) {
-			String[] attr = objectStr.split(DELIMITER);
+	
+	
 
-			ObjectId objectId = new ObjectId();
-			objectId.setSuperapp(attr[0]);
-			objectId.setInternalObjectId(attr[1]);
+	
+	
 
-			return objectId;
-		} else {
-			return null;
-		}
-	}
 
-	/**
-	 * Converts String to 'CreatedBy' object
-	 * 
-	 * @param createdByStr createdBy string
-	 * @return CreatedBy.
-	 */
-	private CreatedBy toBoundaryAsCreatedBy(String createdByStr) {
-		if (createdByStr != null) {
-			String[] attr = createdByStr.split(DELIMITER);
 
-			CreatedBy createdBy = new CreatedBy();
-			createdBy.setUserId(new UserId(attr[1]));
-			createdBy.getUserId().setSuperapp(attr[0]);
-
-			return createdBy;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Converts String to Location object
-	 * 
-	 * @param locationStr location string
-	 * @return Location.
-	 */
-	private Location toBoundaryAsLocation(Double lat, Double lng) {
-		if (lat != null && lng != null) {
-
-			Location location = new Location();
-			location.setLat(lat);
-			location.setLng(lng);
-
-			return location;
-		} else {
-			return null;
-		}
-	}
 
 }

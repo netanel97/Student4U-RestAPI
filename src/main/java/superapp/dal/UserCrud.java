@@ -1,4 +1,4 @@
-package superapp.entities;
+package superapp.dal;
 
 
 import org.springframework.data.mongodb.repository.MongoRepository;

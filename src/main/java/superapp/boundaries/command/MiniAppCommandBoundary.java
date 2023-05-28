@@ -1,4 +1,4 @@
-package superapp.entities;
+package superapp.boundaries.command;
 
 import java.util.Date;
 import java.util.HashMap;

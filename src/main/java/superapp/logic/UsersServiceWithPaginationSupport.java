@@ -3,7 +3,7 @@ package superapp.logic;
 import java.util.List;
 import java.util.Optional;
 
-import superapp.entities.UserBoundary;
+import superapp.boundaries.user.UserBoundary;
 
 public interface UsersServiceWithPaginationSupport extends UsersService{
 	public UserBoundary createUser(UserBoundary user);

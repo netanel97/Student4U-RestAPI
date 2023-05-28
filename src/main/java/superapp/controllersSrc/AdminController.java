@@ -10,13 +10,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import superapp.entities.MiniAppCommandBoundary;
-import superapp.entities.UserBoundary;
-import superapp.logic.MiniAppCommandsService;
+import superapp.boundaries.command.MiniAppCommandBoundary;
+import superapp.boundaries.user.UserBoundary;
 import superapp.logic.MiniAppCommandsServiceWithPaginationSupport;
 import superapp.logic.ObjectServiceWithPaginationSupport;
-import superapp.logic.ObjectsService;
-import superapp.logic.UsersService;
 import superapp.logic.UsersServiceWithPaginationSupport;
 
 @RestController
@@ -27,19 +24,15 @@ public class AdminController {
 	private MiniAppCommandsServiceWithPaginationSupport miniAppCommandsService;
 
 	@Autowired
-	public void setUsersService(UsersServiceWithPaginationSupport usersService) {
+	public void setAdminService(UsersServiceWithPaginationSupport usersService,ObjectServiceWithPaginationSupport objectsService,
+			MiniAppCommandsServiceWithPaginationSupport miniAppCommandsService) {
 		this.usersService = usersService;
-	}
-
-	@Autowired
-	public void setObjectsService(ObjectServiceWithPaginationSupport objectsService) {
-		this.objectsService = objectsService;
-	}
-
-	@Autowired
-	public void setMiniAppCommandsService(MiniAppCommandsServiceWithPaginationSupport miniAppCommandsService) {
 		this.miniAppCommandsService = miniAppCommandsService;
+		this.objectsService = objectsService;
+
 	}
+
+
 
 	/**
 	 * Export all MiniApps Commands history. Receives HTTP Method 'GET'.

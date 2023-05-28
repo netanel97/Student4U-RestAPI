@@ -1,4 +1,4 @@
-package superapp.entities;
+package superapp.boundaries.user;
 
 public class UserId {
 
