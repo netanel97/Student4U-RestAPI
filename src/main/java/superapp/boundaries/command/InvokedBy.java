@@ -9,9 +9,7 @@ public class InvokedBy {
 		super();
 
 	}
-	
-	
-	
+
 	public InvokedBy(UserId userId) {
 		super();
 		this.userId = userId;

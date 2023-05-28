@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.query.Param;
 import superapp.data.SuperAppObjectEntity;
+import superapp.miniapps.ForumThread;
 
 public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity, String> {
 	
@@ -19,7 +20,7 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 	public List<SuperAppObjectEntity> findByParentsContaining(SuperAppObjectEntity parent,Pageable pageable);
 	
 	public List<SuperAppObjectEntity> findByChildrenContaining(SuperAppObjectEntity child,Pageable pageable);
-	
+
 	public List<SuperAppObjectEntity> findAllByType(
 			@Param("type") String type, 
 			Pageable pageable);
@@ -49,6 +50,7 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 			@Param("minLong") double minLong,
 			@Param("maxLong") double maxLong,
 			Pageable pageable);
+
 
 	
 	

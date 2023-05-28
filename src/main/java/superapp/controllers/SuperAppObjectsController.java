@@ -1,4 +1,4 @@
-package superapp.controllersSrc;
+package superapp.controllers;
 
 import java.util.List;
 
@@ -74,7 +74,6 @@ public class SuperAppObjectsController {
 	 * @param @PathVariable("InternalObjectId") String internalObjectId
 	 * @return ObjectBoundary.
 	 */
-	// TODO: need to check if required is true/false
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
 			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public SuperAppObjectBoundary retrieveObject(@PathVariable("superapp") String superapp,

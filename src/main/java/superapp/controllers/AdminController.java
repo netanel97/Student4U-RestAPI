@@ -1,4 +1,4 @@
-package superapp.controllersSrc;
+package superapp.controllers;
 
 import java.util.List;
 

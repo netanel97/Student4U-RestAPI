@@ -58,7 +58,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
 	@Autowired
 	public MiniAppCommandsServiceMongoDb(MiniAppCommandCrud miniAppCommandCrud, UserCrud userCrud,ApplicationContext applicationContext,
-			MiniAppCommandConverter miniAppCommandConverter) {
+										 MiniAppCommandConverter miniAppCommandConverter) {
 		this.databaseCrud = miniAppCommandCrud;
 		this.userCrud = userCrud;
 		this.applicationContext = applicationContext;
@@ -93,7 +93,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	@Deprecated
 	public Object invokeCommand(MiniAppCommandBoundary command) {
 		throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
-
 	}
 
 	/**
@@ -117,10 +116,10 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		UUID uuid = UUID.randomUUID();
 		command.setInvocationTimestamp(new Date());
 		command.getCommandId().setInternalCommandId(uuid.toString());
-		
+
 		checkValidCommand(command);
 		Object commandResult = this.chooseCommand(command);
-		
+
 
 		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
 		miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + DELIMITER
@@ -139,23 +138,23 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	private Object chooseCommand(MiniAppCommandBoundary command) {
 		String miniApp = command.getCommandId().getMiniapp();
 		switch (miniApp) {
-		case "Forum": {
+			case "forum": {
             this.miniAppCommandService = this.applicationContext.getBean("Forum", MiniAppForum.class);
-			break;
+				break;
+			}
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + miniApp);
 		}
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + miniApp);
-		}
-		return this.miniAppCommandService.runCommand(command); 
+		return this.miniAppCommandService.runCommand(command);
 	}
 
 	private void checkValidCommand(MiniAppCommandBoundary command) {
-	  this.checkCommand(command);
+		this.checkCommand(command);
 		String userId = command.getInvokedBy().getUserId().getSuperapp() + DELIMITER + command.getInvokedBy().getUserId().getEmail();
 		UserEntity userEntity = this.userCrud.findById(userId).orElseThrow(()-> new UserNotFoundException("User not found"));
-	    if(userEntity.getRole() != UserRole.MINIAPP_USER) {
-	    	throw new UnauthorizedAccessException("The user is not allowed");
-	    }
+		if(userEntity.getRole() != UserRole.MINIAPP_USER) {
+			throw new UnauthorizedAccessException("The user is not allowed");
+		}
 	}
 
 	private void checkCommand(MiniAppCommandBoundary command) {
@@ -276,7 +275,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
 	@Override
 	public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName, String userSuperapp, String userEmail,
-			int size, int page) {
+															  int size, int page) {
 		List<MiniAppCommandBoundary> specificCommands = new ArrayList<>();
 		List<MiniAppCommandBoundary> allCommands = getAllCommands(userSuperapp, userEmail, size, page);
 		for (MiniAppCommandBoundary cmd : allCommands) {
@@ -348,13 +347,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		return superapp + DELIMITER + commandId.getMiniapp() + DELIMITER + commandId.getInternalCommandId();
 	}
 
-
-
-
-
-	
-
-	
 
 	/**
 	 * Delete all users from DB

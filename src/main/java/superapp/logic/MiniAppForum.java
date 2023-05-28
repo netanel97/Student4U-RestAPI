@@ -6,102 +6,81 @@ import org.springframework.stereotype.Service;
 
 import superapp.boundaries.command.MiniAppCommandBoundary;
 
+import superapp.boundaries.object.ObjectId;
 import superapp.boundaries.object.SuperAppObjectBoundary;
 import superapp.dal.SuperAppObjectCrud;
 import superapp.dal.UserCrud;
+import superapp.data.UserEntity;
+import superapp.miniapps.ForumThread;
+import superapp.utils.ObjectConverter;
+import superapp.utils.UserConverter;
 
 @Service("Forum")
-public class MiniAppForum implements MiniAppService{
+public class MiniAppForum implements MiniAppService {
 
-	
+
     private final SuperAppObjectCrud objectCrud;
-    private final UserCrud userCrud;
+    private final ObjectConverter objectConverter;
+    private final UserConverter userConverter;
 
     @Autowired
-    public MiniAppForum(UserCrud userCrud, SuperAppObjectCrud objectCrud) {
+    public MiniAppForum(SuperAppObjectCrud objectCrud, ObjectConverter objectConverter, UserConverter userConverter) {
         this.objectCrud = objectCrud;
-        this.userCrud = userCrud;
+        this.objectConverter = objectConverter;
+        this.userConverter = userConverter;
     }
-	
-	@Override
-	public Object runCommand(MiniAppCommandBoundary command)  {
-		String comm = command.getCommand();
-		switch (comm) {
-		case "createNewThread": {
-			
-			this.createNewThread(command);
-			break;
-		}
-		case "":{
-		}
 
-		default:
-			throw new IllegalArgumentException("Unexpected value: " + comm);
-		}
-		return comm;
-	}
-		
+    @Override
+    public Object runCommand(MiniAppCommandBoundary command) {
+        String comm = command.getCommand();
+        switch (comm) {
+            case "Show Thread": {
+                showThread(command);
+                break;
+            }
+            case "Comment On Thread":{
+                commentOnThread(command);
+                break;
+            }
+            case "Remove Thread": {
+                removeThread(command);
+                break;
+            }
+            default:
+                throw new IllegalArgumentException("Unexpected value: " + comm);
+        }
+        return comm;
+    }
 
-	
-//	private SuperAppObjectBoundary entityToBoundary(SuperAppObjectEntity superAppObjectEntity) {
-//		SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();
-//		objectBoundary.setActive(superAppObjectEntity.isActive());
-//		objectBoundary.setAlias(superAppObjectEntity.getAlias());
-//		objectBoundary.setCreatedBy(this.toBoundaryAsCreatedBy(superAppObjectEntity.getCreatedBy()));
-//		objectBoundary.setCreationTimestamp(superAppObjectEntity.getCreationTimestamp());
-//		objectBoundary
-//		.setLocation(this.toBoundaryAsLocation(superAppObjectEntity.getLocation().getX(), superAppObjectEntity.getLocation().getY()));
-//		objectBoundary.setObjectDetails(superAppObjectEntity.getObjectDetails());
-//		objectBoundary.setObjectId(this.toBoundaryAsObjectId(superAppObjectEntity.getObjectId()));
-//		objectBoundary.setType(superAppObjectEntity.getType());
-//		return objectBoundary;
-//	}
-//	
-//	private CreatedBy toBoundaryAsCreatedBy(String createdByStr) {
-//		if (createdByStr != null) {
-//			String[] attr = createdByStr.split("_");
-//
-//			CreatedBy createdBy = new CreatedBy();
-//			createdBy.setUserId(new UserId(attr[1]));
-//			createdBy.getUserId().setSuperapp(attr[0]);
-//
-//			return createdBy;
-//		} else {
-//			return null;
-//		}
-//	}
-//	
-//	private Location toBoundaryAsLocation(Double lat, Double lng) {
-//		if (lat != null && lng != null) {
-//
-//			Location location = new Location();
-//			location.setLat(lat);
-//			location.setLng(lng);
-//
-//			return location;
-//		} else {
-//			return null;
-//		}
-//	}
-//	
-//	private ObjectId toBoundaryAsObjectId(String objectStr) {
-//		if (objectStr != null) {
-//			String[] attr = objectStr.split("_");
-//
-//			ObjectId objectId = new ObjectId();
-//			objectId.setSuperapp(attr[0]);
-//			objectId.setInternalObjectId(attr[1]);
-//
-//			return objectId;
-//		} else {
-//			return null;
-//		}
-//	}
+    private void commentOnThread(MiniAppCommandBoundary command) {
+        String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
+        SuperAppObjectBoundary superAppObject = this.objectCrud.findById(targetObjId).map(this.objectConverter::entityToBoundary)
+                .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
+        System.err.println(superAppObject.getObjectDetails().get("forumThread"));
+        ForumThread targetThread = (ForumThread) superAppObject.getObjectDetails().get("forumThread");
+        targetThread.getComments().add((String) command.getCommandAttributes().get("comment"));
+        superAppObject.getObjectDetails().put("forumThread",targetThread);
+        this.objectCrud.save(this.objectConverter.boundaryToEntity(superAppObject));
+    }
 
+    private void removeThread(MiniAppCommandBoundary command) {
+        String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
+        SuperAppObjectBoundary superAppObject = this.objectCrud.findById(targetObjId).map(this.objectConverter::entityToBoundary)
+                .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
+        String creatorId = this.userConverter.userIdToString(superAppObject.getCreatedBy().getUserId());
+        String invokerId = userConverter.userIdToString(command.getInvokedBy().getUserId());
+        if(creatorId.equals(invokerId)){
+            this.objectCrud.deleteById(targetObjId);
+        }
+        else {
+            throw new UnauthorizedAccessException("User is not authorized to delete this thread");
+        }
+    }
 
-	private void createNewThread(MiniAppCommandBoundary command) {
-		SuperAppObjectBoundary superAppObjectBoundary = new SuperAppObjectBoundary();
-	}
-	
-
+    //TODO: check how to show only the object details
+    private void showThread(MiniAppCommandBoundary command){
+        String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
+        SuperAppObjectBoundary superAppObject = this.objectCrud.findById(targetObjId).map(this.objectConverter::entityToBoundary)
+                .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
+    }
 }

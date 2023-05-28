@@ -8,12 +8,12 @@ import superapp.boundaries.user.UserId;
 import superapp.data.UserEntity;
 import superapp.data.UserRole;
 
+import static superapp.utils.Constants.DELIMITER;
+
 @Component
 public class UserConverter {
 	private String springApplicationName;
-	private final String DELIMITER = "_";
 
-	
 	/**
 	 * this method injects a configuration value of spring
 	 */
@@ -25,7 +25,7 @@ public class UserConverter {
 	/**
 	 * Convert user entity to user boundary
 	 * 
-	 * @param UserEntity user entity
+	 * @param userEntity user entity
 	 * @return UserBoundary
 	 */
 	public UserBoundary entityToBoundary(UserEntity userEntity) {
@@ -41,7 +41,7 @@ public class UserConverter {
 	/**
 	 * Convert from String user id to UserId
 	 * 
-	 * @param String user id
+	 * @param userId user id
 	 * @return UserId
 	 */
 	public UserId toBoundaryUserId(String userId) {
@@ -58,8 +58,8 @@ public class UserConverter {
 	
 	/**
 	 * Convert from user Boundary to user Entity
-	 * 
-	 * @param UserBoundary user boundary
+	 *
+	 * @param userBoundary user boundary
 	 * @return UserEntity user entity
 	 */
 	public UserEntity boundaryToEntity(UserBoundary userBoundary) {
@@ -72,7 +72,7 @@ public class UserConverter {
 		} catch (Exception e) {
 			throw new RuntimeException("Could not find role: " + userBoundary.getRole());
 		}
-		userEntity.setUserId(this.boundaryToStr(userBoundary.getUserId()));
+		userEntity.setUserId(this.userIdToString(userBoundary.getUserId()));
 		userEntity.setUserName(userBoundary.getUsername());
 		return userEntity;
 
@@ -80,10 +80,10 @@ public class UserConverter {
 	/**
 	 * Convert from UserId to string with delimiter
 	 * 
-	 * @param UserId user id
+	 * @param userId user id
 	 * @return String application name followed by delimiter and user email
 	 */
-	private String boundaryToStr(UserId userId) {
+	public String userIdToString(UserId userId) {
 		return springApplicationName + DELIMITER + userId.getEmail();
 	}
 	

@@ -13,11 +13,7 @@ public class SuperAppObjectBoundary {
 	private Location location;
 	private CreatedBy createdBy;
 	private Map<String, Object> objectDetails;
-	
 
-	
-	
-	
 	public SuperAppObjectBoundary() {
 		super();
 	}

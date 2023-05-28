@@ -1,5 +1,6 @@
 package superapp.utils;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import superapp.boundaries.object.CreatedBy;
@@ -9,10 +10,20 @@ import superapp.boundaries.object.SuperAppObjectBoundary;
 import superapp.boundaries.user.UserId;
 import superapp.data.SuperAppObjectEntity;
 
+import static superapp.utils.Constants.DELIMITER;
+
 @Component
 public class ObjectConverter {
 
-	
+	private String springApplicationName;
+
+	/**
+	 * this method injects a configuration value of spring
+	 */
+	@Value("${spring.application.name:2023b.Liran.Sorokin-Student4U}")
+	public void setSpringApplicationName(String springApplicationName) {
+		this.springApplicationName = springApplicationName;
+	}
 	/**
 	 * Convert super app object entity to object boundary
 	 * 
@@ -91,5 +102,54 @@ public class ObjectConverter {
 			return null;
 		}
 	}
+
+	/**
+	 * Convert from ObjectId to string with delimiter
+	 *
+	 * @param objectId user id
+	 * @return String application name followed by delimiter and Internal Object Id
+	 */
+	public String objectIdToString(ObjectId objectId) {
+		return springApplicationName + DELIMITER + objectId.getInternalObjectId();
+	}
+
+	/**
+	 * Converts from the inserted 'CreatedBy' object to String
+	 *
+	 * @param createdBy
+	 * @return String application name followed by delimiter and user email.
+	 */
+	public String boundaryToStr(CreatedBy createdBy) {
+		String boundaryStr = createdBy.getUserId().getEmail();
+		return springApplicationName + DELIMITER + boundaryStr;
+	}
+
+
+	/**
+	 * Converts from ObjectBoundary to SuperAppObjectEntity
+	 *
+	 * @param objectBoundary
+	 * @return SuperAppObjectEntity SuperApp object entity
+	 */
+	public SuperAppObjectEntity boundaryToEntity(SuperAppObjectBoundary objectBoundary) {
+		SuperAppObjectEntity superAppObjectEntity = new SuperAppObjectEntity();
+
+		if (objectBoundary.getActive() != null) {
+			superAppObjectEntity.setActive(objectBoundary.getActive());
+		} else {
+			superAppObjectEntity.setActive(false);
+		}
+
+		superAppObjectEntity.setAlias(objectBoundary.getAlias());
+		superAppObjectEntity.setCreatedBy(this.boundaryToStr(objectBoundary.getCreatedBy()));
+		superAppObjectEntity.setLat(objectBoundary.getLocation().getLat());
+		superAppObjectEntity.setLng(objectBoundary.getLocation().getLng());
+		superAppObjectEntity.setObjectDetails(objectBoundary.getObjectDetails());
+		superAppObjectEntity.setType(objectBoundary.getType());
+
+		return superAppObjectEntity;
+	}
+
+
 
 }
