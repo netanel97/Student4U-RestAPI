@@ -12,10 +12,10 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
-import superapp.entities.CommandId;
-import superapp.entities.InvokedBy;
-import superapp.entities.MiniAppCommandBoundary;
-import superapp.entities.UserId;
+import superapp.boundaries.command.CommandId;
+import superapp.boundaries.command.InvokedBy;
+import superapp.boundaries.command.MiniAppCommandBoundary;
+import superapp.boundaries.user.UserId;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class MiniAppCommandTest {

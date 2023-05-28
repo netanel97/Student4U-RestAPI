@@ -13,13 +13,13 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
-import superapp.entities.CreatedBy;
-import superapp.entities.Location;
-import superapp.entities.NewUserBoundary;
-import superapp.entities.ObjectId;
-import superapp.entities.SuperAppObjectBoundary;
-import superapp.entities.UserBoundary;
-import superapp.entities.UserId;
+import superapp.boundaries.object.CreatedBy;
+import superapp.boundaries.object.Location;
+import superapp.boundaries.object.ObjectId;
+import superapp.boundaries.object.SuperAppObjectBoundary;
+import superapp.boundaries.user.NewUserBoundary;
+import superapp.boundaries.user.UserBoundary;
+import superapp.boundaries.user.UserId;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SuperAppObjectTest {

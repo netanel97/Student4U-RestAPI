@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.PostConstruct;
-import superapp.entities.NewUserBoundary;
-import superapp.entities.UserBoundary;
-import superapp.entities.UserId;
+import superapp.boundaries.user.NewUserBoundary;
+import superapp.boundaries.user.UserBoundary;
+import superapp.boundaries.user.UserId;
+
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class UsersTest {
