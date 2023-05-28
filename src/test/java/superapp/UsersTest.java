@@ -3,6 +3,7 @@ package superapp;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -43,12 +44,13 @@ public class UsersTest {
 	/**
 	 * Clean DB.
 	 */
+	@BeforeEach
 	@AfterEach
 	public void tearDown () {
 		this.restTemplate
-			.delete(baseAdminUrl + "?userSuperapp=2023b.Liran.Sorokin-Student4U&userEmail=Liran@gmail.com");
+				.delete(baseAdminUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}",superappUser.getUserId().getSuperapp(), superappUser.getUserId().getEmail());
 	}
-	
+
 //	@AfterEach
 //	public void tearDown (
 //			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
@@ -57,7 +59,7 @@ public class UsersTest {
 //			.delete(baseAdminUrl + "?userSuperapp={superapp}&userEmail={email}");
 //	}
 
-	
+
 	@Test
 	public void testTheDatabaseIsCleanOnStartup() throws Exception {
 		/*
@@ -65,11 +67,12 @@ public class UsersTest {
 		 * WHEN I GET /superapp/admin/users
 		 * THEN the server responds with status 2xx AND the server returns empty array
 		 */
+		System.err.println(superappUser.toString());
 		UserBoundary[] allUsersInDatabase = getAllUsersFromDB();
 
 		assertThat(allUsersInDatabase)
-		.isNotNull()
-		.isEmpty();
+				.isNotNull()
+				.isEmpty();
 
 	}
 
@@ -93,17 +96,17 @@ public class UsersTest {
 
 		UserBoundary postUser = postNewUserToDB(newUserBoundary);
 		UserId postUserId = postUser.getUserId();
-		
+
 //		String url = this.baseUrl + "/login/" + springApplicationName + "/" + postUser.getUserId().getEmail();
 		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperapp(), postUserId.getEmail());
 
 		String extarctingValueEmail = "userId.email",
 				extarctingValueAvatar = "avatar",
 				extarctingValueUsername = "username";
-		String checkingValueEmail = postUserId.getEmail(), 
-				checkingValueAvatar = postUser.getAvatar(), 
+		String checkingValueEmail = postUserId.getEmail(),
+				checkingValueAvatar = postUser.getAvatar(),
 				checkingValueUsername = postUser.getUsername();
-		
+
 		assertGetUserToPostUser(getUser, extarctingValueEmail, checkingValueEmail);
 		assertGetUserToPostUser(getUser, extarctingValueAvatar, checkingValueAvatar);
 		assertGetUserToPostUser(getUser, extarctingValueUsername, checkingValueUsername);
@@ -144,7 +147,7 @@ public class UsersTest {
 	 */
 	@Test
 	public void testSuccessfulPutUser() {
-		
+
 		/*
 		* GIVEN the server is up AND the database contains at least one user
 		* WHEN I PUT http://localhost:8084/superapp/users/{superapp}/{userEmail} with
@@ -168,24 +171,24 @@ public class UsersTest {
 		getUser.setRole(newRole);
 //		UserBoundary getUser1 = this.restTemplate
 //				.getForObject(baseLoginUrl, UserBoundary.class, postUser.getUserId());
-		
+
 		this.restTemplate
-		.put(baseUrl + "/{superapp}/{userEmail}", getUser, getUserId.getSuperapp(), getUserId.getEmail());
-		
+				.put(baseUrl + "/{superapp}/{userEmail}", getUser, getUserId.getSuperapp(), getUserId.getEmail());
+
 		String extarctingValueUsername = "username";
 		String extarctingValueAvatar = "avatar";
 		String extarctingValueRole = "role";
 		String checkingValueUsername = getUser.getUsername();
 		String checkingValueAvatar = getUser.getAvatar();
 		String checkingValueRole = getUser.getRole();
-		
+
 		UserBoundary getUpdatedUser = getSavedUserFromDB(getUserId.getSuperapp(), getUserId.getEmail());
-		
+
 		assertGetUserToPostUser(getUpdatedUser, extarctingValueUsername, checkingValueUsername);
 		assertGetUserToPostUser(getUpdatedUser, extarctingValueAvatar, checkingValueAvatar);
 		assertGetUserToPostUser(getUpdatedUser, extarctingValueRole, checkingValueRole);
 	}
-	
+
 	/**
 	 * Check 'Export all users'
 	 */
@@ -199,7 +202,7 @@ public class UsersTest {
 		 */
 		UserBoundary[] arr = getAllUsersFromDB();
 		assertThat(arr)
-		.isNotNull();
+				.isNotNull();
 
 	}
 
@@ -214,35 +217,35 @@ public class UsersTest {
 		 *
 		 * THEN I delete all users
 		 */
-		
+
 		NewUserBoundary newUserBoundary1 = createNewUserBoundary();
 		NewUserBoundary newUserBoundary2 = createNewUserBoundary("Liran1@gmail.com", "Liran1", "MINIAPP_USER", "J");
 		int count = 2;
-		
+
 		UserBoundary postUser1 = postNewUserToDB(newUserBoundary1);
 		UserBoundary postUser2 = postNewUserToDB(newUserBoundary2);
-		
+
 		String extarctingValueEmail = "userId.email";
 		String checkingValueEmail1 = postUser1.getUserId().getEmail();
 		String checkingValueEmail2 = postUser2.getUserId().getEmail();
 
 		assertGetUserToPostUser(postUser1, extarctingValueEmail, checkingValueEmail1);
 		assertGetUserToPostUser(postUser2, extarctingValueEmail, checkingValueEmail2);
-		
+
 		UserBoundary[] arrPre = getAllUsersFromDB();
 		assertThat(arrPre)
-		.isNotNull()
-		.hasSize(count);
-		
+				.isNotNull()
+				.hasSize(count);
+
 		this.restTemplate.delete(this.baseAdminUrl);
 
 		UserBoundary[] arrPost = getAllUsersFromDB();
 		assertThat(arrPost)
-		.isNotNull()
-		.hasSize(0);
-		
+				.isNotNull()
+				.hasSize(0);
+
 	}
-	
+
 	/**
 	 * Create a default NewUserBoundary object.
 	 * @return
@@ -256,7 +259,7 @@ public class UsersTest {
 
 		return newUserBoundary;
 	}
-	
+
 	/**
 	 * Create a custom NewUserBoundary object.
 	 * @param email
@@ -274,7 +277,7 @@ public class UsersTest {
 
 		return newUserBoundary;
 	}
-	
+
 	/**
 	 * Asserts UserBoundary loaded has same value as UserBoundary created.
 	 * @param savedUser
@@ -283,10 +286,10 @@ public class UsersTest {
 	 */
 	private void assertGetUserToPostUser(UserBoundary savedUser, String extarctingValue, String checkingValue) {
 		assertThat(savedUser)
-			.isNotNull()
-			.extracting("userId")
-			.extracting("email")
-			.isEqualTo(checkingValue);
+				.isNotNull()
+				.extracting("userId")
+				.extracting("email")
+				.isEqualTo(checkingValue);
 	}
 
 	/**
@@ -309,7 +312,7 @@ public class UsersTest {
 		return this.restTemplate
 				.getForObject(baseLoginUrl, UserBoundary.class, superapp, email);
 	}
-	
+
 	/**
 	 * Get all users from DB.
 	 * @return
@@ -318,6 +321,6 @@ public class UsersTest {
 		return this.restTemplate.getForObject(this.baseAdminUrl + "?userSuperapp={superapp}&userEmail={email}"
 				, UserBoundary[].class, superappUser.getUserId().getSuperapp(), superappUser.getUserId().getEmail());
 	}
-	
-	
+
+
 }
