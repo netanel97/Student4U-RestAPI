@@ -152,6 +152,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		this.checkCommand(command);
 		String userId = command.getInvokedBy().getUserId().getSuperapp() + DELIMITER + command.getInvokedBy().getUserId().getEmail();
 		UserEntity userEntity = this.userCrud.findById(userId).orElseThrow(()-> new UserNotFoundException("User not found"));
+
 		if(userEntity.getRole() != UserRole.MINIAPP_USER) {
 			throw new UnauthorizedAccessException("The user is not allowed");
 		}
