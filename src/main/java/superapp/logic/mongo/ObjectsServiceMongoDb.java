@@ -13,7 +13,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
-import superapp.boundaries.object.CreatedBy;
 
 import superapp.boundaries.object.SuperAppObjectBoundary;
 import superapp.boundaries.object.SuperAppObjectIdBoundary;

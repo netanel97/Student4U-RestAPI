@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.query.Param;
 import superapp.data.SuperAppObjectEntity;
-import superapp.miniapps.ForumThread;
 
 public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity, String> {
 	
@@ -50,7 +49,10 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 			@Param("minLong") double minLong,
 			@Param("maxLong") double maxLong,
 			Pageable pageable);
-
+	
+	public List<SuperAppObjectEntity> findAllByCreatedByAndType(
+			@Param("createBy") String createBy
+			,@Param("type") String type);
 
 	
 	

@@ -43,13 +43,21 @@ public class MiniAppForum implements MiniAppService {
                 removeThread(command);
                 break;
             }
+            case "Get User Threads":{
+            	return getUserThreads(command);
+            }
             default:
-                throw new IllegalArgumentException("Unexpected value: " + comm);
+                throw new MiniAppCommandNotFoundException("Undefined command: " + comm);
         }
         return comm;
     }
 
-    private void commentOnThread(MiniAppCommandBoundary command) {
+    private Object getUserThreads(MiniAppCommandBoundary command) {
+		return this.objectCrud.findAllByCreatedByAndType("2023b.Liran.Sorokin-Student4U_adam@gmail.com", "thread");
+	
+    }
+
+	private void commentOnThread(MiniAppCommandBoundary command) {
         String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
         SuperAppObjectBoundary superAppObject = this.objectCrud.findById(targetObjId).map(this.objectConverter::entityToBoundary)
                 .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
@@ -67,8 +75,16 @@ public class MiniAppForum implements MiniAppService {
         String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
         SuperAppObjectEntity superAppObject = this.objectCrud.findById(targetObjId)
                 .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
-        superAppObject.setActive(false);
-        this.objectCrud.save(superAppObject);
+        if(superAppObject.getType().toLowerCase().equals("thread")) {
+            superAppObject.setActive(false);
+            this.objectCrud.save(superAppObject);
+        	
+        }
+        else  {
+        	
+        }
+        
+   
 
     }
 

@@ -31,6 +31,7 @@ import superapp.data.UserRole;
 import superapp.logic.MiniAppCommandNotFoundException;
 import superapp.logic.MiniAppCommandsServiceWithPaginationSupport;
 import superapp.logic.MiniAppForum;
+import superapp.logic.MiniAppGradeAVG;
 import superapp.logic.MiniAppService;
 import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotFoundException;
@@ -116,30 +117,33 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		UUID uuid = UUID.randomUUID();
 		command.setInvocationTimestamp(new Date());
 		command.getCommandId().setInternalCommandId(uuid.toString());
-
 		checkValidCommand(command);
-		Object commandResult = this.chooseCommand(command);
-
-
+		Object commandResult = this.chooseCommand(command);//TODO:need to check how to use that
+		System.err.println(commandResult);
 		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
 		miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + DELIMITER
 				+ command.getCommandId().getMiniapp() + DELIMITER + command.getCommandId().getInternalCommandId());
-
 		if (asyncFlag) {
 			return aSyncHandleCommand(command);
 		} else {
 			this.databaseCrud.save(miniAppCommandEntity);
 			return this.miniAppCommandConverter.entityToBoundary(miniAppCommandEntity);
-
 		}
 
 	}
-
+	
+	
+	
 	private Object chooseCommand(MiniAppCommandBoundary command) {
 		String miniApp = command.getCommandId().getMiniapp();
 		switch (miniApp) {
 			case "forum": {
             this.miniAppCommandService = this.applicationContext.getBean("Forum", MiniAppForum.class);
+				break;
+			}
+			case "gradeAVG":
+			{
+	            this.miniAppCommandService = this.applicationContext.getBean("gradeAVG",MiniAppGradeAVG.class);
 				break;
 			}
 			default:
@@ -224,7 +228,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	private void handleCommand(String json) {
 		System.err.println("Doing something...");
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(5000);
 		} catch (Exception e) {
 			throw new RuntimeException();
 		}
