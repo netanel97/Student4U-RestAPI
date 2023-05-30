@@ -22,10 +22,10 @@ public class SuperAppObjectEntity {
 	private String alias;
 	private boolean active;
 	private Date creationTimestamp;
+	@GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
+	private GeoJsonPoint location;
 	private Double lat;
 	private Double lng;
-    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
-	private GeoJsonPoint location;
 	private String createdBy;
 	private Map<String, Object> objectDetails;
 	@DBRef(lazy = true)
@@ -37,20 +37,20 @@ public class SuperAppObjectEntity {
 		super();
 	}
 
-    public SuperAppObjectEntity(String objectId, String type, String alias, boolean active, GeoJsonPoint location,
-            String createdBy, Map<String, Object> objectDetails) {
-        super();
-        this.objectId = objectId;
-        this.type = type;
-        this.alias = alias;
-        this.active = active;
-        this.creationTimestamp = new Date();
-        this.location = location;
-        setLat(location.getX());
-        setLng(location.getY());
-        this.createdBy = createdBy;
-        this.objectDetails = objectDetails;
-    }
+	public SuperAppObjectEntity(String objectId, String type, String alias, boolean active, GeoJsonPoint location,
+			String createdBy, Map<String, Object> objectDetails) {
+		super();
+		this.objectId = objectId;
+		this.type = type;
+		this.alias = alias;
+		this.active = active;
+		this.creationTimestamp = new Date();
+		this.location = location;
+		setLat(location.getX());
+		setLng(location.getY());
+		this.createdBy = createdBy;
+		this.objectDetails = objectDetails;
+	}
 
 	public String getObjectId() {
 		return objectId;
@@ -83,20 +83,21 @@ public class SuperAppObjectEntity {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-    public GeoJsonPoint getLocation() {
-        return location;
-    }
 
-    public void setLocation(GeoJsonPoint location) {
-        if (location != null) {
-            this.location = location;
-            this.lat = location.getY();
-            this.lng = location.getX();
-        } else {
-            this.lat = null;
-            this.lng = null;
-        }
-    }
+	public GeoJsonPoint getLocation() {
+		return location;
+	}
+
+	public void setLocation(GeoJsonPoint location) {
+		if (location != null) {
+			this.location = location;
+			this.lat = location.getY();
+			this.lng = location.getX();
+		} else {
+			this.lat = null;
+			this.lng = null;
+		}
+	}
 
 	public Double getLat() {
 		return lat;
@@ -186,7 +187,5 @@ public class SuperAppObjectEntity {
 				+ location + ", createdBy=" + createdBy + ", objectDetails=" + objectDetails + ", parents=" + parents
 				+ ", children=" + children + "]";
 	}
-
-	
 
 }

@@ -177,8 +177,8 @@ public class SuperAppObjectsController {
 			@RequestParam(name = "userEmail", required = true) String userEmail,
 			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
-		List<SuperAppObjectBoundary> allLocationBoundaries = this.objectsService.searchObjectsByLocationCircle(userSuperapp,
-				userEmail, lat, lng, distance, units, size, page);
+		List<SuperAppObjectBoundary> allLocationBoundaries = this.objectsService
+				.searchObjectsByLocationCircle(userSuperapp, userEmail, lat, lng, distance, units, size, page);
 
 		return allLocationBoundaries.toArray(new SuperAppObjectBoundary[0]);
 	}

@@ -1,6 +1,7 @@
 package superapp.utils;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Component;
 
 import superapp.boundaries.object.CreatedBy;
@@ -41,7 +42,7 @@ public class ObjectConverter {
 		objectBoundary.setCreatedBy(this.toBoundaryAsCreatedBy(superAppObjectEntity.getCreatedBy()));
 		objectBoundary.setCreationTimestamp(superAppObjectEntity.getCreationTimestamp());
 		objectBoundary
-				.setLocation(this.toBoundaryAsLocation(superAppObjectEntity.getLat(), superAppObjectEntity.getLng()));
+			.setLocation(this.toBoundaryAsLocation(superAppObjectEntity.getLocation().getX(), superAppObjectEntity.getLocation().getY()));
 		objectBoundary.setObjectDetails(superAppObjectEntity.getObjectDetails());
 		objectBoundary.setObjectId(this.toBoundaryAsObjectId(superAppObjectEntity.getObjectId()));
 		objectBoundary.setType(superAppObjectEntity.getType());
@@ -165,8 +166,12 @@ public class ObjectConverter {
 
 		superAppObjectEntity.setAlias(objectBoundary.getAlias());
 		superAppObjectEntity.setCreatedBy(this.boundaryToStr(objectBoundary.getCreatedBy()));
-		superAppObjectEntity.setLat(objectBoundary.getLocation().getLat());
-		superAppObjectEntity.setLng(objectBoundary.getLocation().getLng());
+//		superAppObjectEntity.setLat(objectBoundary.getLocation().getLat());
+//		superAppObjectEntity.setLng(objectBoundary.getLocation().getLng());
+		
+		GeoJsonPoint gLocation = new GeoJsonPoint(objectBoundary.getLocation().getLat(), objectBoundary.getLocation().getLng());
+		superAppObjectEntity.setLocation(gLocation);
+
 		superAppObjectEntity.setObjectDetails(objectBoundary.getObjectDetails());
 		superAppObjectEntity.setType(objectBoundary.getType());
 

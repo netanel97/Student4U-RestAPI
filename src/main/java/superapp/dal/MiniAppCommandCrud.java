@@ -1,8 +1,7 @@
 package superapp.dal;
 
-
+//removed unnecessary import.
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.repository.ListCrudRepository;
 
 import superapp.data.MiniAppCommandEntity;
 
