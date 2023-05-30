@@ -2,6 +2,7 @@ package superapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Date;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.AfterEach;
@@ -42,19 +43,20 @@ public class SuperAppObjectTest {
 		this.baseUrl = "http://localhost:" + this.port + "/superapp/objects";
 		this.deleteUrl = "http://localhost:" + this.port + "/superapp/admin/objects";
 		this.userUrl = "http://localhost:" + this.port + "/superapp/users";
-		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
-		this.superappUser = postNewUserToDB(newUserBoundary);
 	}
 
 	@BeforeEach
 	@AfterEach
 	public void tearDown() {
-		this.restTemplate.delete(deleteUrl);
+		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "ADMIN", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
+		this.restTemplate.delete(this.deleteUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}", this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 	}
 
 	// TODO: need to check active and permission if not
 	@Test
 	public void testSuccessfullPostUsingSpecificSuperappObjectGet() {
+
 		/**
 		 * GIVEN the server is up AND the database is empty
 		 * 
@@ -67,14 +69,17 @@ public class SuperAppObjectTest {
 		 * “email”: “netanelhabas@gmail.com” } }, “objectDetails”:{}
 		 * 
 		 */
+		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
+
 		ObjectId objectId = postSuperAppObject();
 		// THEN the database contains a single object boundary with the content "test"
 		// TODO: check with user permission and without user permission
-		assertThat(this.restTemplate.getForObject(
-				this.baseUrl + "/{superapp}/{internalObjectId}",
+		SuperAppObjectBoundary superAppObjectBoundary = this.restTemplate.getForObject(
+				this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
 				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId(),
-				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail())).isNotNull()
-				.extracting("objectId").isEqualTo(objectId.getSuperapp() + DELIMITER + objectId.getInternalObjectId());
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
+		assertThat(superAppObjectBoundary).isNotNull().extracting("objectId.internalObjectId").isEqualTo(objectId.getInternalObjectId());
 	}
 
 	/**
@@ -83,11 +88,14 @@ public class SuperAppObjectTest {
 	 * @return ObjectId
 	 */
 	private ObjectId postSuperAppObject() {
+
+		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
+
 		SuperAppObjectBoundary newSuperAppObjectBoundary = createObjectBoundary();
 		SuperAppObjectBoundary actual = this.restTemplate.postForObject(this.baseUrl, newSuperAppObjectBoundary,
 				SuperAppObjectBoundary.class);
 		return actual.getObjectId();
-
 	}
 
 	/**
@@ -100,16 +108,19 @@ public class SuperAppObjectTest {
 		newSuperAppObjectBoundary.setAlias("test");
 		newSuperAppObjectBoundary.setType("student");
 		newSuperAppObjectBoundary.setActive(true);
+		newSuperAppObjectBoundary.setCreationTimestamp(new Date());
 		newSuperAppObjectBoundary.setLocation(new Location(31.4, 31.5));
-		newSuperAppObjectBoundary.setCreatedBy(new CreatedBy(new UserId("netanelhabas@gmail.com")));
+		newSuperAppObjectBoundary.setCreatedBy(new CreatedBy(new UserId("adam@gmail.com")));
 		newSuperAppObjectBoundary.setObjectDetails(new HashMap<>());
 		return newSuperAppObjectBoundary;
-
 	}
 
 	// TODO: need to check permission
 	@Test
 	public void testSuccessPut() {
+		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
+
 		/**
 		 * GIVEN the server is up AND the database is contains the specific object
 		 * requested WHEN I PUT /superapp/objects/{superapp}/{internalObjectId} with
@@ -128,21 +139,25 @@ public class SuperAppObjectTest {
 		superAppObjectBoundary.setAlias("put");
 		superAppObjectBoundary.setType("barca");
 		this.restTemplate.put(
-				this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
-				superAppObjectBoundary, superAppObjectBoundary.getObjectId().getSuperapp(),
-				superAppObjectBoundary.getObjectId().getInternalObjectId(), this.superappUser.getUserId().getSuperapp(),
-				this.superappUser.getUserId().getEmail());
-		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
-				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId())).isNotNull()
+		this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
+		superAppObjectBoundary, superAppObjectBoundary.getObjectId().getSuperapp(),
+		superAppObjectBoundary.getObjectId().getInternalObjectId(), this.superappUser.getUserId().getSuperapp(),
+		this.superappUser.getUserId().getEmail());
+		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
+		SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId(),
+		this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail())).isNotNull()
 				.extracting("alias").isEqualTo("put");
-		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
-				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId()))
+		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
+				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail())).isNotNull()
 				.extracting("type").isEqualTo("barca");
 	}
 
 	// TODO: need to check active and permission if not
 	@Test
 	public void testSuccessEmptyGetAll() {
+		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
 
 		/**
 		 * GIVEN the server is up AND the database is empty
@@ -152,16 +167,18 @@ public class SuperAppObjectTest {
 		 * Then i get an empty array
 		 * 
 		 */
+
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
-				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
-				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(),
-				this.superappUser.getUserId().getEmail());
+				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}",
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotNull().isEmpty();
 	}
 
 	// TODO: need to check active and permission if not
 	@Test
 	public void testSuccessGetAll() {
+		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
 
 		/**
 		 * GIVEN the server is up AND the database is not empty
@@ -174,14 +191,15 @@ public class SuperAppObjectTest {
 		postSuperAppObject();
 		postSuperAppObject();
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
-				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
-				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(),
-				this.superappUser.getUserId().getEmail());
+				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}",
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotEmpty().hasSize(2);
 	}
 
 	@Test
 	public void testSuccessDeleteAll() {
+		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
 		/**
 		 * GIVEN the server is up AND the database is empty / not empty
 		 * 
@@ -189,14 +207,26 @@ public class SuperAppObjectTest {
 		 **/
 
 		ObjectId objectId = postSuperAppObject();
-		assertThat(this.restTemplate.getForObject(this.baseUrl + "/{superapp}/{internalObjectId}",
-				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId())).isNotNull()
-				.extracting("objectId").extracting("internalObjectId").isEqualTo(objectId.getInternalObjectId());
-		this.restTemplate.delete(this.deleteUrl);
+
+		newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
+
+		assertThat(this.restTemplate.getForObject(
+		this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
+		SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId(),
+		this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail())).isNotNull()
+		.extracting("objectId").extracting("internalObjectId").isEqualTo(objectId.getInternalObjectId());
+
+		newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "ADMIN", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
+
+		this.restTemplate.delete(this.deleteUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}", this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
+		newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
+		this.superappUser = postNewUserToDB(newUserBoundary);
+
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
-				this.deleteUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}&size={size}&page={page}",
-				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(),
-				this.superappUser.getUserId().getEmail());
+				this.baseUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}",
+				SuperAppObjectBoundary[].class, this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 		assertThat(arr).isNotNull().isEmpty();
 	}
 

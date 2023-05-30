@@ -37,8 +37,6 @@ public class UsersTest {
 		this.baseUrl = "http://localhost:" + this.port + "/superapp/users";
 		this.baseLoginUrl = "http://localhost:" + this.port + "/superapp/users/login/{superapp}/{email}";
 		this.baseAdminUrl = "http://localhost:" + this.port + "/superapp/admin/users";
-		NewUserBoundary newUserBoundary = createNewUserBoundary("gal@gmail.com", "gal", "ADMIN", "A");
-		this.superappUser = postNewUserToDB(newUserBoundary);
 	}
 
 	/**
@@ -47,6 +45,7 @@ public class UsersTest {
 	@BeforeEach
 	@AfterEach
 	public void tearDown () {
+		this.superappUser = postNewUserToDB(createNewUserBoundary());
 		this.restTemplate
 				.delete(baseAdminUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}",superappUser.getUserId().getSuperapp(), superappUser.getUserId().getEmail());
 	}
@@ -58,23 +57,6 @@ public class UsersTest {
 //		this.restTemplate
 //			.delete(baseAdminUrl + "?userSuperapp={superapp}&userEmail={email}");
 //	}
-
-
-	@Test
-	public void testTheDatabaseIsCleanOnStartup() throws Exception {
-		/*
-		 * GIVEN the server is up
-		 * WHEN I GET /superapp/admin/users
-		 * THEN the server responds with status 2xx AND the server returns empty array
-		 */
-		System.err.println(superappUser.toString());
-		UserBoundary[] allUsersInDatabase = getAllUsersFromDB();
-
-		assertThat(allUsersInDatabase)
-				.isNotNull()
-				.isEmpty();
-
-	}
 
 	/**
 	 * Check 'Create a new user'
@@ -92,25 +74,24 @@ public class UsersTest {
 		 * }
 		 * THEN the database contains a single user with the email "Liran@gmail.com"
 		 */
+
 		NewUserBoundary newUserBoundary = createNewUserBoundary();
-
 		UserBoundary postUser = postNewUserToDB(newUserBoundary);
-		UserId postUserId = postUser.getUserId();
 
-//		String url = this.baseUrl + "/login/" + springApplicationName + "/" + postUser.getUserId().getEmail();
+		UserId postUserId = postUser.getUserId();
 		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperapp(), postUserId.getEmail());
 
-		String extarctingValueEmail = "userId.email",
-				extarctingValueAvatar = "avatar",
-				extarctingValueUsername = "username";
+		String extractingValueEmail = "userId.email",
+				extractingValueAvatar = "avatar",
+				extractingValueUsername = "username";
+
 		String checkingValueEmail = postUserId.getEmail(),
 				checkingValueAvatar = postUser.getAvatar(),
 				checkingValueUsername = postUser.getUsername();
 
-		assertGetUserToPostUser(getUser, extarctingValueEmail, checkingValueEmail);
-		assertGetUserToPostUser(getUser, extarctingValueAvatar, checkingValueAvatar);
-		assertGetUserToPostUser(getUser, extarctingValueUsername, checkingValueUsername);
-
+		assertGetUserToPostUser(getUser, extractingValueEmail, checkingValueEmail);
+		assertGetUserToPostUser(getUser, extractingValueAvatar, checkingValueAvatar);
+		assertGetUserToPostUser(getUser, extractingValueUsername, checkingValueUsername);
 	}
 
 	/**
@@ -129,17 +110,17 @@ public class UsersTest {
 		*	} 
 		* THEN the database contains a single user with the email "Liran@gmail.com"
 		*/
+
 		NewUserBoundary newUserBoundary = createNewUserBoundary();
 		UserBoundary postUser = postNewUserToDB(newUserBoundary);
 		UserId postUserId = postUser.getUserId();
 
 		UserBoundary getUser = getSavedUserFromDB(postUserId.getSuperapp(), postUserId.getEmail());
 
-		String extarctingValueEmail = "userId";
+		String extractingValueEmail = "userId.email";
 		String checkingValueEmail = postUser.getUserId().getEmail();
 
-		assertGetUserToPostUser(getUser, extarctingValueEmail, checkingValueEmail);
-
+		assertGetUserToPostUser(getUser, extractingValueEmail, checkingValueEmail);
 	}
 
 	/**
@@ -169,24 +150,23 @@ public class UsersTest {
 		getUser.setUsername(newUsername);
 		getUser.setAvatar(newAvatar);
 		getUser.setRole(newRole);
-//		UserBoundary getUser1 = this.restTemplate
-//				.getForObject(baseLoginUrl, UserBoundary.class, postUser.getUserId());
 
 		this.restTemplate
 				.put(baseUrl + "/{superapp}/{userEmail}", getUser, getUserId.getSuperapp(), getUserId.getEmail());
 
-		String extarctingValueUsername = "username";
-		String extarctingValueAvatar = "avatar";
-		String extarctingValueRole = "role";
+		String extractingValueUsername = "username";
+		String extractingValueAvatar = "avatar";
+		String extractingValueRole = "role";
+
 		String checkingValueUsername = getUser.getUsername();
 		String checkingValueAvatar = getUser.getAvatar();
 		String checkingValueRole = getUser.getRole();
 
 		UserBoundary getUpdatedUser = getSavedUserFromDB(getUserId.getSuperapp(), getUserId.getEmail());
 
-		assertGetUserToPostUser(getUpdatedUser, extarctingValueUsername, checkingValueUsername);
-		assertGetUserToPostUser(getUpdatedUser, extarctingValueAvatar, checkingValueAvatar);
-		assertGetUserToPostUser(getUpdatedUser, extarctingValueRole, checkingValueRole);
+		assertGetUserToPostUser(getUpdatedUser, extractingValueUsername, checkingValueUsername);
+		assertGetUserToPostUser(getUpdatedUser, extractingValueAvatar, checkingValueAvatar);
+		assertGetUserToPostUser(getUpdatedUser, extractingValueRole, checkingValueRole);
 	}
 
 	/**
@@ -200,9 +180,10 @@ public class UsersTest {
 		 * THEN I get all objects
 		 *
 		 */
+		this.superappUser = postNewUserToDB(createNewUserBoundary());
 		UserBoundary[] arr = getAllUsersFromDB();
 		assertThat(arr)
-				.isNotNull();
+		.isNotNull();
 
 	}
 
@@ -225,6 +206,8 @@ public class UsersTest {
 		UserBoundary postUser1 = postNewUserToDB(newUserBoundary1);
 		UserBoundary postUser2 = postNewUserToDB(newUserBoundary2);
 
+		this.superappUser = postUser1;
+
 		String extarctingValueEmail = "userId.email";
 		String checkingValueEmail1 = postUser1.getUserId().getEmail();
 		String checkingValueEmail2 = postUser2.getUserId().getEmail();
@@ -237,12 +220,13 @@ public class UsersTest {
 				.isNotNull()
 				.hasSize(count);
 
-		this.restTemplate.delete(this.baseAdminUrl);
+		this.restTemplate.delete(this.baseAdminUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}", this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
+		this.superappUser = postNewUserToDB(createNewUserBoundary());
 
 		UserBoundary[] arrPost = getAllUsersFromDB();
 		assertThat(arrPost)
 				.isNotNull()
-				.hasSize(0);
+				.hasSize(1);
 
 	}
 
@@ -284,11 +268,10 @@ public class UsersTest {
 	 * @param extarctingValue value from object to extract
 	 * @param checkingValue value from object to compare to
 	 */
-	private void assertGetUserToPostUser(UserBoundary savedUser, String extarctingValue, String checkingValue) {
+	private void assertGetUserToPostUser(UserBoundary savedUser, String extractingValue, String checkingValue) {
 		assertThat(savedUser)
 				.isNotNull()
-				.extracting("userId")
-				.extracting("email")
+				.extracting(extractingValue)
 				.isEqualTo(checkingValue);
 	}
 
