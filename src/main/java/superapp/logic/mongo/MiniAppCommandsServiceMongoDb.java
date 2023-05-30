@@ -24,6 +24,7 @@ import superapp.boundaries.command.TargetObject;
 import superapp.boundaries.object.ObjectId;
 import superapp.boundaries.user.UserId;
 import superapp.dal.MiniAppCommandCrud;
+import superapp.dal.SuperAppObjectCrud;
 import superapp.dal.UserCrud;
 import superapp.data.MiniAppCommandEntity;
 import superapp.data.UserEntity;
@@ -33,14 +34,17 @@ import superapp.logic.MiniAppCommandsServiceWithPaginationSupport;
 import superapp.logic.MiniAppForum;
 import superapp.logic.MiniAppGradeAVG;
 import superapp.logic.MiniAppService;
+import superapp.logic.SuperAppObjectNotActiveException;
 import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotFoundException;
 import superapp.utils.MiniAppCommandConverter;
+import superapp.utils.ObjectConverter;
 
 @Service
 public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWithPaginationSupport {
 	private MiniAppCommandCrud databaseCrud;
 	private UserCrud userCrud;
+	private SuperAppObjectCrud superAppObjectCrud;
 	private String superapp;
 	private String DELIMITER = "_";
 	private ObjectMapper jackson;
@@ -48,6 +52,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	private MiniAppService miniAppCommandService;
 	private ApplicationContext applicationContext;
 	private MiniAppCommandConverter miniAppCommandConverter;
+	private ObjectConverter objectConverter;
 
 	/**
 	 * this method injects a configuration value of spring
@@ -59,17 +64,20 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
 	@Autowired
 	public MiniAppCommandsServiceMongoDb(MiniAppCommandCrud miniAppCommandCrud, UserCrud userCrud,ApplicationContext applicationContext,
-										 MiniAppCommandConverter miniAppCommandConverter) {
+										 MiniAppCommandConverter miniAppCommandConverter,ObjectConverter objectConverter
+										 ,SuperAppObjectCrud superAppObjectCrud) {
 		this.databaseCrud = miniAppCommandCrud;
 		this.userCrud = userCrud;
 		this.applicationContext = applicationContext;
 		this.miniAppCommandConverter = miniAppCommandConverter;
+		this.objectConverter = objectConverter;
+		this.superAppObjectCrud = superAppObjectCrud;
 	}
 
 	@Autowired
 	public void setJmsTemplate(JmsTemplate jmsTemplate) {
 		this.jmsTemplate = jmsTemplate;
-		this.jmsTemplate.setDeliveryDelay(5000L);
+		this.jmsTemplate.setDeliveryDelay(3000L);
 	}
 
 	/**
@@ -160,6 +168,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		if(userEntity.getRole() != UserRole.MINIAPP_USER) {
 			throw new UnauthorizedAccessException("The user is not allowed");
 		}
+		
 	}
 
 	private void checkCommand(MiniAppCommandBoundary command) {
@@ -179,6 +188,11 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		if (targetObject.getObjectId() == null) {
 			throw new MiniAppCommandNotFoundException("The command's target object ID is null");
 		}
+		if(!this.objectConverter.isActiveObject(this.objectConverter.objectIdToString(command.getTargetObject().getObjectId()), this.superAppObjectCrud))
+		{
+			throw new SuperAppObjectNotActiveException("The object is not in the Database");
+		}
+		//TODO:need to change because the prev if
 		ObjectId targetObjectId = targetObject.getObjectId();
 		if (targetObjectId.getInternalObjectId().isBlank() || targetObjectId.getSuperapp().isBlank()) {
 			throw new MiniAppCommandNotFoundException("The command's target object internal ID is empty");

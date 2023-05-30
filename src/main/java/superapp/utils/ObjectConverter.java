@@ -8,9 +8,13 @@ import superapp.boundaries.object.Location;
 import superapp.boundaries.object.ObjectId;
 import superapp.boundaries.object.SuperAppObjectBoundary;
 import superapp.boundaries.user.UserId;
+import superapp.dal.SuperAppObjectCrud;
 import superapp.data.SuperAppObjectEntity;
+import superapp.logic.SuperAppObjectNotActiveException;
 
 import static superapp.utils.Constants.DELIMITER;
+
+import java.util.Optional;
 
 @Component
 public class ObjectConverter {
@@ -113,6 +117,25 @@ public class ObjectConverter {
 		return springApplicationName + DELIMITER + objectId.getInternalObjectId();
 	}
 
+	
+	/**
+	 *  Checks if the object is the specified objectId is active or not
+	 * @param objectId
+	 * @param superAppObjectCrud
+	 * @return true if the object exists
+	 * @throws SuperAppObjectNotActiveException if the object doesn't exist.
+	 */
+	
+	
+	public boolean isActiveObject(String objectId,SuperAppObjectCrud superAppObjectCrud) {
+		
+		Optional<SuperAppObjectEntity> objectOptional = superAppObjectCrud.findById(objectId);
+		if(objectOptional.isEmpty()) {
+			throw new SuperAppObjectNotActiveException("Object {%s} not exist".formatted(objectId));
+		}
+		return objectOptional.get().isActive();
+	}
+	
 	/**
 	 * Converts from the inserted 'CreatedBy' object to String
 	 *
