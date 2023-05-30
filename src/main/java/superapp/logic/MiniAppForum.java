@@ -73,6 +73,7 @@ public class MiniAppForum implements MiniAppService {
         String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
         SuperAppObjectEntity superAppObject = this.objectCrud.findById(targetObjId)
                 .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
+        System.err.println("finding superappobject");
         if(superAppObject.getType().toLowerCase().equals("thread")) {
             superAppObject.setActive(false);
             this.objectCrud.save(superAppObject);

@@ -125,40 +125,26 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		UUID uuid = UUID.randomUUID();
 		command.setInvocationTimestamp(new Date());
 		command.getCommandId().setInternalCommandId(uuid.toString());
+
 		checkValidCommand(command);
-		Object commandResult = this.chooseCommand(command);//TODO:need to check how to use that
-		System.err.println(commandResult);
 		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
 		miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + DELIMITER
 				+ command.getCommandId().getMiniapp() + DELIMITER + command.getCommandId().getInternalCommandId());
 		if (asyncFlag) {
 			return aSyncHandleCommand(command);
-		} else {
-			this.databaseCrud.save(miniAppCommandEntity);
-			return this.miniAppCommandConverter.entityToBoundary(miniAppCommandEntity);
-		}
+		
+		} 
+		Object commandResult = this.handleCommand(command);
+		
+		this.databaseCrud.save(miniAppCommandEntity);
+		if(commandResult instanceof MiniAppCommandBoundary)
+				return "Your command executed";
+		return commandResult;
+	}
+	
+	
+	
 
-	}
-	
-	
-	
-	private Object chooseCommand(MiniAppCommandBoundary command) {
-		String miniApp = command.getCommandId().getMiniapp();
-		switch (miniApp) {
-			case "forum": {
-            this.miniAppCommandService = this.applicationContext.getBean("Forum", MiniAppForum.class);
-				break;
-			}
-			case "gradeAVG":
-			{
-	            this.miniAppCommandService = this.applicationContext.getBean("gradeAVG",MiniAppGradeAVG.class);
-				break;
-			}
-			default:
-				throw new IllegalArgumentException("Unexpected value: " + miniApp);
-		}
-		return this.miniAppCommandService.runCommand(command);
-	}
 
 	private void checkValidCommand(MiniAppCommandBoundary command) {
 		this.checkCommand(command);
@@ -228,10 +214,10 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	@JmsListener(destination = "commandQueue")
 	public void listenToCommandQueue(String json) {
 		try {
-			MiniAppCommandBoundary miniAppCommandBoundary = this.jackson.readValue(json, MiniAppCommandBoundary.class);
-
-			this.handleCommand(json);
-			MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(miniAppCommandBoundary);
+			MiniAppCommandBoundary command = this.jackson.readValue(json, MiniAppCommandBoundary.class);
+			
+			this.handleCommand(command);
+			MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
 
 			this.databaseCrud.save(miniAppCommandEntity);
 		} catch (Exception e) {
@@ -239,14 +225,22 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		}
 	}
 
-	private void handleCommand(String json) {
-		System.err.println("Doing something...");
-		try {
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			throw new RuntimeException();
+	private Object handleCommand(MiniAppCommandBoundary command) {
+		String miniApp = command.getCommandId().getMiniapp();
+		switch (miniApp) {
+			case "forum": {
+	        this.miniAppCommandService = this.applicationContext.getBean("Forum", MiniAppForum.class);
+				break;
+			}
+			case "gradeAVG":
+			{
+	            this.miniAppCommandService = this.applicationContext.getBean("gradeAVG",MiniAppGradeAVG.class);
+				break;
+			}
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + miniApp);
 		}
-		System.err.println("Did something!");
+		return this.miniAppCommandService.runCommand(command);
 	}
 
 	/**
@@ -320,8 +314,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		miniAppCommandEntity.setCommand(miniAppCommandBoundary.getCommand());
 		miniAppCommandEntity.setCommandAttributes(miniAppCommandBoundary.getCommandAttributes());
 		miniAppCommandEntity.setCommandId(this.toEntityCommandId(miniAppCommandBoundary.getCommandId())); // commandID
-		// cannot be
-		// null
+	
 		if (miniAppCommandBoundary.getInvokedBy() != null) {
 			miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(miniAppCommandBoundary.getInvokedBy()));
 		} else {
