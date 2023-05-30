@@ -51,9 +51,10 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 			@Param("maxLong") double maxLong,
 			Pageable pageable);
 	
-	public List<SuperAppObjectEntity> findAllByCreatedByAndType(
-			@Param("createBy") String createBy
-			,@Param("type") String type);
+	public List<SuperAppObjectEntity> findAllByTypeAndCreatedBy(
+			@Param("type") String type,
+			@Param("createdBy") String createBy
+			);
 
     @Query("{'location': { $near: { $geometry: { type: 'Point', coordinates: [?0, ?1] }, $maxDistance: ?2 }}}")
     public List<SuperAppObjectEntity> findByLocationNear(

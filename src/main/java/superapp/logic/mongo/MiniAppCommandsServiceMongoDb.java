@@ -135,10 +135,10 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		
 		} 
 		Object commandResult = this.handleCommand(command);
-		
-		this.databaseCrud.save(miniAppCommandEntity);
-		if(commandResult instanceof MiniAppCommandBoundary)
-				return "Your command executed";
+		System.err.println(commandResult);
+		this.databaseCrud.save(miniAppCommandEntity);//saving the command
+//		if(commandResult instanceof MiniAppCommandBoundary)
+//				return commandResult;
 		return commandResult;
 	}
 	

@@ -21,6 +21,7 @@ public class MiniAppForum implements MiniAppService {
     private final SuperAppObjectCrud objectCrud;
     private final ObjectConverter objectConverter;
     private final UserConverter userConverter;
+    private final String THREAD = "thread";
 
     @Autowired
     public MiniAppForum(SuperAppObjectCrud objectCrud, ObjectConverter objectConverter, UserConverter userConverter) {
@@ -33,13 +34,9 @@ public class MiniAppForum implements MiniAppService {
     public Object runCommand(MiniAppCommandBoundary command) {
         String comm = command.getCommand();
         switch (comm) {
-            case "Comment On Thread":{
-                commentOnThread(command);
-                break;
-            }
+           
             case "Remove Thread": {
-                removeThread(command);
-                break;
+                return removeThread(command);
             }
             case "Get User Threads":{
             	return getUserThreads(command);
@@ -47,41 +44,40 @@ public class MiniAppForum implements MiniAppService {
             default:
                 throw new MiniAppCommandNotFoundException("Undefined command: " + comm);
         }
-        return comm;
     }
 
     private Object getUserThreads(MiniAppCommandBoundary command) {
-		return this.objectCrud.findAllByCreatedByAndType("2023b.Liran.Sorokin-Student4U_adam@gmail.com", "thread");
+        String invokeBy = this.userConverter.userIdToString(command.getInvokedBy().getUserId());
+		return this.objectCrud.findAllByTypeAndCreatedBy(THREAD,invokeBy);
 	
     }
 
-	private void commentOnThread(MiniAppCommandBoundary command) {
-        String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
-        SuperAppObjectBoundary superAppObject = this.objectCrud.findById(targetObjId).map(this.objectConverter::entityToBoundary)
-                .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
-     
-        ForumThread targetThread = (ForumThread) superAppObject.getObjectDetails().get("forumThread");
-        targetThread.getComments().add((String) command.getCommandAttributes().get("comment"));
-        superAppObject.getObjectDetails().put("forumThread",targetThread);
-        this.objectCrud.save(this.objectConverter.boundaryToEntity(superAppObject));
-    }
+//	private void commentOnThread(MiniAppCommandBoundary command) {
+//        String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
+//        SuperAppObjectBoundary superAppObject = this.objectCrud.findById(targetObjId).map(this.objectConverter::entityToBoundary)
+//                .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
+//     
+//        ForumThread targetThread = (ForumThread) superAppObject.getObjectDetails().get("forumThread");
+//        targetThread.getComments().add((String) command.getCommandAttributes().get("comment"));
+//        superAppObject.getObjectDetails().put("forumThread",targetThread);
+//        this.objectCrud.save(this.objectConverter.boundaryToEntity(superAppObject));
+//    }
     /**
      * 
      * @param command
      */
-    private void removeThread(MiniAppCommandBoundary command) {
+    private SuperAppObjectBoundary removeThread(MiniAppCommandBoundary command) {
         String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
         SuperAppObjectEntity superAppObject = this.objectCrud.findById(targetObjId)
                 .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
-        System.err.println("finding superappobject");
-        if(superAppObject.getType().toLowerCase().equals("thread")) {
+        if(superAppObject.getType().toLowerCase().equals(THREAD)) {
             superAppObject.setActive(false);
             this.objectCrud.save(superAppObject);
-        	
+            SuperAppObjectBoundary superAppObjectBoundary = this.objectConverter.entityToBoundary(superAppObject);
+        	return superAppObjectBoundary;
         }
-        else  {
-        	
-        }
+		return this.objectConverter.entityToBoundary(superAppObject);//If the client send me type that don't match to thread i will return the object that he sent
+        
         
    
 
