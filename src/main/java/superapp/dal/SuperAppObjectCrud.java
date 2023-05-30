@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
 import superapp.data.SuperAppObjectEntity;
 
@@ -54,6 +55,20 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 			@Param("createBy") String createBy
 			,@Param("type") String type);
 
+    @Query("{'location': { $near: { $geometry: { type: 'Point', coordinates: [?0, ?1] }, $maxDistance: ?2 }}}")
+    public List<SuperAppObjectEntity> findByLocationNear(
+            @Param("lat")double lat,
+            @Param("lng")double lng,
+            @Param("distance")double distance,
+            Pageable pageable);
+    
+    @Query("{'location': { $near: { $geometry: { type: 'Point', coordinates: [?0, ?1] }, $maxDistance: ?2 }}}")
+    public List<SuperAppObjectEntity> findByLocationNearAndActiveIsTrue(
+            @Param("lat")double lat,
+            @Param("lng")double lng,
+            @Param("distance")double distance,
+            Pageable pageable);
+	
 	
 	
 }

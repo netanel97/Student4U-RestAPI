@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.geo.Metrics;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -399,115 +400,187 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
     }
 
     /**
-     * Search DB for objects by their type.
-     *
-     * @param superapp superapp name
-     * @param email    user email
-     * @param type     object type
-     * @param size     how many items in page
-     * @param page     current page
-     * @return List of SuperAppObjectBoundary all objects matching criteria
-     */
-    @Override
-    public List<SuperAppObjectBoundary> searchObjectsByType(String superapp, String email, String type, int size,
-                                                            int page) {
-        String userId = superapp + DELIMITER + email;
-        UserEntity user = this.userCrud.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
-        if (user.getRole() == UserRole.SUPERAPP_USER) {
-            return this.databaseCrud.findAllByType(type, PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
-                    .stream() // Stream<SuperAppObjectBoundary>
-                    .map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
-                    .toList(); // List<SuperAppObject>
+ 
+	/**
+	 * Search DB for objects by their type.
+	 * 
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param type     object type
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@Override
+	public List<SuperAppObjectBoundary> searchObjectsByType(String superapp, String email, String type, int size,
+			int page) {
+		String userId = superapp + DELIMITER + email;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud.findAllByType(type, PageRequest.of(page, size, Direction.ASC, "type", "creationTimestamp", "objectId"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
 
-        } else if (user.getRole() == UserRole.MINIAPP_USER) {
-            return this.databaseCrud
-                    .findAllByTypeAndActiveIsTrue(type, PageRequest.of(page, size, Direction.ASC, "type", "objectId"))
-                    .stream() // Stream<SuperAppObjectBoundary>
-                    .map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
-                    .toList(); // List<SuperAppObject>
-        } else {
-            throw new UnauthorizedAccessException(unauthorizedUserMessage);
-        }
-    }
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud
+					.findAllByTypeAndActiveIsTrue(type, PageRequest.of(page, size, Direction.ASC, "type","creationTimestamp", "objectId"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		} else {
+			throw new UnauthorizedAccessException(unauthorizedUserMessage);
+		}
+	}
 
-    /**
-     * Search DB for objects by their alias.
-     *
-     * @param superapp superapp name
-     * @param email    user email
-     * @param alias    object alias
-     * @param size     how many items in page
-     * @param page     current page
-     * @return List of SuperAppObjectBoundary all objects matching criteria
-     */
-    @Override
-    public List<SuperAppObjectBoundary> searchObjectsByAlias(String superapp, String email, String alias, int size,
-                                                             int page) {
-        String userId = superapp + DELIMITER + email;
-        UserEntity user = this.userCrud.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+	/**
+	 * Search DB for objects by their alias.
+	 * 
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param alias    object alias
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@Override
+	public List<SuperAppObjectBoundary> searchObjectsByAlias(String superapp, String email, String alias, int size,
+			int page) {
+		String userId = superapp + DELIMITER + email;
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
 
-        if (user.getRole() == UserRole.SUPERAPP_USER) {
-            return this.databaseCrud.findAllByAlias(alias, PageRequest.of(page, size, Direction.ASC, "type", "id"))
-                    .stream() // Stream<SuperAppObjectBoundary>
-                    .map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
-                    .toList(); // List<SuperAppObject>
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud.findAllByAlias(alias, PageRequest.of(page, size, Direction.ASC, "alias", "creationTimestamp", "objectId"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
 
-        } else if (user.getRole() == UserRole.MINIAPP_USER) {
-            return this.databaseCrud
-                    .findAllByAliasAndActiveIsTrue(alias, PageRequest.of(page, size, Direction.ASC, "type", "id"))
-                    .stream() // Stream<SuperAppObjectBoundary>
-                    .map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
-                    .toList(); // List<SuperAppObject>
-        } else {
-            throw new UnauthorizedAccessException(unauthorizedUserMessage);
-        }
-    }
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud
+					.findAllByAliasAndActiveIsTrue(alias, PageRequest.of(page, size, Direction.ASC, "alias", "creationTimestamp","objectId"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		} else {
+			throw new UnauthorizedAccessException(unauthorizedUserMessage);
+		}
+	}
 
-    /**
-     * Search DB for objects in a square area around the point.
-     *
-     * @param superapp superapp name
-     * @param email    user email
-     * @param lat      latitude
-     * @param lng      longitude
-     * @param distance distance
-     * @param units    distance units
-     * @param size     how many items in page
-     * @param page     current page
-     * @return List of SuperAppObjectBoundary all objects matching criteria
-     */
-    @Override
-    public List<SuperAppObjectBoundary> searchObjectsByLocation(String superapp, String email, double lat, double lng,
-                                                                double distance, String units, int size, int page) {
-        String userId = superapp + DELIMITER + email;
+	/**
+	 * Search DB for objects in a square area around the point.
+	 * 
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param lat      latitude
+	 * @param lng      longitude
+	 * @param distance distance
+	 * @param units    distance units
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@Override
+	public List<SuperAppObjectBoundary> searchObjectsByLocation(String superapp, String email, double lat, double lng,
+			double distance, String units, int size, int page) {
+		String userId = superapp + DELIMITER + email;
 
-        double minLat = lat - distance, maxLat = lat + distance, minLng = lng - distance, maxLng = lng + distance;
+		Metrics distanceUnits;
+		switch(units.toUpperCase()) {
+			case "KILOMETERS":
+				distanceUnits = Metrics.KILOMETERS;
+				break;
+			case "MILES":
+				distanceUnits = Metrics.MILES;
+				break;
+			default:
+				distanceUnits = Metrics.NEUTRAL;
+		}
+        double calculatedDistance = Metrics.valueOf(distanceUnits.toString()).getMultiplier() * distance;
 
-        UserEntity user = this.userCrud.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+		
+		double minLat = lat - calculatedDistance, maxLat = lat + calculatedDistance,
+				minLng = lng - calculatedDistance, maxLng = lng + calculatedDistance;
 
-        if (user.getRole() == UserRole.SUPERAPP_USER) {
-            return this.databaseCrud
-                    .findAllByLatBetweenAndLngBetween(minLat, maxLat, minLng, maxLng,
-                            PageRequest.of(page, size, Direction.ASC, "type", "id"))
-                    .stream() // Stream<SuperAppObjectBoundary>
-                    .map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
-                    .toList(); // List<SuperAppObject>
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
 
-        } else if (user.getRole() == UserRole.MINIAPP_USER) {
-            return this.databaseCrud
-                    .findAllByLatBetweenAndLngBetweenAndActiveIsTrue(minLat, maxLat, minLng, maxLng,
-                            PageRequest.of(page, size, Direction.ASC, "type", "id"))
-                    .stream() // Stream<SuperAppObjectBoundary>
-                    .map(this.objectConverter::entityToBoundary) // Stream<SuperAppObject>
-                    .toList(); // List<SuperAppObject>
-        } else {
-            throw new UnauthorizedAccessException(unauthorizedUserMessage);
-        }
-    }
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud
+					.findAllByLatBetweenAndLngBetween(minLat, maxLat, minLng, maxLng,
+							PageRequest.of(page, size, Direction.ASC, "location", "creationTimestamp", "objectId"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
 
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud
+					.findAllByLatBetweenAndLngBetweenAndActiveIsTrue(minLat, maxLat, minLng, maxLng,
+							PageRequest.of(page, size, Direction.ASC, "location", "creationTimestamp", "objectId"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		} else {
+			throw new UnauthorizedAccessException(unauthorizedUserMessage);
+		}
+	}
+	
+	/**
+	 * Search DB for objects in a square area around the point.
+	 * 
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param lat      latitude
+	 * @param lng      longitude
+	 * @param distance distance
+	 * @param units    distance units
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
+	@Override
+	public List<SuperAppObjectBoundary> searchObjectsByLocationCircle(String superapp, String email, double lat, double lng,
+			double distance, String units, int size, int page) {
+		String userId = superapp + DELIMITER + email;
+
+		UserEntity user = this.userCrud.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+
+		Metrics distanceUnits;
+		switch(units) {
+			case "KILOMETERS":
+				distanceUnits = Metrics.KILOMETERS;
+				break;
+			case "MILES":
+				distanceUnits = Metrics.MILES;
+				break;
+			default:
+				distanceUnits = Metrics.NEUTRAL;
+		}
+        double calculatedDistance = Metrics.valueOf(distanceUnits.toString()).getMultiplier() * distance;
+
+		
+		if (user.getRole() == UserRole.SUPERAPP_USER) {
+			return this.databaseCrud
+					.findByLocationNear(lat, lng, calculatedDistance,
+							PageRequest.of(page, size, Direction.ASC, "location", "creationTimestamp", "id"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+
+		} else if (user.getRole() == UserRole.MINIAPP_USER) {
+			return this.databaseCrud
+					.findByLocationNearAndActiveIsTrue(lat, lng, calculatedDistance,
+							PageRequest.of(page, size, Direction.ASC, "type", "creationTimestamp", "id"))
+					.stream() // Stream<SuperAppObjectBoundary>
+					.map(this::entityToBoundary) // Stream<SuperAppObject>
+					.toList(); // List<SuperAppObject>
+		} else {
+			throw new UnauthorizedAccessException(unauthorizedUserMessage);
+		}
+	}
+	
 
     private SuperAppObjectBoundary entityToBoundary(SuperAppObjectEntity superAppObjectEntity) {
         SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();

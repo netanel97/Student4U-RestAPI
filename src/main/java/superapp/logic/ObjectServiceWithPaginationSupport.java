@@ -34,19 +34,19 @@ public interface ObjectServiceWithPaginationSupport extends ObjectsService {
 
 	public void deleteAllObjects(String userSuperapp, String userEmail);
 
-//	/**
-//	 * Search DB for objects in a square area around the point.
-//	 * 
-//	 * @param superapp superapp name
-//	 * @param email    user email
-//	 * @param lat      latitude
-//	 * @param lng      longitude
-//	 * @param distance distance
-//	 * @param units    distance units
-//	 * @param size     how many items in page
-//	 * @param page     current page
-//	 * @return List of SuperAppObjectBoundary all objects matching criteria
-//	 */
-//	List<SuperAppObjectBoundary> searchObjectsByLocationCircle(String superapp, String email, double lat, double lng,
-//			double distance, String units, int size, int page);
+	/**
+	 * Search DB for objects in a square area around the point.
+	 * 
+	 * @param superapp superapp name
+	 * @param email    user email
+	 * @param lat      latitude
+	 * @param lng      longitude
+	 * @param distance distance
+	 * @param units    distance units
+	 * @param size     how many items in page
+	 * @param page     current page
+	 * @return List of SuperAppObjectBoundary all objects matching criteria
+	 */
+	List<SuperAppObjectBoundary> searchObjectsByLocationCircle(String superapp, String email, double lat, double lng,
+			double distance, String units, int size, int page);
 }

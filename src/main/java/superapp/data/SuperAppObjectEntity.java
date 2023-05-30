@@ -7,6 +7,9 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -21,6 +24,8 @@ public class SuperAppObjectEntity {
 	private Date creationTimestamp;
 	private Double lat;
 	private Double lng;
+    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
+	private GeoJsonPoint location;
 	private String createdBy;
 	private Map<String, Object> objectDetails;
 	@DBRef(lazy = true)
@@ -32,20 +37,20 @@ public class SuperAppObjectEntity {
 		super();
 	}
 
-	public SuperAppObjectEntity(String objectId, String type, String alias, boolean active, Double lat, Double lng,
-			String createdBy, Map<String, Object> objectDetails) {
-		super();
-		this.objectId = objectId;
-		this.type = type;
-		this.alias = alias;
-		this.active = active;
-		this.creationTimestamp = new Date();
-		this.lat = lat;
-		this.lng = lng;
-//		this.location = location;
-		this.createdBy = createdBy;
-		this.objectDetails = objectDetails;
-	}
+    public SuperAppObjectEntity(String objectId, String type, String alias, boolean active, GeoJsonPoint location,
+            String createdBy, Map<String, Object> objectDetails) {
+        super();
+        this.objectId = objectId;
+        this.type = type;
+        this.alias = alias;
+        this.active = active;
+        this.creationTimestamp = new Date();
+        this.location = location;
+        setLat(location.getX());
+        setLng(location.getY());
+        this.createdBy = createdBy;
+        this.objectDetails = objectDetails;
+    }
 
 	public String getObjectId() {
 		return objectId;
@@ -78,6 +83,20 @@ public class SuperAppObjectEntity {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
+    public GeoJsonPoint getLocation() {
+        return location;
+    }
+
+    public void setLocation(GeoJsonPoint location) {
+        if (location != null) {
+            this.location = location;
+            this.lat = location.getY();
+            this.lng = location.getX();
+        } else {
+            this.lat = null;
+            this.lng = null;
+        }
+    }
 
 	public Double getLat() {
 		return lat;
@@ -163,9 +182,11 @@ public class SuperAppObjectEntity {
 	@Override
 	public String toString() {
 		return "SuperAppObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", active="
-				+ active + ", creationTimestamp=" + creationTimestamp + ", lat=" + lat + ", lng=" + lng + ", createdBy="
-				+ createdBy + ", objectDetails=" + objectDetails + ", parents=" + parents + ", children=" + children
-				+ "]";
+				+ active + ", creationTimestamp=" + creationTimestamp + ", lat=" + lat + ", lng=" + lng + ", location="
+				+ location + ", createdBy=" + createdBy + ", objectDetails=" + objectDetails + ", parents=" + parents
+				+ ", children=" + children + "]";
 	}
+
+	
 
 }
