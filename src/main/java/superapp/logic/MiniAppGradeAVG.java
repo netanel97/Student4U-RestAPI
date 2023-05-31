@@ -36,10 +36,8 @@ public class MiniAppGradeAVG implements MiniAppService{
 			
 		}
 		default:
-            throw new MiniAppCommandNotFoundException("Undefined command: " + comm);
+            return command;
 		}
-        
-        
         return comm;
 
 	}
