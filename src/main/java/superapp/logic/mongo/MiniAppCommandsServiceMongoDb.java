@@ -116,7 +116,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		if (command == null) {
 			throw new MiniAppCommandNotFoundException("The command is null");
 		}
-
 		CommandId newCommandId = new CommandId();
 		newCommandId.setMiniapp(miniAppName);
 		newCommandId.setSuperapp(superapp);
@@ -132,7 +131,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 				+ command.getCommandId().getMiniapp() + DELIMITER + command.getCommandId().getInternalCommandId());
 		if (asyncFlag) {
 			return aSyncHandleCommand(command);
-		
 		} 
 		Object commandResult = this.handleCommand(command);
 		System.err.println(commandResult);
@@ -142,10 +140,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		return commandResult;
 	}
 	
-	
-	
-
-
 	private void checkValidCommand(MiniAppCommandBoundary command) {
 		this.checkCommand(command);
 		String userId = command.getInvokedBy().getUserId().getSuperapp() + DELIMITER + command.getInvokedBy().getUserId().getEmail();
@@ -228,17 +222,17 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	private Object handleCommand(MiniAppCommandBoundary command) {
 		String miniApp = command.getCommandId().getMiniapp();
 		switch (miniApp) {
-			case "forum": {
-	        this.miniAppCommandService = this.applicationContext.getBean("Forum", MiniAppForum.class);
+			case "miniAppForum": {
+	        this.miniAppCommandService = this.applicationContext.getBean(miniApp, MiniAppForum.class);
 				break;
 			}
-			case "gradeAVG":
+			case "miniAppGradeAVG":
 			{
-	            this.miniAppCommandService = this.applicationContext.getBean("gradeAVG",MiniAppGradeAVG.class);
+	            this.miniAppCommandService = this.applicationContext.getBean(miniApp,MiniAppGradeAVG.class);
 				break;
 			}
 			default:
-				throw new IllegalArgumentException("Unexpected value: " + miniApp);
+				return command;
 		}
 		return this.miniAppCommandService.runCommand(command);
 	}

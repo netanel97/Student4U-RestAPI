@@ -1,8 +1,7 @@
 package superapp.logic;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.aggregation.ConditionalOperators.Switch;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import superapp.boundaries.command.MiniAppCommandBoundary;
 import superapp.dal.SuperAppObjectCrud;
@@ -10,7 +9,7 @@ import superapp.data.SuperAppObjectEntity;
 import superapp.utils.ObjectConverter;
 import superapp.utils.UserConverter;
 
-@Service("gradeAVG")
+@Component
 public class MiniAppGradeAVG implements MiniAppService{
 
 	

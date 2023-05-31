@@ -31,8 +31,8 @@ public class NewSuperAppObjectController {
 			@PathVariable("superapp")String superapp , 
 			@PathVariable("internalObjectId") String internalObjectId,
 			@RequestBody SuperAppObjectIdBoundary child,
-			@RequestParam(name = "userSuperapp", required = false) String userSuperapp,
-			@RequestParam(name = "userEmail", required = false) String userEmail){
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail){
 	
 		this.objects.BindAnExistingObjectToExistingChildObject(superapp, internalObjectId, child,userSuperapp,userEmail);
 		
@@ -43,8 +43,8 @@ public class NewSuperAppObjectController {
 			produces = {MediaType.APPLICATION_JSON_VALUE})
 	public SuperAppObjectBoundary[] getAllChildrenOfAnExistingObject (
 			@PathVariable("superapp") String superapp,@PathVariable("internalObjectId") String internalObjectId,
-			@RequestParam(name = "userSuperapp", required = false) String userSuperapp,
-			@RequestParam(name = "userEmail", required = false) String userEmail,
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
 			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page){
 		
@@ -59,8 +59,8 @@ public class NewSuperAppObjectController {
 			produces = {MediaType.APPLICATION_JSON_VALUE})
 	public SuperAppObjectBoundary[]  getAnArrayWithObjectParent (
 			@PathVariable("superapp") String superapp,@PathVariable("internalObjectId") String internalObjectId,
-			@RequestParam(name = "userSuperapp", required = false) String userSuperapp,
-			@RequestParam(name = "userEmail", required = false) String userEmail,
+			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
+			@RequestParam(name = "userEmail", required = true) String userEmail,
 			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
 			@RequestParam(name = "page", required = false, defaultValue = "0") int page){
 		

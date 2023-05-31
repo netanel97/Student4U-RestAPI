@@ -51,7 +51,7 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 			@Param("maxLong") double maxLong,
 			Pageable pageable);
 	
-	public List<SuperAppObjectEntity> findAllByTypeAndCreatedBy(
+	public List<SuperAppObjectEntity> findAllByTypeAndCreatedByAndActiveIsTrue(
 			@Param("type") String type,
 			@Param("createdBy") String createBy
 			);
@@ -70,6 +70,10 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
             @Param("distance")double distance,
             Pageable pageable);
 	
+    @Query("{'creationTimestamp': {$gte : $0}}")
+    public List<SuperAppObjectEntity> findByCreationTimestampAfter(
+    		@Param("creationTimestamp") String creationTimestamp,
+    		Pageable pageable);
 	
 	
 }
