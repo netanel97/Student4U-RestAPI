@@ -102,6 +102,7 @@ public class ObjectInitializer implements CommandLineRunner {
     }
 
 
+
     private void loginOrCreateDummyObject() {
         logger.trace("Entering loginOrCreateDummyObject");
         Optional<UserBoundary> userDummyObject = usersService.login(this.applicationName, this.email);
