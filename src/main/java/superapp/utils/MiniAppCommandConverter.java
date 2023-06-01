@@ -1,5 +1,6 @@
 package superapp.utils;
 
+import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,8 @@ import superapp.logic.mongo.ObjectsServiceMongoDb;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class MiniAppCommandConverter {
@@ -112,5 +115,19 @@ public class MiniAppCommandConverter {
 			throw new DateFormatIncorrectException("Date format is incorrect.");
 		}
 	}
+	public int getPage(Map<String, Object> commandAtt) {
+		int page = Constants.DEFAULT_PAGE_VALUE;// default
+		if (commandAtt.containsKey("page")) {
+			page = (int) commandAtt.get("page");
+		}
+		return page;
+	}
 
+	public int getSize(Map<String, Object> commandAtt) {
+		int size = Constants.DEFAULT_PAGE_VALUE;// default
+		if (commandAtt.containsKey("size")) {
+			size = (int) commandAtt.get("size");
+		}
+		return size;
+	}
 }

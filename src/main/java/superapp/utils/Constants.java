@@ -8,5 +8,7 @@ public class Constants {
     public static final int LATITUDE_RANGE = 90;
     public static final int LONGITUDE_RANGE = 180;
     public static final String THREAD = "thread";
+    public static final String GRADE = "grade";
+    public static final String CREATOR = "creator";
 
 }

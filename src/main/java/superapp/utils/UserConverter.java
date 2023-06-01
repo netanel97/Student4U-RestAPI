@@ -100,7 +100,4 @@ public class UserConverter {
 		logger.trace("Exiting from function userIdToString with the following string: " + springApplicationName + DELIMITER + userId.getEmail());
 		return springApplicationName + DELIMITER + userId.getEmail();
 	}
-	
-	
-
 }

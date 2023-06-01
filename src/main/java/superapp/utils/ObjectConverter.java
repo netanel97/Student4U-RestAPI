@@ -1,5 +1,6 @@
 package superapp.utils;
 
+import com.google.gson.Gson;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,8 @@ import superapp.logic.mongo.ObjectsServiceMongoDb;
 
 import static superapp.utils.Constants.DELIMITER;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -212,6 +215,10 @@ public class ObjectConverter {
 		return superAppObjectEntity;
 	}
 
+	public String objToJson(Map<String,Object> res){
+		Gson gson = new Gson();
+		return gson.toJson(res);
+	}
 
 
 }
