@@ -1,5 +1,7 @@
 package superapp.utils;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
 
 import superapp.boundaries.command.CommandId;
@@ -9,12 +11,14 @@ import superapp.boundaries.command.TargetObject;
 import superapp.boundaries.object.ObjectId;
 import superapp.boundaries.user.UserId;
 import superapp.data.MiniAppCommandEntity;
+import superapp.logic.mongo.ObjectsServiceMongoDb;
 
 @Component
 public class MiniAppCommandConverter {
 	
 	private String DELIMITER = "_";
-	
+	private Log logger = LogFactory.getLog(MiniAppCommandConverter.class);
+
 	/**
 	 * Convert miniapp command entity to miniapp command boundary
 	 *
@@ -22,6 +26,7 @@ public class MiniAppCommandConverter {
 	 * @return MiniAppCommandBoundary
 	 */
 	public MiniAppCommandBoundary entityToBoundary(MiniAppCommandEntity miniAppCommandEntity) {
+		logger.trace("Entering to entityToBoundary method with the following parameters: " + miniAppCommandEntity);
 		MiniAppCommandBoundary miniAppCommandBoundary = new MiniAppCommandBoundary();
 		miniAppCommandBoundary.setCommand(miniAppCommandEntity.getCommand());
 		miniAppCommandBoundary.setCommandAttributes(miniAppCommandEntity.getCommandAttributes());
@@ -29,6 +34,7 @@ public class MiniAppCommandConverter {
 		miniAppCommandBoundary.setInvokedBy(this.toBoundaryInvokedBy(miniAppCommandEntity.getInvokedBy()));
 		miniAppCommandBoundary.setTargetObject(this.toBoundaryTargetObject(miniAppCommandEntity.getTargetObject()));
 		miniAppCommandBoundary.setInvocationTimestamp(miniAppCommandEntity.getInvocationTimestamp());
+		logger.trace("Exiting from entityToBoundary method with the following parameters: " + miniAppCommandBoundary);
 		return miniAppCommandBoundary;
 	}
 	
@@ -39,12 +45,14 @@ public class MiniAppCommandConverter {
 	 * @return CommandId
 	 */
 	public CommandId toBoundaryCommandId(String commandId) {
+		logger.trace("Entering to toBoundaryCommandId method with the following parameters: " + commandId);
 		if (commandId != null) {
 			CommandId newCommandId = new CommandId();
 			String[] attr = commandId.split(DELIMITER);
 			newCommandId.setSuperapp(commandId);
 			newCommandId.setMiniapp(attr[1]);
 			newCommandId.setInternalCommandId(attr[2]);
+			logger.trace("Exiting from toBoundaryCommandId method with the following parameters: " + newCommandId);
 			return newCommandId;
 		} else
 			return null;
@@ -57,6 +65,7 @@ public class MiniAppCommandConverter {
 	 * @return InvokedBy
 	 */
 	private InvokedBy toBoundaryInvokedBy(String invokedBy) {
+		logger.trace("Entering to toBoundaryInvokedBy method with the following parameters: " + invokedBy);
 		if (invokedBy != null) {
 			String[] attr = invokedBy.split(DELIMITER);
 			UserId newUserId = new UserId();
@@ -64,7 +73,7 @@ public class MiniAppCommandConverter {
 			newUserId.setEmail(attr[1]);
 			InvokedBy newInvokedBy = new InvokedBy();
 			newInvokedBy.setUserId(newUserId);
-
+			logger.trace("Exiting from toBoundaryInvokedBy method with the following parameters: " + newInvokedBy);
 			return newInvokedBy;
 		} else
 			return null;
@@ -77,6 +86,7 @@ public class MiniAppCommandConverter {
 	 * @return TargetObject
 	 */
 	private TargetObject toBoundaryTargetObject(String targetObject) {
+		logger.trace("Entering to toBoundaryTargetObject method with the following parameters: " + targetObject);
 		if (targetObject != null) {
 			String[] attr = targetObject.split(DELIMITER);
 			ObjectId newObjectId = new ObjectId();
@@ -84,6 +94,7 @@ public class MiniAppCommandConverter {
 			newObjectId.setInternalObjectId(attr[1]);
 			TargetObject newTargetObject = new TargetObject();
 			newTargetObject.setObjectId(newObjectId);
+			logger.trace("Exiting from toBoundaryTargetObject method with the following parameters: " + newTargetObject);
 			return newTargetObject;
 		} else
 			return null;
