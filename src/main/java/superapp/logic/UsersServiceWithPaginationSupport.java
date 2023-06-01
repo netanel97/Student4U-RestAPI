@@ -6,9 +6,7 @@ import java.util.Optional;
 import superapp.boundaries.user.UserBoundary;
 
 public interface UsersServiceWithPaginationSupport extends UsersService{
-	public UserBoundary createUser(UserBoundary user);
 
-	public Optional<UserBoundary> login(String userSuperApp, String userEmail);
 
 	public UserBoundary updateUser(String userSuperApp, String userEmail, UserBoundary update);
 
