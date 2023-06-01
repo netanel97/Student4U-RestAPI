@@ -19,7 +19,7 @@ import java.util.Map;
 
 @Component
 public class MiniAppCommandConverter {
-	
+
 	private Log logger = LogFactory.getLog(MiniAppCommandConverter.class);
 
 	/**
@@ -40,7 +40,7 @@ public class MiniAppCommandConverter {
 		logger.trace("Exiting from entityToBoundary method with the following parameters: " + miniAppCommandBoundary);
 		return miniAppCommandBoundary;
 	}
-	
+
 	/**
 	 * Convert String to CommandId object for boundary
 	 *
@@ -60,7 +60,7 @@ public class MiniAppCommandConverter {
 		} else
 			return null;
 	}
-	
+
 	/**
 	 * Convert String to InvokedBy object for boundary
 	 *
@@ -81,7 +81,7 @@ public class MiniAppCommandConverter {
 		} else
 			return null;
 	}
-	
+
 	/**
 	 * Convert String to TargetObject object for boundary
 	 *
@@ -111,19 +111,20 @@ public class MiniAppCommandConverter {
 			throw new DateFormatIncorrectException("Date format is incorrect.");
 		}
 	}
+
 	public int getPage(Map<String, Object> commandAtt) {
-		int page = Constants.DEFAULT_PAGE_VALUE;// default
 		if (commandAtt.containsKey("page")) {
-			page = (int) commandAtt.get("page");
+			return (int) commandAtt.get("page");
+		} else{
+			return Constants.DEFAULT_PAGE_VALUE;
 		}
-		return page;
 	}
 
 	public int getSize(Map<String, Object> commandAtt) {
-		int size = Constants.DEFAULT_PAGE_VALUE;// default
 		if (commandAtt.containsKey("size")) {
-			size = (int) commandAtt.get("size");
+			return (int) commandAtt.get("size");
+		} else{
+			return Constants.DEFAULT_SIZE_VALUE;
 		}
-		return size;
 	}
 }
