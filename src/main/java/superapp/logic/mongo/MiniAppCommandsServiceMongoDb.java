@@ -37,6 +37,7 @@ import superapp.logic.MiniAppService;
 import superapp.logic.SuperAppObjectNotActiveException;
 import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotFoundException;
+import superapp.utils.Constants;
 import superapp.utils.MiniAppCommandConverter;
 import superapp.utils.ObjectConverter;
 
@@ -45,8 +46,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	private MiniAppCommandCrud databaseCrud;
 	private UserCrud userCrud;
 	private SuperAppObjectCrud superAppObjectCrud;
-	private String superapp;
-	private String DELIMITER = "_";
+	private String springApplicationName;
 	private ObjectMapper jackson;
 	private JmsTemplate jmsTemplate;
 	private MiniAppService miniAppCommandService;
@@ -59,7 +59,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	 */
 	@Value("${spring.application.name:2023b.Liran.Sorokin-Student4U}")
 	public void setSpringApplicationName(String springApplicationName) {
-		this.superapp = springApplicationName;
+		this.springApplicationName = springApplicationName;
 	}
 
 	@Autowired
@@ -85,7 +85,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	 */
 	@PostConstruct
 	public void init() {
-		System.err.println("******** " + this.superapp);
+		System.err.println("******** " + this.springApplicationName);
 		this.jackson = new ObjectMapper();
 	}
 
@@ -116,7 +116,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		}
 		CommandId newCommandId = new CommandId();
 		newCommandId.setMiniapp(miniAppName);
-		newCommandId.setSuperapp(superapp);
+		newCommandId.setSuperapp(springApplicationName);
 		command.setCommandId(newCommandId);
 
 		UUID uuid = UUID.randomUUID();
@@ -125,8 +125,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
 		checkValidCommand(command);
 		MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
-		miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + DELIMITER
-				+ command.getCommandId().getMiniapp() + DELIMITER + command.getCommandId().getInternalCommandId());
+		miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + Constants.DELIMITER
+				+ command.getCommandId().getMiniapp() + Constants.DELIMITER + command.getCommandId().getInternalCommandId());
 		if (asyncFlag) {
 			return aSyncHandleCommand(command);
 		} 
@@ -137,7 +137,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	
 	private void checkValidCommand(MiniAppCommandBoundary command) {
 		this.checkCommand(command);
-		String userId = command.getInvokedBy().getUserId().getSuperapp() + DELIMITER + command.getInvokedBy().getUserId().getEmail();
+		String userId = command.getInvokedBy().getUserId().getSuperapp() + Constants.DELIMITER + command.getInvokedBy().getUserId().getEmail();
 		UserEntity userEntity = this.userCrud.findById(userId).orElseThrow(()-> new UserNotFoundException("User not found"));
 		if(userEntity.getRole() != UserRole.MINIAPP_USER) {
 			throw new UnauthorizedAccessException("The user is not allowed");
@@ -243,7 +243,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
 	@Override
 	public List<MiniAppCommandBoundary> getAllCommands(String userSuperapp, String userEmail, int size, int page) {
-		String userId = userSuperapp + DELIMITER + userEmail;
+		String userId = userSuperapp + Constants.DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
 		if (user.getRole() == UserRole.ADMIN) {
@@ -322,7 +322,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	 * @return String
 	 */
 	private String toEntityTargetObject(TargetObject targetObject) {
-		return superapp + DELIMITER + targetObject.getObjectId().getInternalObjectId();
+		return springApplicationName + Constants.DELIMITER + targetObject.getObjectId().getInternalObjectId();
 	}
 
 	/**
@@ -332,7 +332,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	 * @return String
 	 */
 	private String toEntityInvokedBy(InvokedBy invokedBy) {
-		return superapp + DELIMITER + invokedBy.getUserId().getEmail();
+		return springApplicationName + Constants.DELIMITER + invokedBy.getUserId().getEmail();
 	}
 
 	/**
@@ -342,7 +342,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	 * @return String
 	 */
 	private String toEntityCommandId(CommandId commandId) {
-		return superapp + DELIMITER + commandId.getMiniapp() + DELIMITER + commandId.getInternalCommandId();
+		return springApplicationName + Constants.DELIMITER + commandId.getMiniapp() + Constants.DELIMITER + commandId.getInternalCommandId();
 	}
 
 
@@ -359,7 +359,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
 	@Override
 	public void deleteAllCommands(String userSuperapp, String userEmail) {
-		String userId = userSuperapp + DELIMITER + userEmail;
+		String userId = userSuperapp + Constants.DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
 

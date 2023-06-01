@@ -21,13 +21,13 @@ import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotAcceptableException;
 import superapp.logic.UserNotFoundException;
 import superapp.logic.UsersServiceWithPaginationSupport;
+import superapp.utils.Constants;
 import superapp.utils.UserConverter;
 
 @Service
 public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
     private UserCrud databaseCrud;
     private String springApplicationName;
-    private final String DELIMITER = "_";
     private UserConverter userConverter;
     private Log logger = LogFactory.getLog(UsersServiceMongoDb.class);
 
@@ -104,7 +104,7 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
     @Override
     public Optional<UserBoundary> login(String userSuperApp, String userEmail) {
         logger.trace("Entering to login method");
-        String userId = userSuperApp + DELIMITER + userEmail;
+        String userId = userSuperApp + Constants.DELIMITER + userEmail;
         logger.trace("User id is: " + userId);
         logger.trace("Exiting from login method");
         return this.databaseCrud.findById(userId).map(this.userConverter::entityToBoundary);
@@ -115,13 +115,13 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
      *
      * @param userSuperApp Application name
      * @param userEmail    userEmail
-     * @param UserBoundary user boundary to change his attributes
+     * @param update user boundary to change his attributes
      * @return UserBoundary user boundary after update
      */
     @Override
     public UserBoundary updateUser(String userSuperApp, String userEmail, UserBoundary update) {
         logger.trace("Entering to updateUser method with the following parameters: " + userSuperApp + " " + userEmail + " " + update);
-        String attr = userSuperApp + DELIMITER + userEmail;
+        String attr = userSuperApp + Constants.DELIMITER + userEmail;
 
         UserEntity existingUser = this.databaseCrud.findById(attr)
                 .orElseThrow(() -> new UserNotFoundException(
@@ -181,7 +181,7 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
     @Override
     public List<UserBoundary> getAllUsers(String userSuperapp, String userEmail, int size, int page) {
         logger.trace("Entering to getAllUsers method with the following parameters: " + userSuperapp + " " + userEmail + " " + size + " " + page);
-        String userId = userSuperapp + DELIMITER + userEmail;
+        String userId = userSuperapp + Constants.DELIMITER + userEmail;
         UserEntity user = this.databaseCrud.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
         logger.trace("Passed the searching user and the UserEntity is: " + user);
@@ -210,7 +210,7 @@ public class UsersServiceMongoDb implements UsersServiceWithPaginationSupport {
     @Override
     public void deleteAllUsers(String userSuperapp, String userEmail) {
         logger.trace("Entering to deleteAllUsers method with the following parameters: " + userSuperapp + " " + userEmail);
-        String userId = userSuperapp + DELIMITER + userEmail;
+        String userId = userSuperapp + Constants.DELIMITER + userEmail;
         UserEntity user = this.databaseCrud.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
         logger.trace("Passed the searching user and the UserEntity is: " + user);

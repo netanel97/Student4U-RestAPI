@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
+
+import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
@@ -54,8 +56,8 @@ public class MiniAppForum implements MiniAppService {
 	private Object getThreadsAfter(MiniAppCommandBoundary command) {
 		Map<String, Object> commandAtt = command.getCommandAttributes();
 		String dateString = (String) commandAtt.get("date");
-		int page = 0;// default
-		int size = 15;// default
+		int page = Constants.DEFAULT_PAGE_VALUE;// default
+		int size = Constants.DEFAULT_SIZE_VALUE;// default
 		if(commandAtt.containsKey("page")){
 			page = (int) commandAtt.get("page");
 		}
