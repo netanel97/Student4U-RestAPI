@@ -7,5 +7,6 @@ public class Constants {
     public static final int DEFAULT_SIZE_VALUE = 15;
     public static final int LATITUDE_RANGE = 90;
     public static final int LONGITUDE_RANGE = 180;
-    
+    public static final String THREAD = "thread";
+
 }
