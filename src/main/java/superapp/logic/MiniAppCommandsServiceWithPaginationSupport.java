@@ -4,7 +4,7 @@ import java.util.List;
 
 import superapp.boundaries.command.MiniAppCommandBoundary;
 
-public interface MiniAppCommandsServiceWithPaginationSupport extends MiniAppCommandsService{
+	public interface MiniAppCommandsServiceWithPaginationSupport extends MiniAppCommandsService{
 	
 	public Object invokeCommand(MiniAppCommandBoundary command, String miniAppName, Boolean async);
 	
