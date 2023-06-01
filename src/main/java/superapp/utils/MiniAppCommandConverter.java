@@ -109,7 +109,7 @@ public class MiniAppCommandConverter {
 		try {
 			return format.parse(dateString);
 		} catch (ParseException e) {
-			throw new RuntimeException("Date format is incorrect.");
+			throw new DateFormatIncorrectException("Date format is incorrect.");
 		}
 	}
 
