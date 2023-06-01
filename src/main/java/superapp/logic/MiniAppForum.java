@@ -14,6 +14,7 @@ import superapp.boundaries.object.SuperAppObjectBoundary;
 import superapp.dal.SuperAppObjectCrud;
 import superapp.data.SuperAppObjectEntity;
 import superapp.utils.Constants;
+import superapp.utils.MiniAppCommandConverter;
 import superapp.utils.ObjectConverter;
 import superapp.utils.UserConverter;
 
@@ -23,10 +24,13 @@ public class MiniAppForum implements MiniAppService {
 	private final SuperAppObjectCrud objectCrud;
 	private final ObjectConverter objectConverter;
 
+	private final MiniAppCommandConverter miniAppCommandConverter;
+
 	@Autowired
-	public MiniAppForum(SuperAppObjectCrud objectCrud, ObjectConverter objectConverter) {
+	public MiniAppForum(SuperAppObjectCrud objectCrud, ObjectConverter objectConverter, MiniAppCommandConverter miniAppCommandConverter) {
 		this.objectCrud = objectCrud;
 		this.objectConverter = objectConverter;
+		this.miniAppCommandConverter = miniAppCommandConverter;
 	}
 
 	@Override
@@ -50,13 +54,6 @@ public class MiniAppForum implements MiniAppService {
 	private Object getThreadsAfter(MiniAppCommandBoundary command) {
 		Map<String, Object> commandAtt = command.getCommandAttributes();
 		String dateString = (String) commandAtt.get("date");
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-		Date date;
-		try {
-			date = format.parse(dateString);
-		} catch (ParseException e) {
-			throw new RuntimeException("Date format is incorrect.");
-		}
 		int page = 0;// default
 		int size = 15;// default
 		if(commandAtt.containsKey("page")){
@@ -65,8 +62,7 @@ public class MiniAppForum implements MiniAppService {
 		if(commandAtt.containsKey("size")){
 			size = (int) commandAtt.get("size");
 		}
-
-		return this.objectCrud.findAllByTypeAndCreationTimestampAfter(Constants.THREAD,date,
+		return this.objectCrud.findAllByTypeAndCreationTimestampAfter(Constants.THREAD,miniAppCommandConverter.stringToDate(dateString),
 				PageRequest.of(page, size, Direction.ASC, "creationTimestamp"));
 	}
 
