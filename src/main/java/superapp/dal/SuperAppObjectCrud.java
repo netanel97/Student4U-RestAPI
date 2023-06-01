@@ -71,7 +71,7 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
             @Param("distance")double distance,
             Pageable pageable);
 	
-    public List<SuperAppObjectEntity> findAllByTypeAndCreationTimestampAfter(
+    public List<SuperAppObjectEntity> findAllByTypeAndCreationTimestampAfterAndActiveIsTrue(
 			@Param("type") String type,
     		@Param("creationTimestamp") Date creationTimestamp,
     		Pageable pageable);

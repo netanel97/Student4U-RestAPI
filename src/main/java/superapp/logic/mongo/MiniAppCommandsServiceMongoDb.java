@@ -223,7 +223,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 				break;
 			}
 			default:
-				System.err.println("here");
 				return command;
 		}
 		return this.miniAppCommandService.runCommand(command);
