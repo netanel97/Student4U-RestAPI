@@ -1,6 +1,7 @@
 package superapp.dal;
 
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -70,10 +71,8 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
             @Param("distance")double distance,
             Pageable pageable);
 	
-    @Query("{'creationTimestamp': {$gte : $0}}")
-    public List<SuperAppObjectEntity> findByCreationTimestampAfter(
-    		@Param("creationTimestamp") String creationTimestamp,
+    public List<SuperAppObjectEntity> findAllByTypeAndCreationTimestampAfter(
+			@Param("type") String type,
+    		@Param("creationTimestamp") Date creationTimestamp,
     		Pageable pageable);
-	
-	
 }

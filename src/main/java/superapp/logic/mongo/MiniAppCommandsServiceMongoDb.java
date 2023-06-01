@@ -92,10 +92,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	/**
 	 * Activate a given command from a miniApp
 	 *
-	 * @param MiniAppCommandBoundary
-	 *
-	 * @param String
-	 *
+	 * @param command
+	 **
 	 * @return Object
 	 */
 	@Override
@@ -133,10 +131,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 			return aSyncHandleCommand(command);
 		} 
 		Object commandResult = this.handleCommand(command);
-		System.err.println(commandResult);
 		this.databaseCrud.save(miniAppCommandEntity);//saving the command
-//		if(commandResult instanceof MiniAppCommandBoundary)
-//				return commandResult;
 		return commandResult;
 	}
 	
@@ -144,11 +139,9 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 		this.checkCommand(command);
 		String userId = command.getInvokedBy().getUserId().getSuperapp() + DELIMITER + command.getInvokedBy().getUserId().getEmail();
 		UserEntity userEntity = this.userCrud.findById(userId).orElseThrow(()-> new UserNotFoundException("User not found"));
-
 		if(userEntity.getRole() != UserRole.MINIAPP_USER) {
 			throw new UnauthorizedAccessException("The user is not allowed");
 		}
-		
 	}
 
 	private void checkCommand(MiniAppCommandBoundary command) {
@@ -209,10 +202,8 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	public void listenToCommandQueue(String json) {
 		try {
 			MiniAppCommandBoundary command = this.jackson.readValue(json, MiniAppCommandBoundary.class);
-			
 			this.handleCommand(command);
 			MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
-
 			this.databaseCrud.save(miniAppCommandEntity);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -232,6 +223,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 				break;
 			}
 			default:
+				System.err.println("here");
 				return command;
 		}
 		return this.miniAppCommandService.runCommand(command);
@@ -269,7 +261,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	/**
 	 * Get all commands from specific miniApp from DB
 	 *
-	 * @param String
+	 * @param miniAppName
 	 *
 	 * @return List<MiniAppCommandBoundary>
 	 */
@@ -300,7 +292,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	/**
 	 * Convert miniapp command boundary to miniapp command entity
 	 *
-	 * @param MiniAppCommandBoundary
+	 * @param miniAppCommandBoundary
 	 * @return MiniAppCommandEntity
 	 */
 	private MiniAppCommandEntity boundaryToEntity(MiniAppCommandBoundary miniAppCommandBoundary) {
@@ -326,7 +318,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	/**
 	 * Convert TargetObject to String for entity
 	 *
-	 * @param TargetObject
+	 * @param targetObject
 	 * @return String
 	 */
 	private String toEntityTargetObject(TargetObject targetObject) {
@@ -336,7 +328,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	/**
 	 * Convert InvokedBy object to String for entity
 	 *
-	 * @param InvokedBy
+	 * @param invokedBy
 	 * @return String
 	 */
 	private String toEntityInvokedBy(InvokedBy invokedBy) {
@@ -346,7 +338,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 	/**
 	 * Convert CommandId object to String for entity
 	 *
-	 * @param CommandId
+	 * @param commandId
 	 * @return String
 	 */
 	private String toEntityCommandId(CommandId commandId) {
