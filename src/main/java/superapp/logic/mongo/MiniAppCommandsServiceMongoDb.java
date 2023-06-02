@@ -132,7 +132,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
         command.getCommandId().setInternalCommandId(uuid.toString());
         logger.trace("After setting the commandId: " + command);
         checkValidCommand(command);
-        MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
+        MiniAppCommandEntity miniAppCommandEntity = miniAppCommandConverter.boundaryToEntity(command);
         miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + Constants.DELIMITER
                 + command.getCommandId().getMiniapp() + Constants.DELIMITER + command.getCommandId().getInternalCommandId());
         logger.trace("After setting the commandId to the entity: " + miniAppCommandEntity);
@@ -233,7 +233,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
             logger.trace("Entering into listenToCommandQueue with the param: " + json);
             MiniAppCommandBoundary command = this.jackson.readValue(json, MiniAppCommandBoundary.class);
             this.handleCommand(command);
-            MiniAppCommandEntity miniAppCommandEntity = this.boundaryToEntity(command);
+            MiniAppCommandEntity miniAppCommandEntity = this.miniAppCommandConverter.boundaryToEntity(command);
             this.databaseCrud.save(miniAppCommandEntity);
         } catch (Exception e) {
             logger.warn("The command was not handled: " + json);
@@ -274,6 +274,15 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
     }
 
+
+    /**
+     * Get all commands from DB
+     * @param userSuperapp String
+     * @param userEmail String
+     * @param size int
+     * @param page int
+     * @return List<MiniAppCommandBoundary>
+     */
     @Override
     public List<MiniAppCommandBoundary> getAllCommands(String userSuperapp, String userEmail, int size, int page) {
         String userId = userSuperapp + Constants.DELIMITER + userEmail;
@@ -291,10 +300,9 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
     }
 
+
     /**
      * Get all commands from specific miniApp from DB
-     *
-     * @param miniAppName
      * @return List<MiniAppCommandBoundary>
      */
     @Override
@@ -304,6 +312,17 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
 
     }
 
+    /**
+     * Get all commands from specific miniApp from DB
+     *
+     * @param miniAppName String
+     * @param userSuperapp String
+     * @param userEmail String
+     * @param size int
+     * @param page int
+     *
+     * @return List<MiniAppCommandBoundary>
+     */
     @Override
     public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName, String userSuperapp, String userEmail,
                                                               int size, int page) {
@@ -321,62 +340,6 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
         return specificCommands;
     }
 
-    /**
-     * Convert miniapp command boundary to miniapp command entity
-     *
-     * @param miniAppCommandBoundary
-     * @return MiniAppCommandEntity
-     */
-    private MiniAppCommandEntity boundaryToEntity(MiniAppCommandBoundary miniAppCommandBoundary) {
-        MiniAppCommandEntity miniAppCommandEntity = new MiniAppCommandEntity();
-        miniAppCommandEntity.setCommand(miniAppCommandBoundary.getCommand());
-        miniAppCommandEntity.setCommandAttributes(miniAppCommandBoundary.getCommandAttributes());
-        miniAppCommandEntity.setCommandId(this.toEntityCommandId(miniAppCommandBoundary.getCommandId())); // commandID
-
-        if (miniAppCommandBoundary.getInvokedBy() != null) {
-            miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(miniAppCommandBoundary.getInvokedBy()));
-        } else {
-            miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(new InvokedBy(new UserId("default"))));
-        }
-        if (miniAppCommandBoundary.getTargetObject() != null) {
-            miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(miniAppCommandBoundary.getTargetObject()));
-        } else {
-            miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(new TargetObject(new ObjectId("default"))));
-        }
-        miniAppCommandEntity.setInvocationTimestamp(miniAppCommandBoundary.getInvocationTimestamp());
-        return miniAppCommandEntity;
-    }
-
-    /**
-     * Convert TargetObject to String for entity
-     *
-     * @param targetObject
-     * @return String
-     */
-    private String toEntityTargetObject(TargetObject targetObject) {
-        return springApplicationName + Constants.DELIMITER + targetObject.getObjectId().getInternalObjectId();
-    }
-
-    /**
-     * Convert InvokedBy object to String for entity
-     *
-     * @param invokedBy
-     * @return String
-     */
-    private String toEntityInvokedBy(InvokedBy invokedBy) {
-        return springApplicationName + Constants.DELIMITER + invokedBy.getUserId().getEmail();
-    }
-
-    /**
-     * Convert CommandId object to String for entity
-     *
-     * @param commandId
-     * @return String
-     */
-    private String toEntityCommandId(CommandId commandId) {
-        return springApplicationName + Constants.DELIMITER + commandId.getMiniapp() + Constants.DELIMITER + commandId.getInternalCommandId();
-    }
-
 
     /**
      * Delete all users from DB
@@ -385,10 +348,14 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
     @Deprecated
     public void deleteAllCommands() {
         throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
-
-
     }
 
+    /**
+     * Delete all users from DB
+     *
+     * @param userSuperapp String
+     * @param userEmail String
+     */
     @Override
     public void deleteAllCommands(String userSuperapp, String userEmail) {
         String userId = userSuperapp + Constants.DELIMITER + userEmail;

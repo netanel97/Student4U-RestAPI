@@ -37,7 +37,10 @@ public class AdminController {
 	/**
 	 * Export all MiniApps Commands history. Receives HTTP Method 'GET'.
 	 * 
-	 * @param None
+	 * @param userSuperapp String
+	 * @param userEmail String
+	 * @param size int
+	 * @param page int
 	 * @return Array of all MiniApp Command Boundaries.
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.GET }, produces = {
@@ -56,7 +59,11 @@ public class AdminController {
 	/**
 	 * Export Commands history of a specific MiniApp. Receives HTTP Method 'GET'.
 	 * 
-	 * @param None
+	 * @param miniAppName String
+	 * @param userSuperapp String
+	 * @param userEmail String
+	 * @param size int
+	 * @param page int
 	 * @return Array of a specific MiniApp Command Boundaries.
 	 */
 	@RequestMapping(path = { "/superapp/admin/miniapp/{miniAppName}" }, method = { RequestMethod.GET }, produces = {
@@ -77,8 +84,8 @@ public class AdminController {
 	/**
 	 * Deletes all commands history in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * 
-	 * @param None
-	 * @return Nothing
+	 * @param userSuperapp String
+	 * @param userEmail String
 	 */
 
 	@RequestMapping(path = { "/superapp/admin/miniapp" }, method = { RequestMethod.DELETE })
@@ -91,8 +98,8 @@ public class AdminController {
 	/**
 	 * Delete all users in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * 
-	 * @param None
-	 * @return Nothing
+	 * @param userSuperapp String
+	 * @param userEmail String
 	 */
 
 	@RequestMapping(path = { "/superapp/admin/users" }, method = { RequestMethod.DELETE })
@@ -105,7 +112,10 @@ public class AdminController {
 	/**
 	 * Export all existing users. Receives HTTP Method 'GET'.
 	 * 
-	 * @param None
+	 * @param userSuperapp String
+	 * @param userEmail String
+	 * @param size int
+	 * @param page int
 	 * @return Array of all UserBoundaries.
 	 */
 	@RequestMapping(path = { "/superapp/admin/users" }, method = { RequestMethod.GET }, produces = {
@@ -122,8 +132,8 @@ public class AdminController {
 	/**
 	 * Delete all objects in the SuperApp. Receives HTTP Method 'DELETE'.
 	 * 
-	 * @param None
-	 * @return Nothing
+	 * @param userSuperapp String
+	 * @param userEmail String
 	 */
 	@RequestMapping(path = { "/superapp/admin/objects" }, method = { RequestMethod.DELETE })
 	public void deleteAllObjectsInTheSuperApp(

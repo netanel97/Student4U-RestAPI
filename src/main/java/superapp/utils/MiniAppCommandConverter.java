@@ -2,6 +2,7 @@ package superapp.utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import superapp.boundaries.command.CommandId;
@@ -20,7 +21,17 @@ import java.util.Map;
 @Component
 public class MiniAppCommandConverter {
 
+	private String springApplicationName;
 	private Log logger = LogFactory.getLog(MiniAppCommandConverter.class);
+
+
+	/**
+	 * this method injects a configuration value of spring
+	 */
+	@Value("${spring.application.name:2023b.Liran.Sorokin-Student4U}")
+	public void setSpringApplicationName(String springApplicationName) {
+		this.springApplicationName = springApplicationName;
+	}
 
 	/**
 	 * Convert miniapp command entity to miniapp command boundary
@@ -39,6 +50,32 @@ public class MiniAppCommandConverter {
 		miniAppCommandBoundary.setInvocationTimestamp(miniAppCommandEntity.getInvocationTimestamp());
 		logger.trace("Exiting from entityToBoundary method with the following parameters: " + miniAppCommandBoundary);
 		return miniAppCommandBoundary;
+	}
+
+	/**
+	 * Convert miniapp command boundary to miniapp command entity
+	 *
+	 * @param miniAppCommandBoundary
+	 * @return MiniAppCommandEntity
+	 */
+	public MiniAppCommandEntity boundaryToEntity(MiniAppCommandBoundary miniAppCommandBoundary) {
+		MiniAppCommandEntity miniAppCommandEntity = new MiniAppCommandEntity();
+		miniAppCommandEntity.setCommand(miniAppCommandBoundary.getCommand());
+		miniAppCommandEntity.setCommandAttributes(miniAppCommandBoundary.getCommandAttributes());
+		miniAppCommandEntity.setCommandId(this.toEntityCommandId(miniAppCommandBoundary.getCommandId())); // commandID
+
+		if (miniAppCommandBoundary.getInvokedBy() != null) {
+			miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(miniAppCommandBoundary.getInvokedBy()));
+		} else {
+			miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(new InvokedBy(new UserId("default"))));
+		}
+		if (miniAppCommandBoundary.getTargetObject() != null) {
+			miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(miniAppCommandBoundary.getTargetObject()));
+		} else {
+			miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(new TargetObject(new ObjectId("default"))));
+		}
+		miniAppCommandEntity.setInvocationTimestamp(miniAppCommandBoundary.getInvocationTimestamp());
+		return miniAppCommandEntity;
 	}
 
 	/**
@@ -85,7 +122,7 @@ public class MiniAppCommandConverter {
 	/**
 	 * Convert String to TargetObject object for boundary
 	 *
-	 * @param String
+	 * @param targetObject
 	 * @return TargetObject
 	 */
 	private TargetObject toBoundaryTargetObject(String targetObject) {
@@ -102,6 +139,37 @@ public class MiniAppCommandConverter {
 		} else
 			return null;
 	}
+
+	/**
+	 * Convert TargetObject to String for entity
+	 *
+	 * @param targetObject
+	 * @return String
+	 */
+	private String toEntityTargetObject(TargetObject targetObject) {
+		return springApplicationName + Constants.DELIMITER + targetObject.getObjectId().getInternalObjectId();
+	}
+
+	/**
+	 * Convert InvokedBy object to String for entity
+	 *
+	 * @param invokedBy
+	 * @return String
+	 */
+	private String toEntityInvokedBy(InvokedBy invokedBy) {
+		return springApplicationName + Constants.DELIMITER + invokedBy.getUserId().getEmail();
+	}
+
+	/**
+	 * Convert CommandId object to String for entity
+	 *
+	 * @param commandId
+	 * @return String
+	 */
+	private String toEntityCommandId(CommandId commandId) {
+		return springApplicationName + Constants.DELIMITER + commandId.getMiniapp() + Constants.DELIMITER + commandId.getInternalCommandId();
+	}
+
 
 	public Date stringToDate(String dateString){
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
