@@ -1,5 +1,7 @@
 package superapp.logic;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -27,8 +29,12 @@ public class MiniAppGradeAVG implements MiniAppService {
     private final ObjectConverter objectConverter;
     private final MiniAppCommandConverter miniAppCommandConverter;
 
+    private Log logger = LogFactory.getLog(MiniAppGradeAVG.class);
+
+
     @Autowired
     public MiniAppGradeAVG(SuperAppObjectCrud objectCrud, ObjectConverter objectConverter, MiniAppCommandConverter miniAppCommandConverter) {
+        logger.trace("Entering MiniAppGradeAVG constructor");
         this.objectCrud = objectCrud;
         this.objectConverter = objectConverter;
         this.miniAppCommandConverter = miniAppCommandConverter;
@@ -43,12 +49,15 @@ public class MiniAppGradeAVG implements MiniAppService {
      **/
     @Override
     public Object runCommand(MiniAppCommandBoundary command) {
+        logger.trace("Entering runCommand function with the following command: " + command.toString());
         String comm = command.getCommand();
         switch (comm) {
             case "Calculate AVG": {
+                logger.trace("Entering Calculate AVG case");
                 return this.calculateAVG(command);
             }
             case "Remove Grade": {
+                logger.trace("Entering Remove Grade case");
                 return this.removeGrade(command);
             }
             default:
@@ -74,6 +83,7 @@ public class MiniAppGradeAVG implements MiniAppService {
             AVG += (int) s.getObjectDetails().get("grade") * (int) s.getObjectDetails().get("points");
             allPoints += (int) s.getObjectDetails().get("points");
         }
+        logger.trace("AVG: " + AVG + " allPoints: " + allPoints);
         HashMap<String, Object> res = new HashMap<>();
         res.put("numberOfGrades", allGrades.size());
         if (allGrades.size() > 0) {
@@ -81,6 +91,7 @@ public class MiniAppGradeAVG implements MiniAppService {
         } else {
             res.put("averageGrade", 0);
         }
+        logger.trace("Exiting calculateAVG function with the following result: " + res);
         return objectConverter.objToJson(res);
     }
 
@@ -94,10 +105,14 @@ public class MiniAppGradeAVG implements MiniAppService {
         String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
         SuperAppObjectEntity superAppObject = this.objectCrud.findById(targetObjId)
                 .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
+        logger.trace("Found the following object from DB: " + superAppObject.toString());
         if (superAppObject.getType().equalsIgnoreCase(Constants.GRADE)) {
             superAppObject.setActive(false);
+            logger.trace("Updating the following object: " + superAppObject);
             this.objectCrud.save(superAppObject);
+            logger.trace("Saving the following object: " + superAppObject);
         }
+        logger.trace("Exiting removeGrade function with the following result: " + superAppObject);
         return this.objectConverter.entityToBoundary(superAppObject);// If the client send me type that don't match to
         // thread will return the object that he sent
     }
