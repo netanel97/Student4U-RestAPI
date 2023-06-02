@@ -23,9 +23,7 @@ public class SuperAppObjectEntity {
 	private boolean active;
 	private Date creationTimestamp;
 	@GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
-	private GeoJsonPoint location;
-	private Double lat;
-	private Double lng;
+	private GeoJsonPoint location;				//GeoJsonPoint requires Longitude first and then Latitude
 	private String createdBy;
 	private Map<String, Object> objectDetails;
 	@DBRef(lazy = true)
@@ -46,8 +44,6 @@ public class SuperAppObjectEntity {
 		this.active = active;
 		this.creationTimestamp = new Date();
 		this.location = location;
-		setLat(location.getX());
-		setLng(location.getY());
 		this.createdBy = createdBy;
 		this.objectDetails = objectDetails;
 	}
@@ -89,30 +85,7 @@ public class SuperAppObjectEntity {
 	}
 
 	public void setLocation(GeoJsonPoint location) {
-		if (location != null) {
-			this.location = location;
-			this.lat = location.getY();
-			this.lng = location.getX();
-		} else {
-			this.lat = null;
-			this.lng = null;
-		}
-	}
-
-	public Double getLat() {
-		return lat;
-	}
-
-	public void setLat(Double lat) {
-		this.lat = lat;
-	}
-
-	public Double getLng() {
-		return lng;
-	}
-
-	public void setLng(Double lng) {
-		this.lng = lng;
+		this.location = location;
 	}
 
 	public Date getCreationTimestamp() {
@@ -183,9 +156,10 @@ public class SuperAppObjectEntity {
 	@Override
 	public String toString() {
 		return "SuperAppObjectEntity [objectId=" + objectId + ", type=" + type + ", alias=" + alias + ", active="
-				+ active + ", creationTimestamp=" + creationTimestamp + ", lat=" + lat + ", lng=" + lng + ", location="
-				+ location + ", createdBy=" + createdBy + ", objectDetails=" + objectDetails + ", parents=" + parents
-				+ ", children=" + children + "]";
+				+ active + ", creationTimestamp=" + creationTimestamp + ", location=" + location + ", createdBy="
+				+ createdBy + ", objectDetails=" + objectDetails + ", parents=" + parents + ", children=" + children
+				+ "]";
 	}
+
 
 }

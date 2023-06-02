@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.geo.Box;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,11 +31,8 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 			@Param("alias") String alias, 
 			Pageable pageable);
 
-	public List<SuperAppObjectEntity> findAllByLatBetweenAndLngBetween(
-			@Param("minLat") double minLat,
-			@Param("maxLat") double maxLat,
-			@Param("minLong") double minLong,
-			@Param("maxLong") double maxLong,
+	public List<SuperAppObjectEntity> findAllByLocationWithin(
+			@Param("searchBox") Box searchBox,
 			Pageable pageable);
 
 	public List<SuperAppObjectEntity> findAllByTypeAndActiveIsTrue(
@@ -45,11 +43,8 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 			@Param("alias") String alias, 
 			Pageable pageable);
 
-	public List<SuperAppObjectEntity> findAllByLatBetweenAndLngBetweenAndActiveIsTrue(
-			@Param("minLat") double minLat,
-			@Param("maxLat") double maxLat,
-			@Param("minLong") double minLong,
-			@Param("maxLong") double maxLong,
+	public List<SuperAppObjectEntity> findAllByLocationWithinAndActiveIsTrue(
+			@Param("searchBox") Box searchBox,
 			Pageable pageable);
 	
 	public List<SuperAppObjectEntity> findAllByTypeAndActiveIsTrueAndCreatedBy(

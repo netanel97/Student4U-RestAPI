@@ -184,7 +184,7 @@ public class MiniAppCommandConverter {
 		if (commandAtt.containsKey("page")) {
 			return (int) commandAtt.get("page");
 		} else{
-			return Constants.DEFAULT_PAGE_VALUE;
+			return Constants.DEFAULT_PAGE_VALUE_INT;
 		}
 	}
 
@@ -192,7 +192,7 @@ public class MiniAppCommandConverter {
 		if (commandAtt.containsKey("size")) {
 			return (int) commandAtt.get("size");
 		} else{
-			return Constants.DEFAULT_SIZE_VALUE;
+			return Constants.DEFAULT_SIZE_VALUE_INT;
 		}
 	}
 }

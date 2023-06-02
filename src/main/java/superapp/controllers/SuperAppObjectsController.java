@@ -3,6 +3,7 @@ package superapp.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,15 +14,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import superapp.boundaries.object.SuperAppObjectBoundary;
 import superapp.logic.ObjectServiceWithPaginationSupport;
+import static superapp.utils.Constants.DEFAULT_PAGE_VALUE;
+import static superapp.utils.Constants.DEFAULT_SIZE_VALUE;
+import static superapp.utils.Constants.DEFAULT_UNITS_VALUE;
 
 @RestController
 public class SuperAppObjectsController {
 
 	private ObjectServiceWithPaginationSupport objectsService;
+	private boolean searchFlag;
 
 	@Autowired
 	private void setObjectsService(ObjectServiceWithPaginationSupport objectsService) {
 		this.objectsService = objectsService;
+	}
+
+	@Value("${object.searchBy.location.flag}")
+	public boolean isSearchFlag() {
+		return searchFlag;
 	}
 
 	/**
@@ -99,8 +109,8 @@ public class SuperAppObjectsController {
 	public SuperAppObjectBoundary[] getAllObjects(
 			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
 			@RequestParam(name = "userEmail", required = true) String userEmail,
-			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+			@RequestParam(name = "size", required = false, defaultValue = DEFAULT_SIZE_VALUE) int size,
+			@RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE_VALUE) int page) {
 		// List<SuperAppObjectBoundary> allBoundaries =
 		// this.objectsService.getAllObjects();
 		List<SuperAppObjectBoundary> allBoundaries = this.objectsService.getAllObjects(userSuperapp, userEmail, size,
@@ -124,8 +134,8 @@ public class SuperAppObjectsController {
 	public SuperAppObjectBoundary[] searchObjectsByType(@PathVariable("type") String type,
 			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
 			@RequestParam(name = "userEmail", required = true) String userEmail,
-			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+			@RequestParam(name = "size", required = false, defaultValue = DEFAULT_SIZE_VALUE) int size,
+			@RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE_VALUE) int page) {
 		List<SuperAppObjectBoundary> allTypeBoundaries = this.objectsService.searchObjectsByType(userSuperapp,
 				userEmail, type, size, page);
 
@@ -147,8 +157,8 @@ public class SuperAppObjectsController {
 	public SuperAppObjectBoundary[] searchObjectsByAlias(@PathVariable("alias") String alias,
 			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
 			@RequestParam(name = "userEmail", required = true) String userEmail,
-			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+			@RequestParam(name = "size", required = false, defaultValue = DEFAULT_SIZE_VALUE) int size,
+			@RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE_VALUE) int page) {
 		List<SuperAppObjectBoundary> allAliasBoundaries = this.objectsService.searchObjectsByAlias(userSuperapp,
 				userEmail, alias, size, page);
 
@@ -172,13 +182,22 @@ public class SuperAppObjectsController {
 			RequestMethod.GET }, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public SuperAppObjectBoundary[] searchObjectsByLocation(@PathVariable("lat") Double lat,
 			@PathVariable("lng") Double lng, @PathVariable("distance") Double distance,
-			@RequestParam(name = "units", required = false, defaultValue = "NEUTRAL") String units,
+			@RequestParam(name = "units", required = false, defaultValue = DEFAULT_UNITS_VALUE) String units,
 			@RequestParam(name = "userSuperapp", required = true) String userSuperapp,
 			@RequestParam(name = "userEmail", required = true) String userEmail,
-			@RequestParam(name = "size", required = false, defaultValue = "15") int size,
-			@RequestParam(name = "page", required = false, defaultValue = "0") int page) {
-		List<SuperAppObjectBoundary> allLocationBoundaries = this.objectsService
-				.searchObjectsByLocationCircle(userSuperapp, userEmail, lat, lng, distance, units, size, page);
+			@RequestParam(name = "size", required = false, defaultValue = DEFAULT_SIZE_VALUE) int size,
+			@RequestParam(name = "page", required = false, defaultValue = DEFAULT_PAGE_VALUE) int page) {
+
+		List<SuperAppObjectBoundary> allLocationBoundaries;
+		if (searchFlag) {
+			System.err.println("searching by square");
+			allLocationBoundaries = this.objectsService.searchObjectsByLocation(userSuperapp, userEmail, lat, lng,
+					distance, units, size, page);
+		} else {
+			System.err.println("searching by circle");
+			allLocationBoundaries = this.objectsService.searchObjectsByLocationCircle(userSuperapp, userEmail, lat, lng,
+					distance, units, size, page);
+		}
 
 		return allLocationBoundaries.toArray(new SuperAppObjectBoundary[0]);
 	}
