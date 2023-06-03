@@ -135,7 +135,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
         MiniAppCommandEntity miniAppCommandEntity = miniAppCommandConverter.boundaryToEntity(command);
         miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + Constants.DELIMITER
                 + command.getCommandId().getMiniapp() + Constants.DELIMITER + command.getCommandId().getInternalCommandId());
-        logger.trace("After setting the commandId to the entity: " + miniAppCommandEntity);
+        logger.trace("After setting the commandId to the entity if that id: " + miniAppCommandEntity);
         if (asyncFlag) {
             logger.trace("The command is async");
             return aSyncHandleCommand(command);
@@ -270,6 +270,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
     @Override
     @Deprecated
     public List<MiniAppCommandBoundary> getAllCommands() {
+        logger.warn("Deprecated method: getAllCommands");
         throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 
     }
@@ -283,18 +284,24 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
      * @param page int
      * @return List<MiniAppCommandBoundary>
      */
+
+
     @Override
     public List<MiniAppCommandBoundary> getAllCommands(String userSuperapp, String userEmail, int size, int page) {
+        logger.trace("Entering into getAllCommands with the params: " + userSuperapp + " " + userEmail + " " + size + " " + page);
         String userId = userSuperapp + Constants.DELIMITER + userEmail;
         UserEntity user = this.userCrud.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
+        logger.trace("Found user in the DB: " + user);
         if (user.getRole() == UserRole.ADMIN) {
+            logger.trace("User is admin, returning all commands...");
             return this.databaseCrud
                     .findAll(PageRequest.of(page, size, Direction.ASC, "invocationTimestamp", "commandId")) // List<MiniAppCommandEntity>
                     .stream() // Stream<MiniAppCommandEntity>
                     .map(this.miniAppCommandConverter::entityToBoundary) // Stream<MiniAppCommandEntity>
                     .toList(); // List<MiniAppCommandBoundary>
         } else {
+            logger.trace("User is not admin, throwing exception");
             throw new UnauthorizedAccessException("User doesn't have permissions!");
         }
 
@@ -308,6 +315,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
     @Override
     @Deprecated
     public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName) {
+        logger.warn("Deprecated method: getAllMiniAppCommands");
         throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
 
     }
@@ -326,17 +334,16 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
     @Override
     public List<MiniAppCommandBoundary> getAllMiniAppCommands(String miniAppName, String userSuperapp, String userEmail,
                                                               int size, int page) {
+        logger.trace("Entering into getAllMiniAppCommands with the params: " + miniAppName + " " + userSuperapp + " " + userEmail + " " + size + " " + page);
         List<MiniAppCommandBoundary> specificCommands = new ArrayList<>();
         List<MiniAppCommandBoundary> allCommands = getAllCommands(userSuperapp, userEmail, size, page);
         for (MiniAppCommandBoundary cmd : allCommands) {
             if (cmd.getCommandId().getMiniapp().equals(miniAppName)) {
+                logger.trace("Found command for " + miniAppName + ": " + cmd);
                 specificCommands.add(cmd);
             }
         }
-        if (specificCommands.size() == 0) {
-            throw new MiniAppCommandNotFoundException(
-                    "either " + miniAppName + " is non-existent or no commands for " + miniAppName + " were found.");
-        }
+        logger.trace("Returning all commands for " + miniAppName + ": " + specificCommands);
         return specificCommands;
     }
 
@@ -347,6 +354,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
     @Override
     @Deprecated
     public void deleteAllCommands() {
+        logger.warn("Deprecated method: deleteAllCommands");
         throw new DepreacatedOpterationException("do not use this operation any more, as it is deprecated");
     }
 
@@ -358,13 +366,16 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
      */
     @Override
     public void deleteAllCommands(String userSuperapp, String userEmail) {
+        logger.trace("Entering into deleteAllCommands with the params: " + userSuperapp + " " + userEmail);
         String userId = userSuperapp + Constants.DELIMITER + userEmail;
         UserEntity user = this.userCrud.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("could not find user by id: " + userId));
-
+        logger.trace("Found user in the DB: " + user);
         if (user.getRole() == UserRole.ADMIN) {
+            logger.trace("User is admin, deleting all commands...");
             this.databaseCrud.deleteAll();
         } else {
+            logger.trace("User is not admin, throwing exception");
             throw new UnauthorizedAccessException("User doesn't have permissions!");
         }
     }

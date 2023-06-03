@@ -51,6 +51,11 @@ public class MiniAppCommandConverter {
 		logger.trace("Exiting from entityToBoundary method with the following parameters: " + miniAppCommandBoundary);
 		return miniAppCommandBoundary;
 	}
+	/**
+	 *
+	 miniAppCommandEntity.setCommandId(command.getCommandId().getSuperapp() + Constants.DELIMITER
+	 + command.getCommandId().getMiniapp() + Constants.DELIMITER + command.getCommandId().getInternalCommandId());
+	 */
 
 	/**
 	 * Convert miniapp command boundary to miniapp command entity
@@ -59,22 +64,29 @@ public class MiniAppCommandConverter {
 	 * @return MiniAppCommandEntity
 	 */
 	public MiniAppCommandEntity boundaryToEntity(MiniAppCommandBoundary miniAppCommandBoundary) {
+		logger.trace("Entering to boundaryToEntity method with the following parameters: " + miniAppCommandBoundary);
 		MiniAppCommandEntity miniAppCommandEntity = new MiniAppCommandEntity();
 		miniAppCommandEntity.setCommand(miniAppCommandBoundary.getCommand());
+		logger.debug("command: " + miniAppCommandBoundary.getCommand());
 		miniAppCommandEntity.setCommandAttributes(miniAppCommandBoundary.getCommandAttributes());
 		miniAppCommandEntity.setCommandId(this.toEntityCommandId(miniAppCommandBoundary.getCommandId())); // commandID
-
+		logger.debug("commandId: " + miniAppCommandBoundary.getCommandId());
 		if (miniAppCommandBoundary.getInvokedBy() != null) {
+			logger.trace("Passed invokedBy check");
 			miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(miniAppCommandBoundary.getInvokedBy()));
 		} else {
+			logger.trace("Failed invokedBy check");
 			miniAppCommandEntity.setInvokedBy(this.toEntityInvokedBy(new InvokedBy(new UserId("default"))));
 		}
 		if (miniAppCommandBoundary.getTargetObject() != null) {
+			logger.trace("Passed targetObject check");
 			miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(miniAppCommandBoundary.getTargetObject()));
 		} else {
+			logger.trace("Failed targetObject check");
 			miniAppCommandEntity.setTargetObject(this.toEntityTargetObject(new TargetObject(new ObjectId("default"))));
 		}
 		miniAppCommandEntity.setInvocationTimestamp(miniAppCommandBoundary.getInvocationTimestamp());
+		logger.trace("Exiting from boundaryToEntity method with the following parameters: " + miniAppCommandEntity);
 		return miniAppCommandEntity;
 	}
 
@@ -89,7 +101,7 @@ public class MiniAppCommandConverter {
 		if (commandId != null) {
 			CommandId newCommandId = new CommandId();
 			String[] attr = commandId.split(Constants.DELIMITER);
-			newCommandId.setSuperapp(commandId);
+			newCommandId.setSuperapp(attr[0]);
 			newCommandId.setMiniapp(attr[1]);
 			newCommandId.setInternalCommandId(attr[2]);
 			logger.trace("Exiting from toBoundaryCommandId method with the following parameters: " + newCommandId);
@@ -97,6 +109,7 @@ public class MiniAppCommandConverter {
 		} else
 			return null;
 	}
+
 
 	/**
 	 * Convert String to InvokedBy object for boundary
@@ -147,6 +160,8 @@ public class MiniAppCommandConverter {
 	 * @return String
 	 */
 	private String toEntityTargetObject(TargetObject targetObject) {
+		logger.trace("Entering to toEntityTargetObject method with the following parameters: " + targetObject);
+		logger.trace("Exiting from toEntityTargetObject method with the following parameters: " + springApplicationName + Constants.DELIMITER + targetObject.getObjectId().getInternalObjectId());
 		return springApplicationName + Constants.DELIMITER + targetObject.getObjectId().getInternalObjectId();
 	}
 
@@ -157,6 +172,8 @@ public class MiniAppCommandConverter {
 	 * @return String
 	 */
 	private String toEntityInvokedBy(InvokedBy invokedBy) {
+		logger.trace("Entering to toEntityInvokedBy method with the following parameters: " + invokedBy);
+		logger.trace("Exiting from toEntityInvokedBy method with the following parameters: " + springApplicationName + Constants.DELIMITER + invokedBy.getUserId().getEmail());
 		return springApplicationName + Constants.DELIMITER + invokedBy.getUserId().getEmail();
 	}
 
@@ -167,31 +184,39 @@ public class MiniAppCommandConverter {
 	 * @return String
 	 */
 	private String toEntityCommandId(CommandId commandId) {
+		logger.trace("Entering to toEntityCommandId method with the following parameters: " + commandId);
+		logger.trace("Exiting from toEntityCommandId method with the following parameters: " + springApplicationName + Constants.DELIMITER + commandId.getMiniapp() + Constants.DELIMITER + commandId.getInternalCommandId());
 		return springApplicationName + Constants.DELIMITER + commandId.getMiniapp() + Constants.DELIMITER + commandId.getInternalCommandId();
 	}
 
 
 	public Date stringToDate(String dateString){
+		logger.trace("Entering to stringToDate method with the following parameters: " + dateString);
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
 		try {
 			return format.parse(dateString);
 		} catch (ParseException e) {
+			logger.warn("Date format is incorrect.");
 			throw new DateFormatIncorrectException("Date format is incorrect.");
 		}
 	}
 
 	public int getPage(Map<String, Object> commandAtt) {
+		logger.trace("Entering to getPage method with the following parameters: " + commandAtt);
 		if (commandAtt.containsKey("page")) {
 			return (int) commandAtt.get("page");
 		} else{
+			logger.trace("Exiting from getPage method with the following parameters: " + Constants.DEFAULT_PAGE_VALUE_INT);
 			return Constants.DEFAULT_PAGE_VALUE_INT;
 		}
 	}
 
 	public int getSize(Map<String, Object> commandAtt) {
+		logger.trace("Entering to getSize method with the following parameters: " + commandAtt);
 		if (commandAtt.containsKey("size")) {
 			return (int) commandAtt.get("size");
 		} else{
+			logger.trace("Exiting from getSize method with the following parameters: " + Constants.DEFAULT_SIZE_VALUE_INT);
 			return Constants.DEFAULT_SIZE_VALUE_INT;
 		}
 	}
