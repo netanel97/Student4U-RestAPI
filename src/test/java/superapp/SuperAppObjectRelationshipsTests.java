@@ -55,14 +55,12 @@ public class SuperAppObjectRelationshipsTests {
 	}
 
 	@Test
-	@DisplayName("test relationship setting between objects")
+	@DisplayName("Test relationship setting between objects with SuperAppUser")
 	public void testRelationshipSettingBetweenObjectsWithSuperAppUser() throws Exception {
-		// GIVEN the database already contains 2 objects and the user is super app user
-
+		// GIVEN the database already contains 2 objects and the user is a Super App user
 		ObjectId parent = postSuperAppObject("netanelhabas@gmail.com");
 		ObjectId child1 = postSuperAppObject("tesleron@gmail.com");
 		ObjectId child2 = postSuperAppObject("ormessing@gmail.com");
-
 
 		SuperAppObjectIdBoundary newObjectIdBoundaryParent = new SuperAppObjectIdBoundary();
 		newObjectIdBoundaryParent.setSuperapp(parent.getSuperapp());
@@ -77,9 +75,7 @@ public class SuperAppObjectRelationshipsTests {
 		newObjectIdBoundary2.setInternalObjectId(child2.getInternalObjectId());
 
 		// WHEN I PUT /superapp/objects/{superapp}/{internalObjectId}/children
-
-		/// parent will have 2 children : child1, child2
-
+		// THEN the parent will have 2 children: child1, child2
 		this.restTemplate.put(this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + "?" + USER, newObjectIdBoundary1,
 				parent.getSuperapp(), parent.getInternalObjectId(),
 				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
@@ -88,13 +84,12 @@ public class SuperAppObjectRelationshipsTests {
 				parent.getSuperapp(), parent.getInternalObjectId(),
 				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 
-		/// child1 will have 2 parents : child2, parent
-
+		// THEN child1 will have 2 parents: child2, parent
 		this.restTemplate.put(this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + "?" + USER, newObjectIdBoundary1,
 				child2.getSuperapp(), child2.getInternalObjectId(),
 				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 
-		// THEN a relationship will be created between messages
+		// THEN a relationship will be created between the objects
 		SuperAppObjectBoundary[] arrParent = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + "?" + USER, SuperAppObjectBoundary[].class,
 				parent.getSuperapp(), parent.getInternalObjectId(),
@@ -107,33 +102,31 @@ public class SuperAppObjectRelationshipsTests {
 				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 		assertThat(arrChild).isNotEmpty().hasSize(2);
 	}
-	
 
 	@Test
 	public void testNonExistingParents() throws Exception {
-		// GIVEN the database contains two non related messages
+		// GIVEN the database contains two non-related objects
 		ObjectId parent = postSuperAppObject("netanelhabas@gmail.com");
 		ObjectId child = postSuperAppObject("tesleron@gmail.com");
 
 		// WHEN I GET /superapp/objects/{superapp}/{internalObjectId}/parents
-		// THEN the server responds with 2xx status
+		// THEN the server responds with a 2xx status
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}" + PARENTS + "?" + USER, SuperAppObjectBoundary[].class,
 				parent.getSuperapp(), parent.getInternalObjectId(),
 				this.superappUser.getUserId().getSuperapp(),this.superappUser.getUserId().getEmail());
 
 		assertThat(arr).isEmpty();
-
 	}
 
 	@Test
 	public void testNonExistingChildren() throws Exception {
-		// GIVEN the database contains two non related messages
+		// GIVEN the database contains two non-related objects
 		ObjectId parent = postSuperAppObject("netanelhabas@gmail.com");
 		ObjectId child = postSuperAppObject("tesleron@gmail.com");
 
 		// WHEN I GET /superapp/objects/{superapp}/{internalObjectId}/children
-		// THEN the server responds with 2xx status
+		// THEN the server responds with a 2xx status
 		SuperAppObjectBoundary[] arr = this.restTemplate.getForObject(
 				this.baseUrl + "/{superapp}/{internalObjectId}" + CHILDREN + "?" + USER, SuperAppObjectBoundary[].class,
 				parent.getSuperapp(), parent.getInternalObjectId(),
@@ -142,12 +135,12 @@ public class SuperAppObjectRelationshipsTests {
 	}
 
 	/**
-	 * This function post a SuperAppObjectBoundary and creates ObjectId
-	 * 
-	 * @return ObjectId
+	 * Posts a SuperAppObjectBoundary and creates an ObjectId.
+	 *
+	 * @param email the email associated with the object
+	 * @return ObjectId representing the created object
 	 */
 	private ObjectId postSuperAppObject(String email) {
-
 		NewUserBoundary newUserBoundary = createNewUserBoundary(email, "adam", "SUPERAPP_USER", "A");
 		this.superappUser = postNewUserToDB(newUserBoundary);
 
@@ -158,11 +151,11 @@ public class SuperAppObjectRelationshipsTests {
 	}
 
 	/**
-	 * This function creates a new SuperAppObjectBoundary
-	 * 
-	 * @return SuperAppObjectBoundary
+	 * Creates a new SuperAppObjectBoundary.
+	 *
+	 * @param email the email associated with the object
+	 * @return SuperAppObjectBoundary representing the new object
 	 */
-
 	private SuperAppObjectBoundary createObjectBoundary(String email) {
 		SuperAppObjectBoundary newSuperAppObjectBoundary = new SuperAppObjectBoundary();
 		newSuperAppObjectBoundary.setAlias("test");
@@ -175,13 +168,13 @@ public class SuperAppObjectRelationshipsTests {
 	}
 
 	/**
-	 * Create a custom NewUserBoundary object.
-	 * 
-	 * @param email
-	 * @param username
-	 * @param role
-	 * @param avatar
-	 * @return
+	 * Creates a custom NewUserBoundary object.
+	 *
+	 * @param email    the email of the new user
+	 * @param username the username of the new user
+	 * @param role     the role of the new user
+	 * @param avatar   the avatar of the new user
+	 * @return NewUserBoundary representing the new user
 	 */
 	private NewUserBoundary createNewUserBoundary(String email, String username, String role, String avatar) {
 		NewUserBoundary newUserBoundary = new NewUserBoundary();
@@ -193,10 +186,10 @@ public class SuperAppObjectRelationshipsTests {
 	}
 
 	/**
-	 * Post New User to DB
-	 * 
-	 * @param newUserBoundary the new user
-	 * @return the UserBoundary created as a result of CRUD Post method
+	 * Posts a new user to the database.
+	 *
+	 * @param newUserBoundary the new user to post
+	 * @return UserBoundary representing the created user
 	 */
 	private UserBoundary postNewUserToDB(NewUserBoundary newUserBoundary) {
 		return this.restTemplate.postForObject(this.userUrl, newUserBoundary, UserBoundary.class);
