@@ -53,6 +53,8 @@ public class SuperAppObjectTest {
 		this.restTemplate.delete(this.deleteUrl + "?userSuperapp={userSuperapp}&userEmail={userEmail}", this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
 	}
 
+
+
 	// TODO: need to check active and permission if not
 	@Test
 	public void testSuccessfullPostUsingSpecificSuperappObjectGet() {
@@ -82,6 +84,51 @@ public class SuperAppObjectTest {
 		assertThat(superAppObjectBoundary).isNotNull().extracting("objectId.internalObjectId").isEqualTo(objectId.getInternalObjectId());
 	}
 
+
+	@Test
+	public void testSuccessfullPostDummyObject(){
+		/**
+		 * GIVEN the server is up AND the database have user with the permission "SUPERAPP_USER"
+		 * WHEN I POST /superapp/objects with
+		 *
+		 * 		 * “objectId”:{ “superapp”: “2023b.LiranSorokin”, “internalObjectId”:”UUID” },
+		 * 		 * “type”:”dummyObject”, “alias”:”dummyObject”, “active”:true,
+		 * 		 * “creationTimestamp”:”2023-04-15T15:01:40.209+03:00”, “location”:{ “lat”:0.0,
+		 * 		 * “lon”:0.0 }, “createdBy”: { “userId”: { “superApp”: “2023b.Liran.Sorokin”,
+		 * 		 * “email”: “dummy@gmail.com” } }, “objectDetails”:{}
+		 */
+		NewUserBoundary newUserBoundary = createNewUserBoundary("dummy@gmail.com", "DummyObject", "SUPERAPP_USER", "None");
+		this.superappUser = postNewUserToDB(newUserBoundary);
+		ObjectId objectId = postDummyObject();
+		SuperAppObjectBoundary superAppObjectBoundary = this.restTemplate.getForObject(
+				this.baseUrl + "/{superapp}/{internalObjectId}?userSuperapp={userSuperapp}&userEmail={userEmail}",
+				SuperAppObjectBoundary.class, objectId.getSuperapp(), objectId.getInternalObjectId(),
+				this.superappUser.getUserId().getSuperapp(), this.superappUser.getUserId().getEmail());
+		System.err.println(superAppObjectBoundary);
+		assertThat(superAppObjectBoundary).isNotNull().extracting("objectId.internalObjectId").isEqualTo(objectId.getInternalObjectId());
+
+
+
+
+		// THEN the database contains a single object boundary with the dummy object
+
+	}
+
+	private ObjectId postDummyObject() {
+		SuperAppObjectBoundary newSuperAppObjectBoundary = new SuperAppObjectBoundary();
+		newSuperAppObjectBoundary.setAlias("dummyObject");
+		newSuperAppObjectBoundary.setType("dummyObject");
+		newSuperAppObjectBoundary.setActive(true);
+		newSuperAppObjectBoundary.setCreationTimestamp(new Date());
+		newSuperAppObjectBoundary.setLocation(new Location(0.0, 0.0));
+		newSuperAppObjectBoundary.setCreatedBy(new CreatedBy(this.superappUser.getUserId()));
+		newSuperAppObjectBoundary.setObjectDetails(new HashMap<>());
+		SuperAppObjectBoundary actual = this.restTemplate.postForObject(this.baseUrl, newSuperAppObjectBoundary,
+				SuperAppObjectBoundary.class);
+		return actual.getObjectId();
+	}
+
+
 	/**
 	 * This function post a SuperAppObjectBoundary and creates ObjectId
 	 * 
@@ -89,8 +136,6 @@ public class SuperAppObjectTest {
 	 */
 	private ObjectId postSuperAppObject() {
 
-		NewUserBoundary newUserBoundary = createNewUserBoundary("adam@gmail.com", "adam", "SUPERAPP_USER", "A");
-		this.superappUser = postNewUserToDB(newUserBoundary);
 
 		SuperAppObjectBoundary newSuperAppObjectBoundary = createObjectBoundary();
 		SuperAppObjectBoundary actual = this.restTemplate.postForObject(this.baseUrl, newSuperAppObjectBoundary,
