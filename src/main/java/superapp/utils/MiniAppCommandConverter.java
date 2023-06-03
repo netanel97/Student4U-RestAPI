@@ -192,7 +192,7 @@ public class MiniAppCommandConverter {
 
 	public Date stringToDate(String dateString){
 		logger.trace("Entering to stringToDate method with the following parameters: " + dateString);
-		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 		try {
 			return format.parse(dateString);
 		} catch (ParseException e) {
