@@ -38,7 +38,7 @@ public class SuperAppObjectsController {
 	 * A method that handles a POST request for creating a new object in a
 	 * "superapp" application.
 	 * 
-	 * @param newObjectBoundary: an ObjectBoundary object representing the new
+	 * @param object an ObjectBoundary object representing the new
 	 *                           object to be created in the "superapp".
 	 * @return the created ObjectBoundary object as a response in JSON format.
 	 */
@@ -53,11 +53,11 @@ public class SuperAppObjectsController {
 	 * A method that handles a PUT request for updating an object in a "super app"
 	 * application.
 	 * 
-	 * @param superapp:         a string representing the name of the "super app"
+	 * @param superapp         a string representing the name of the "super app"
 	 *                          application.
-	 * @param internalObjectId: a string representing the ID of the object to be
+	 * @param internalObjectId a string representing the ID of the object to be
 	 *                          updated in the "superapp".
-	 * @param updateBoundary:   an ObjectBoundary object representing the updated
+	 * @param updateBoundary   an ObjectBoundary object representing the updated
 	 *                          version of the object.
 	 */
 	@RequestMapping(path = { "/superapp/objects/{superapp}/{InternalObjectId}" }, method = {
@@ -101,7 +101,10 @@ public class SuperAppObjectsController {
 	 * "/superapp/objects", specifies the HTTP method as GET, and the response media
 	 * type as JSON.
 	 * 
-	 * @param None
+	 * @param userSuperapp String
+	 * @param userEmail String
+	 * @param page int
+	 * @param size String
 	 * @return Array of ObjectBoundary.
 	 */
 	@RequestMapping(path = { "/superapp/objects" }, method = { RequestMethod.GET }, produces = {
