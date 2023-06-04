@@ -45,6 +45,7 @@ public class MiniAppForum implements MiniAppService {
     /**
      * Checks the command that was chosen based on the command field in the MiniAppCommandBoundary the function received.
      * By default, if the command doesn't exist it will return the command itself.
+     *
      * @param command MiniAppCommandBoundary
      * @return Object
      **/
@@ -101,7 +102,7 @@ public class MiniAppForum implements MiniAppService {
         String creator = (String) commandAtt.get(Constants.CREATOR);
         logger.trace("Searching objects by TypeAndActiveIsTrueAndCreatedBy....");
         return this.objectCrud.findAllByTypeAndActiveIsTrueAndCreatedBy(Constants.THREAD, creator,
-                PageRequest.of(miniAppCommandConverter.getPage(commandAtt), miniAppCommandConverter.getSize(commandAtt),Direction.ASC, "creationTimestamp" ));
+                PageRequest.of(miniAppCommandConverter.getPage(commandAtt), miniAppCommandConverter.getSize(commandAtt), Direction.ASC, "creationTimestamp"));
     }
 
     /**
@@ -115,7 +116,13 @@ public class MiniAppForum implements MiniAppService {
         String targetObjId = objectConverter.objectIdToString(command.getTargetObject().getObjectId());
         SuperAppObjectEntity superAppObject = this.objectCrud.findById(targetObjId)
                 .orElseThrow(() -> new SuperAppObjectNotFoundException("Super app object was not found"));
-        logger.trace("Get SuperAppObjectEntity from the DB: " + superAppObject.toString());
+
+        for (SuperAppObjectEntity child : superAppObject.getChildren()) {
+            child.setActive(false);
+            this.objectCrud.save(child);
+
+        }
+        logger.trace("Get SuperAppObjectEntity from the DB: " + superAppObject);
         if (superAppObject.getType().equalsIgnoreCase(Constants.THREAD)) {
             logger.trace("The object is a thread, setting active to false");
             superAppObject.setActive(false);
@@ -126,4 +133,6 @@ public class MiniAppForum implements MiniAppService {
         return this.objectConverter.entityToBoundary(superAppObject);// If the client send me type that don't match to
         // thread will return the object that he sent
     }
+
+
 }
