@@ -56,6 +56,10 @@ public class MiniAppGradeAVG implements MiniAppService {
                 logger.trace("Entering Calculate AVG case");
                 return this.calculateAVG(command);
             }
+            case "Get User Grades":{
+                logger.trace("Entering Get User Grades case");
+                return this.getUserGrades(command);
+            }
             case "Remove Grade": {
                 logger.trace("Entering Remove Grade case");
                 return this.removeGrade(command);
@@ -63,6 +67,23 @@ public class MiniAppGradeAVG implements MiniAppService {
             default:
                 return command;
         }
+    }
+
+    /**
+     * GET function that get all the grades of a specific user.
+     * The command attributes must contain: grades' creator user id.
+     * Optional command attributes: page, size.
+     *
+     * @param command MiniAppCommandBoundary
+     * @return List<SuperAppObjectEntity>
+     **/
+    private Object getUserGrades(MiniAppCommandBoundary command) {
+        logger.trace("Entering getUserGrades function");
+        Map<String, Object> commandAtt = command.getCommandAttributes();
+        String creator = (String) commandAtt.get(Constants.CREATOR);
+        logger.trace("Searching objects by TypeAndActiveIsTrueAndCreatedBy....");
+        return this.objectCrud.findAllByTypeAndActiveIsTrueAndCreatedBy(Constants.GRADE, creator,
+                PageRequest.of(miniAppCommandConverter.getPage(commandAtt), miniAppCommandConverter.getSize(commandAtt), Sort.Direction.ASC, "creationTimestamp" ));
     }
 
     /**
