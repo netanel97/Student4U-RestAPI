@@ -123,6 +123,7 @@ public class MiniAppCommandsServiceMongoDb implements MiniAppCommandsServiceWith
         if (command == null) {
             throw new MiniAppCommandNotFoundException("The command is null");
         }
+        System.err.println("invokeCommand");
         CommandId newCommandId = new CommandId();
         newCommandId.setMiniapp(miniAppName);
         newCommandId.setSuperapp(springApplicationName);

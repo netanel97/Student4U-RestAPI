@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
@@ -26,8 +27,10 @@ public class SuperAppObjectEntity {
 	private GeoJsonPoint location;				//GeoJsonPoint requires Longitude first and then Latitude
 	private String createdBy;
 	private Map<String, Object> objectDetails;
+	@JsonIgnore
 	@DBRef(lazy = true)
 	private Set<SuperAppObjectEntity> parents = new HashSet<>();
+	@JsonIgnore
 	@DBRef(lazy = true)
 	private Set<SuperAppObjectEntity> children = new HashSet<>();
 

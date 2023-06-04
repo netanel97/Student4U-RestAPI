@@ -469,6 +469,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
+
 	/**
 	 * Search DB for parents objects of a child. If use is MINIAPP_USER show only
 	 * active parents.

@@ -50,7 +50,6 @@ public class MiniAppCommandController {
 	public Object invokeMiniAppCommand(@RequestBody MiniAppCommandBoundary miniAppCommandBoundary,
 			@PathVariable("miniAppName") String miniAppName,
 			@RequestParam(name = "async", required = false, defaultValue = "false") Boolean asyncFlag) {
-
 		return miniAppCommandsService.invokeCommand(miniAppCommandBoundary, miniAppName, asyncFlag);
 
 	}
