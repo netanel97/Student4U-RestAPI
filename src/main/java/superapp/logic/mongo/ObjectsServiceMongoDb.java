@@ -18,9 +18,11 @@ import org.springframework.data.geo.Box;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
+import superapp.boundaries.object.CreatedBy;
 import superapp.boundaries.object.Location;
 import superapp.boundaries.object.SuperAppObjectBoundary;
 import superapp.boundaries.object.SuperAppObjectIdBoundary;
+import superapp.boundaries.user.UserId;
 import superapp.dal.SuperAppObjectCrud;
 import superapp.dal.UserCrud;
 import superapp.data.SuperAppObjectEntity;
@@ -32,7 +34,9 @@ import superapp.logic.SuperAppObjectNotActiveException;
 import superapp.logic.SuperAppObjectNotFoundException;
 import superapp.logic.UnauthorizedAccessException;
 import superapp.logic.UserNotFoundException;
-import superapp.utils.Constants;
+import static superapp.utils.Constants.LATITUDE_RANGE;
+import static superapp.utils.Constants.LONGITUDE_RANGE;
+import static superapp.utils.Constants.DELIMITER;
 import superapp.utils.ObjectConverter;
 import superapp.utils.UserConverter;
 
@@ -57,6 +61,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		this.springApplicationName = springApplicationName;
 	}
 
+	
 	@Autowired
 	public ObjectsServiceMongoDb(SuperAppObjectCrud superAppObjectCrud, UserCrud userCrud,
 			ObjectConverter objectConverter, UserConverter userConverter) {
@@ -87,7 +92,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		logger.trace("Passed the boundaryToEntity in create an object and the SuperAppObjectEntity is: "
 				+ superAppObjectEntity);
 		superAppObjectEntity.setCreationTimestamp(new Date());
-		superAppObjectEntity.setObjectId(springApplicationName + Constants.DELIMITER + UUID.randomUUID().toString());
+		superAppObjectEntity.setObjectId(springApplicationName + DELIMITER + UUID.randomUUID().toString());
 		logger.trace(
 				"Passed the setCreationTimestamp and setObjectId in create an object and the SuperAppObjectEntity is: "
 						+ superAppObjectEntity);
@@ -98,63 +103,74 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		return this.objectConverter.entityToBoundary(superAppObjectEntity);
 	}
 
-	private void checkObjectValidity(SuperAppObjectBoundary object) {
-		logger.trace("Entering checkObjectValidity method with object: " + object);
-		if (object == null) {
+	/**
+	 * Check if object passed is valid. Throws RuntimeException if invalid.
+	 * 
+	 * @param superAppObjectBoundary Object boundary
+	 */
+	private void checkObjectValidity(SuperAppObjectBoundary superAppObjectBoundary) {
+		logger.trace("Entering checkObjectValidity method with object: " + superAppObjectBoundary);
+		if (superAppObjectBoundary == null) {
 			logger.warn("ObjectBoundary is null");
 			throw new SuperAppObjectBadRequestException("ObjectBoundary is null");
 		}
-		if (object.getCreatedBy() == null) {
-			logger.warn("CreatedBy object cannot be null " + object);
+		CreatedBy createdBy = superAppObjectBoundary.getCreatedBy();
+		if (createdBy == null) {
+			logger.warn("CreatedBy object cannot be null " + superAppObjectBoundary);
 			throw new SuperAppObjectBadRequestException("CreatedBy object is null");
 		}
-		if (object.getCreatedBy().getUserId() == null) {
-			logger.warn("UserId object cannot be null " + object);
+
+		UserId userId = createdBy.getUserId();
+		if (userId == null) {
+			logger.warn("UserId object cannot be null " + superAppObjectBoundary);
 			throw new SuperAppObjectBadRequestException("UserId object is null");
 		}
 
-		if (!checkEmail(object.getCreatedBy().getUserId().getEmail())) {
-			logger.warn("The email address is invalid " + object);
+		if (!checkEmail(userId.getEmail())) {
+			logger.warn("The email address is invalid " + superAppObjectBoundary);
 			throw new SuperAppObjectBadRequestException("The email address is invalid");
 		}
 
-		UserEntity userEntity = userCrud.findById(userConverter.userIdToString(object.getCreatedBy().getUserId()))
+		UserEntity userEntity = userCrud.findById(userConverter.userIdToString(userId))
 				.orElseThrow(() -> new UserNotFoundException("User was not found"));
 		logger.trace("Passed the searching userEntity in create an object and the UserEntity is: " + userEntity);
-		if (object.getAlias() == null || object.getAlias().isEmpty()) {
-			logger.warn("Alias object cannot be null or empty " + object);
-			throw new SuperAppObjectBadRequestException("Alias object is null or empty");
 
+		if (userEntity.getRole() != UserRole.SUPERAPP_USER) {
+			logger.warn("The user is not allowed to create an object " + superAppObjectBoundary);
+			throw new UnauthorizedAccessException("The user is not allowed");
 		}
-		if (object.getType() == null || object.getType().isEmpty()) {
-			logger.warn("Type object cannot be null or empty " + object);
+		String alias = superAppObjectBoundary.getAlias();
+		if (alias == null || alias.isEmpty()) {
+			logger.warn("Alias object cannot be null or empty " + superAppObjectBoundary);
+			throw new SuperAppObjectBadRequestException("Alias object is null or empty");
+		}
+		
+		String type = superAppObjectBoundary.getType();
+		if (type == null || type.isEmpty()) {
+			logger.warn("Type object cannot be null or empty " + superAppObjectBoundary);
 			throw new SuperAppObjectBadRequestException("Type object is null or empty");
 		}
-
-		if (object.getLocation() == null) {
-			logger.warn("Location object cannot be null " + object);
+		
+		Location location = superAppObjectBoundary.getLocation();
+		if (location == null) {
+			logger.warn("Location object cannot be null " + superAppObjectBoundary);
 			throw new SuperAppObjectBadRequestException("Location object is null");
 		}
 
-		Double lat = object.getLocation().getLat(), lng = object.getLocation().getLng();
+		Double lat = location.getLat(), lng = location.getLng();
 
-		if (lat == null || lat < Math.negateExact(Constants.LATITUDE_RANGE) || lat > Constants.LATITUDE_RANGE) {
-			logger.warn("Latitude value in Location object is null or not in range(-" + Constants.LATITUDE_RANGE
-					+ " <-> " + Constants.LATITUDE_RANGE + ")");
+		if (lat == null || lat < Math.negateExact(LATITUDE_RANGE) || lat > LATITUDE_RANGE) {
+			logger.warn("Latitude value in Location object is null or not in range(-" + LATITUDE_RANGE
+					+ " <-> " + LATITUDE_RANGE + ")");
 			throw new SuperAppObjectBadRequestException("Latitude value in Location object is null or not in range(-"
-					+ Constants.LATITUDE_RANGE + " <-> " + Constants.LATITUDE_RANGE + ")");
+					+ LATITUDE_RANGE + " <-> " + LATITUDE_RANGE + ")");
 		}
 
-		if (lng == null || lng < Math.negateExact(Constants.LONGITUDE_RANGE) || lng > Constants.LONGITUDE_RANGE) {
-			logger.warn("Longitude value in Location object is null or not in range(-" + Constants.LONGITUDE_RANGE
-					+ " <-> " + Constants.LONGITUDE_RANGE + ")");
+		if (lng == null || lng < Math.negateExact(LONGITUDE_RANGE) || lng > LONGITUDE_RANGE) {
+			logger.warn("Longitude value in Location object is null or not in range(-" + LONGITUDE_RANGE
+					+ " <-> " + LONGITUDE_RANGE + ")");
 			throw new SuperAppObjectBadRequestException("Longitude value in Location object is null or not in range(-"
-					+ Constants.LONGITUDE_RANGE + " <-> " + Constants.LONGITUDE_RANGE + ")");
-		}
-
-		if (userEntity.getRole() != UserRole.SUPERAPP_USER) {
-			logger.warn("The user is not allowed to create an object " + object);
-			throw new UnauthorizedAccessException("The user is not allowed");
+					+ LONGITUDE_RANGE + " <-> " + LONGITUDE_RANGE + ")");
 		}
 
 	}
@@ -177,6 +193,16 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 
 	}
 
+	/**
+	 * 
+	 * @deprecated new method was created. Add parameters String 'userSuperapp' and
+	 *             String 'userEmail'. Update existing object in the desired fields
+	 * 
+	 * @param objectSuperApp   Application name
+	 * @param internalObjectId Internal object id
+	 * @param update           object boundary to change its attributes
+	 * @return ObjectBoundary object boundary after update
+	 */
 	@Override
 	@Deprecated
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
@@ -199,8 +225,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 	public SuperAppObjectBoundary updateAnObject(String objectSuperApp, String internalObjectId,
 			SuperAppObjectBoundary update, String userSuperapp, String userEmail) {
 		logger.trace("Entering to update an object");
-		String attr = objectSuperApp + Constants.DELIMITER + internalObjectId;
-		String userId = userSuperapp + Constants.DELIMITER + userEmail;
+		String attr = objectSuperApp + DELIMITER + internalObjectId;
+		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user in update an object and the UserEntity is: " + user);
@@ -261,6 +287,14 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
+	/**
+	 * @deprecated new method was created. Add parameters String 'userSuperapp' and
+	 *             String 'userEmail'. Get specific object from DB
+	 *
+	 * @param objectSuperApp   Application name
+	 * @param internalObjectId internalObjectId
+	 * @return ObjectBoundary requested object boundary
+	 */
 	@Override
 	@Deprecated
 	public Optional<SuperAppObjectBoundary> getSpecificObject(String objectSuperApp, String internalObjectId) {
@@ -274,6 +308,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 	 *
 	 * @param objectSuperApp   Application name
 	 * @param internalObjectId internalObjectId
+	 * @param userSuperapp     userSuperapp
+	 * @param userEmail        userEmail
 	 * @return ObjectBoundary requested object boundary
 	 */
 	@Override
@@ -281,8 +317,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			String userSuperapp, String userEmail) {
 		logger.trace("Entering to the method getSpecificObject with the parameters: " + objectSuperApp + " "
 				+ internalObjectId + " " + userSuperapp + " " + userEmail);
-		String attr = objectSuperApp + Constants.DELIMITER + internalObjectId;
-		String userId = userSuperapp + Constants.DELIMITER + userEmail;
+		String attr = objectSuperApp + DELIMITER + internalObjectId;
+		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user in getSpecificObject and the UserEntity is: " + user);
@@ -307,6 +343,13 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
+	/**
+	 * @deprecated new method was created. Add parameters String 'userSuperapp'
+	 *             ,String 'userEmail', int 'size' (how many items in page) and int
+	 *             'page' (which page to pull). Get all objects from DB
+	 *
+	 * @return Array ObjectBoundary[]
+	 */
 	@Override
 	@Deprecated
 	public List<SuperAppObjectBoundary> getAllObjects() {
@@ -327,7 +370,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 	public List<SuperAppObjectBoundary> getAllObjects(String userSuperapp, String userEmail, int size, int page) {
 		logger.trace("Entering to the method getAllObjects with the parameters: " + userSuperapp + " " + userEmail + " "
 				+ size + " " + page);
-		String userId = userSuperapp + Constants.DELIMITER + userEmail;
+		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user in getAllObjects and the UserEntity is: " + user);
@@ -350,6 +393,10 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
+	/**
+	 * @deprecated new method was created. Add parameters String 'userSuperapp' and
+	 *             String 'userEmail'. Delete all objects in DB.
+	 */
 	@Override
 	@Deprecated
 	public void deleteAllObjects() {
@@ -357,10 +404,16 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		throw new DepreacatedOpterationException(deprecatedMethodMessage);
 	}
 
+	/**
+	 * Delete all objects in DB.
+	 * 
+	 * @param userSuperapp Superapp name
+	 * @param userEmail    User email
+	 */
 	@Override
 	public void deleteAllObjects(String userSuperapp, String userEmail) {
 		logger.trace("Entering to the method deleteAllObjects with the parameters: " + userSuperapp + " " + userEmail);
-		String userId = userSuperapp + Constants.DELIMITER + userEmail;
+		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user in deleteAllObjects and the UserEntity is: " + user);
@@ -374,14 +427,14 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 	}
 
 	/**
-	 * Update children field of parent in DB. If use is MINIAPP_USER show only
+	 * Update children field of parent in DB. If user is MINIAPP_USER show only
 	 * active children.
 	 *
-	 * @param superapp
-	 * @param internalObjectId
-	 * @param childId          how many items in page
-	 * @param superapp         superapp name
-	 * @param userEmail        user email
+	 * @param superapp         Superapp name
+	 * @param internalObjectId Internal object id
+	 * @param childId          SuperAppObjectIdBoundary of child
+	 * @param userSuperapp     Superapp name
+	 * @param userEmail        User email
 	 * @return List of SuperAppObjectBoundary all objects matching criteria
 	 */
 	@Override
@@ -389,19 +442,19 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			SuperAppObjectIdBoundary childId, String userSuperapp, String userEmail) {
 		logger.trace("Entering to the method BindAnExistingObjectToExistingChildObject with the parameters: " + superapp
 				+ " " + internalObjectId + " " + childId + " " + userSuperapp + " " + userEmail);
-		String userId = userSuperapp + Constants.DELIMITER + userEmail;
+		String userId = userSuperapp + DELIMITER + userEmail;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user in BindAnExistingObjectToExistingChildObject and the UserEntity is: "
 				+ user);
 		if (user.getRole() == UserRole.SUPERAPP_USER) {
 			logger.trace("Passed the user role check and the user role is: " + user.getRole());
-			String attr1 = superapp + Constants.DELIMITER + internalObjectId;
+			String attr1 = superapp + DELIMITER + internalObjectId;
 			SuperAppObjectEntity parent = this.databaseCrud.findById(attr1)
 					.orElseThrow(() -> new SuperAppObjectNotFoundException(
 							"could not find origin message by id: " + internalObjectId));
 			logger.trace("Passed the searching parent  and the SuperAppObjectEntity is: " + parent);
-			String attr = childId.getSuperapp() + Constants.DELIMITER + childId.getInternalObjectId();// child
+			String attr = childId.getSuperapp() + DELIMITER + childId.getInternalObjectId();// child
 			SuperAppObjectEntity child = this.databaseCrud.findById(attr).orElseThrow(
 					() -> new SuperAppObjectNotFoundException("could not find origin message by id: " + attr));
 			if (!child.addParent(parent) || !parent.addChild(child)) {
@@ -422,12 +475,12 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 	}
 
 	/**
-	 * Search DB for children objects of a parent. If use is MINIAPP_USER show only
+	 * Search DB for children objects of a parent. If user is MINIAPP_USER show only
 	 * active children.
 	 *
-	 * @param superapp
-	 * @param internalObjectId
-	 * @param superapp         superapp name
+	 * @param superapp         Application name
+	 * @param internalObjectId Internal object id
+	 * @param userSuperapp     superapp name
 	 * @param userEmail        user email
 	 * @param size             how many items in page
 	 * @param page             current page
@@ -438,8 +491,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			String userSuperapp, String userEmail, int size, int page) {
 		logger.trace("Entering to the method getAllChildrenOfAnExistingObject with the parameters: " + superapp + " "
 				+ internalObjectId + " " + userSuperapp + " " + userEmail + " " + size + " " + page);
-		String userId = userSuperapp + Constants.DELIMITER + userEmail;
-		String attr = superapp + Constants.DELIMITER + internalObjectId;
+		String userId = userSuperapp + DELIMITER + userEmail;
+		String attr = superapp + DELIMITER + internalObjectId;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user and the UserEntity is: " + user);
@@ -469,14 +522,13 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		}
 	}
 
-
 	/**
 	 * Search DB for parents objects of a child. If use is MINIAPP_USER show only
 	 * active parents.
 	 *
-	 * @param superapp
-	 * @param internalObjectId
-	 * @param superapp         superapp name
+	 * @param superapp         Application name
+	 * @param internalObjectId Internal object id
+	 * @param userSuperapp     superapp name
 	 * @param userEmail        user email
 	 * @param size             how many items in page
 	 * @param page             current page
@@ -487,8 +539,8 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			String userSuperapp, String userEmail, int size, int page) {
 		logger.trace("Entering to the method getAnArrayWithObjectParent with the parameters: " + superapp + " "
 				+ internalObjectId + " " + userSuperapp + " " + userEmail + " " + size + " " + page);
-		String userId = userSuperapp + Constants.DELIMITER + userEmail;
-		String attr = superapp + Constants.DELIMITER + internalObjectId;
+		String userId = userSuperapp + DELIMITER + userEmail;
+		String attr = superapp + DELIMITER + internalObjectId;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user and the UserEntity is: " + user);
@@ -535,7 +587,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			int page) {
 		logger.trace("Entering to the method searchObjectsByType with the parameters: " + superapp + " " + email + " "
 				+ type + " " + size + " " + page);
-		String userId = superapp + Constants.DELIMITER + email;
+		String userId = superapp + DELIMITER + email;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user and the UserEntity is: " + user);
@@ -577,7 +629,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			int page) {
 		logger.trace("Entering to the method searchObjectsByAlias with the parameters: " + superapp + " " + email + " "
 				+ alias + " " + size + " " + page);
-		String userId = superapp + Constants.DELIMITER + email;
+		String userId = superapp + DELIMITER + email;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user and the UserEntity is: " + user);
@@ -622,14 +674,14 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			double distance, String units, int size, int page) {
 		logger.trace("Entering to the method searchObjectsByLocation with the parameters: " + superapp + " " + email
 				+ " " + lat + " " + lng + " " + distance + " " + units + " " + size + " " + page);
-		String userId = superapp + Constants.DELIMITER + email;
+		String userId = superapp + DELIMITER + email;
 		double calculatedDistance = calculateDistanceUsingGeoUnits(distance, units);
 
 		double minLat = lat - calculatedDistance, maxLat = lat + calculatedDistance, minLng = lng - calculatedDistance,
 				maxLng = lng + calculatedDistance;
-		
-		Box box = new Box(new double[] {minLng, minLat}, new double[] {maxLng, maxLat});
-		
+
+		Box box = new Box(new double[] { minLng, minLat }, new double[] { maxLng, maxLat });
+
 		logger.trace("Passed the distance calculation and the minLat is: " + minLat + " maxLat is: " + maxLat
 				+ " minLng is: " + minLng + " maxLng is: " + maxLng);
 		UserEntity user = this.userCrud.findById(userId)
@@ -676,7 +728,7 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 			double lng, double distance, String units, int size, int page) {
 		logger.trace("Entering to the method searchObjectsByLocationCircle with the parameters: " + superapp + " "
 				+ email + " " + lat + " " + lng + " " + distance + " " + units + " " + size + " " + page);
-		String userId = superapp + Constants.DELIMITER + email;
+		String userId = superapp + DELIMITER + email;
 		UserEntity user = this.userCrud.findById(userId)
 				.orElseThrow(() -> new UserNotFoundException(userNotFoundByIdMessage + userId));
 		logger.trace("Passed the searching user and the UserEntity is: " + user);
@@ -724,18 +776,4 @@ public class ObjectsServiceMongoDb implements ObjectServiceWithPaginationSupport
 		return calculatedDistance;
 	}
 
-	
-//	private SuperAppObjectBoundary entityToBoundary(SuperAppObjectEntity superAppObjectEntity) {
-//		SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();
-//		objectBoundary.setActive(superAppObjectEntity.isActive());
-//		objectBoundary.setAlias(superAppObjectEntity.getAlias());
-//		objectBoundary.setCreatedBy(this.objectConverter.toBoundaryAsCreatedBy(superAppObjectEntity.getCreatedBy()));
-//		objectBoundary.setCreationTimestamp(superAppObjectEntity.getCreationTimestamp());
-//		objectBoundary.setLocation(this.objectConverter.toBoundaryAsLocation(superAppObjectEntity.getLat(),
-//				superAppObjectEntity.getLng()));
-//		objectBoundary.setObjectDetails(superAppObjectEntity.getObjectDetails());
-//		objectBoundary.setObjectId(this.objectConverter.toBoundaryAsObjectId(superAppObjectEntity.getObjectId()));
-//		objectBoundary.setType(superAppObjectEntity.getType());
-//		return objectBoundary;
-//	}
 }

@@ -34,6 +34,7 @@ public class ObjectConverter {
 	public void setSpringApplicationName(String springApplicationName) {
 		this.springApplicationName = springApplicationName;
 	}
+
 	/**
 	 * Convert super app object entity to object boundary
 	 * 
@@ -41,14 +42,15 @@ public class ObjectConverter {
 	 * @return ObjectBoundary
 	 */
 	public SuperAppObjectBoundary entityToBoundary(SuperAppObjectEntity superAppObjectEntity) {
-		logger.trace("Entering to function entityToBoundary with the super superAppObjectEntity: {%s}".formatted(superAppObjectEntity));
+		logger.trace("Entering to function entityToBoundary with the super superAppObjectEntity: {%s}"
+				.formatted(superAppObjectEntity));
 		SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();
 		objectBoundary.setActive(superAppObjectEntity.isActive());
 		objectBoundary.setAlias(superAppObjectEntity.getAlias());
 		objectBoundary.setCreatedBy(this.toBoundaryAsCreatedBy(superAppObjectEntity.getCreatedBy()));
 		objectBoundary.setCreationTimestamp(superAppObjectEntity.getCreationTimestamp());
-		objectBoundary
-			.setLocation(this.toBoundaryAsLocation(superAppObjectEntity.getLocation().getX(), superAppObjectEntity.getLocation().getY()));
+		objectBoundary.setLocation(this.toBoundaryAsLocation(superAppObjectEntity.getLocation().getX(),
+				superAppObjectEntity.getLocation().getY()));
 		objectBoundary.setObjectDetails(superAppObjectEntity.getObjectDetails());
 		objectBoundary.setObjectId(this.toBoundaryAsObjectId(superAppObjectEntity.getObjectId()));
 		objectBoundary.setType(superAppObjectEntity.getType());
@@ -56,25 +58,6 @@ public class ObjectConverter {
 		return objectBoundary;
 	}
 
-	/**
-	 *     private SuperAppObjectBoundary entityToBoundary(SuperAppObjectEntity superAppObjectEntity) {
-	 *         SuperAppObjectBoundary objectBoundary = new SuperAppObjectBoundary();
-	 *         objectBoundary.setActive(superAppObjectEntity.isActive());
-	 *         objectBoundary.setAlias(superAppObjectEntity.getAlias());
-	 *         objectBoundary.setCreatedBy(this.objectConverter.toBoundaryAsCreatedBy(superAppObjectEntity.getCreatedBy()));
-	 *         objectBoundary.setCreationTimestamp(superAppObjectEntity.getCreationTimestamp());
-	 *
-	 *         objectBoundary.setLocation(this.objectConverter.toBoundaryAsLocation(superAppObjectEntity.getLat(),
-	 *                 superAppObjectEntity.getLng()));
-	 *         objectBoundary.setObjectDetails(superAppObjectEntity.getObjectDetails());
-	 *         objectBoundary.setObjectId(this.objectConverter.toBoundaryAsObjectId(superAppObjectEntity.getObjectId()));
-	 *         objectBoundary.setType(superAppObjectEntity.getType());
-	 *         return objectBoundary;
-	 *     }
-	 */
-
-
-	
 	/**
 	 * Converts String to 'CreatedBy' object
 	 * 
@@ -84,27 +67,28 @@ public class ObjectConverter {
 	public CreatedBy toBoundaryAsCreatedBy(String createdByStr) {
 		logger.trace("Entering to function toBoundaryAsCreatedBy with the createdByStr: {%s}".formatted(createdByStr));
 		if (createdByStr != null) {
-			String[] attr = createdByStr.split("_");
+			String[] attr = createdByStr.split(DELIMITER);
 
 			CreatedBy createdBy = new CreatedBy();
 			createdBy.setUserId(new UserId(attr[1]));
 			createdBy.getUserId().setSuperapp(attr[0]);
-			logger.trace("Exiting from function toBoundaryAsCreatedBy with the createdBy: {%s}".formatted(createdByStr));
+			logger.trace(
+					"Exiting from function toBoundaryAsCreatedBy with the createdBy: {%s}".formatted(createdByStr));
 			return createdBy;
 		} else {
 			return null;
 		}
 	}
+
 	/**
 	 * Converts String to Location object
 	 * 
 	 * @param lng location string
-	 *  @param lat location string
+	 * @param lat location string
 	 * @return Location.
 	 */
-	
 	public Location toBoundaryAsLocation(Double lat, Double lng) {
-		logger.trace("Entering to function toBoundaryAsLocation with the lat: {%s} and lng: {%s}".formatted(lat,lng));
+		logger.trace("Entering to function toBoundaryAsLocation with the lat: {%s} and lng: {%s}".formatted(lat, lng));
 		if (lat != null && lng != null) {
 
 			Location location = new Location();
@@ -116,7 +100,7 @@ public class ObjectConverter {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Converts String to 'ObjectId' object
 	 * 
@@ -126,7 +110,7 @@ public class ObjectConverter {
 	public ObjectId toBoundaryAsObjectId(String objectStr) {
 		logger.trace("Entering to function toBoundaryAsObjectId with the objectStr: {%s}".formatted(objectStr));
 		if (objectStr != null) {
-			String[] attr = objectStr.split("_");
+			String[] attr = objectStr.split(DELIMITER);
 
 			ObjectId objectId = new ObjectId();
 			objectId.setSuperapp(attr[0]);
@@ -149,27 +133,25 @@ public class ObjectConverter {
 		return springApplicationName + DELIMITER + objectId.getInternalObjectId();
 	}
 
-	
 	/**
-	 *  Checks if the object is the specified objectId is active or not
+	 * Checks if the object is the specified objectId is active or not
+	 * 
 	 * @param objectId
 	 * @param superAppObjectCrud
 	 * @return true if the object exists
 	 * @throws SuperAppObjectNotActiveException if the object doesn't exist.
 	 */
-	
-	
-	public boolean isActiveObject(String objectId,SuperAppObjectCrud superAppObjectCrud) {
+	public boolean isActiveObject(String objectId, SuperAppObjectCrud superAppObjectCrud) {
 		logger.trace("Entering to function isActiveObject with the objectId: {%s}".formatted(objectId));
 		Optional<SuperAppObjectEntity> objectOptional = superAppObjectCrud.findById(objectId);
-		if(objectOptional.isEmpty()) {
+		if (objectOptional.isEmpty()) {
 			logger.warn("Object {%s} not exist".formatted(objectId));
 			throw new SuperAppObjectNotActiveException("Object {%s} not exist".formatted(objectId));
 		}
 		logger.trace("Exiting from function isActiveObject with the object: {%s}".formatted(objectOptional.get()));
 		return objectOptional.get().isActive();
 	}
-	
+
 	/**
 	 * Converts from the inserted 'CreatedBy' object to String
 	 *
@@ -179,10 +161,10 @@ public class ObjectConverter {
 	public String boundaryToStr(CreatedBy createdBy) {
 		logger.trace("Entering to function boundaryToStr with the createdBy: {%s}".formatted(createdBy));
 		String boundaryStr = createdBy.getUserId().getEmail();
-		logger.trace("Exiting from function boundaryToStr with the boundaryStr: " + springApplicationName + DELIMITER + boundaryStr);
+		logger.trace("Exiting from function boundaryToStr with the boundaryStr: " + springApplicationName + DELIMITER
+				+ boundaryStr);
 		return springApplicationName + DELIMITER + boundaryStr;
 	}
-
 
 	/**
 	 * Converts from ObjectBoundary to SuperAppObjectEntity
@@ -204,19 +186,20 @@ public class ObjectConverter {
 		superAppObjectEntity.setAlias(objectBoundary.getAlias());
 		superAppObjectEntity.setCreatedBy(this.boundaryToStr(objectBoundary.getCreatedBy()));
 
-		GeoJsonPoint gLocation = new GeoJsonPoint(objectBoundary.getLocation().getLat(), objectBoundary.getLocation().getLng());
+		GeoJsonPoint gLocation = new GeoJsonPoint(objectBoundary.getLocation().getLat(),
+				objectBoundary.getLocation().getLng());
 		superAppObjectEntity.setLocation(gLocation);
 
 		superAppObjectEntity.setObjectDetails(objectBoundary.getObjectDetails());
 		superAppObjectEntity.setType(objectBoundary.getType());
-		logger.trace("Exiting from function boundaryToEntity with the superAppObjectEntity: {%s}".formatted(superAppObjectEntity));
+		logger.trace("Exiting from function boundaryToEntity with the superAppObjectEntity: {%s}"
+				.formatted(superAppObjectEntity));
 		return superAppObjectEntity;
 	}
 
-	public String objToJson(Map<String,Object> res){
+	public String objToJson(Map<String, Object> res) {
 		Gson gson = new Gson();
 		return gson.toJson(res);
 	}
-
 
 }

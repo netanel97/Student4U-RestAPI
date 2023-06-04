@@ -13,5 +13,6 @@ public class Constants {
     public static final String THREAD = "thread";
     public static final String GRADE = "grade";
     public static final String CREATOR = "creator";
+    public static final String EVENT = "event";
 
 }
