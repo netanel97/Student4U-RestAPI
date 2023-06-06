@@ -56,6 +56,10 @@ public class MiniAppGradeAVG implements MiniAppService {
                 logger.trace("Entering Calculate AVG case");
                 return this.calculateAVG(command);
             }
+            case "Get All Grades Between Dates":{
+                logger.trace("Entering Get All Grades Between Dates case");
+                return this.getAllGradesBetweenDates(command);
+            }
             case "Get User Grades":{
                 logger.trace("Entering Get User Grades case");
                 return this.getUserGrades(command);
@@ -67,6 +71,15 @@ public class MiniAppGradeAVG implements MiniAppService {
             default:
                 return command;
         }
+    }
+
+    private Object getAllGradesBetweenDates(MiniAppCommandBoundary command) {
+        Map<String, Object> commandAtt = command.getCommandAttributes();
+        String start = (String) commandAtt.get("startingDate");
+        String end = (String) commandAtt.get("endingDate");
+        logger.trace("Searching objects by findAllByTypeAndCreationTimestampBetweenAndActiveIsTrue....");
+        return this.objectCrud.findAllByTypeAndCreationTimestampBetweenAndActiveIsTrue(Constants.GRADE, miniAppCommandConverter.stringToDate(start),miniAppCommandConverter.stringToDate(end),
+                PageRequest.of(miniAppCommandConverter.getPage(commandAtt), miniAppCommandConverter.getSize(commandAtt), Sort.Direction.ASC, "creationTimestamp"));
     }
 
     /**

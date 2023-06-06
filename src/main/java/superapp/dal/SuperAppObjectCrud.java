@@ -70,6 +70,11 @@ public interface SuperAppObjectCrud extends MongoRepository<SuperAppObjectEntity
 			@Param("type") String type,
     		@Param("creationTimestamp") Date creationTimestamp,
     		Pageable pageable);
+	public List<SuperAppObjectEntity> findAllByTypeAndCreationTimestampBetweenAndActiveIsTrue(
+			@Param("type") String type,
+			@Param("creationTimestamp") Date start,
+			@Param("creationTimestamp") Date end,
+			Pageable pageable);
     
     @Query("{'objectDetails.date': ?0, 'active': true}")
   	public List<SuperAppObjectEntity> findAllByDateAndActiveIsTrue(
