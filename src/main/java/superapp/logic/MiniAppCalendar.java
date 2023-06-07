@@ -90,7 +90,7 @@ public class MiniAppCalendar implements MiniAppService {
 		}
 		logger.trace("Get SuperAppObjectEntity from the DB: " + superAppObject);
 		if (superAppObject.getType().equalsIgnoreCase(EVENT)) {
-			logger.trace("The object is a thread, setting active to false");
+			logger.trace("The object is an event, setting active to false");
 			superAppObject.setActive(false);
 			this.objectCrud.save(superAppObject);
 			logger.trace("Saved the object to the DB");
