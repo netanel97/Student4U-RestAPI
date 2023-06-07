@@ -77,8 +77,10 @@ public class MiniAppGradeAVG implements MiniAppService {
         Map<String, Object> commandAtt = command.getCommandAttributes();
         String start = (String) commandAtt.get("startingDate");
         String end = (String) commandAtt.get("endingDate");
+        String creator = (String) commandAtt.get(Constants.CREATOR);
         logger.trace("Searching objects by findAllByTypeAndCreationTimestampBetweenAndActiveIsTrue....");
-        return this.objectCrud.findAllByTypeAndCreationTimestampBetweenAndActiveIsTrue(Constants.GRADE, miniAppCommandConverter.stringToDate(start),miniAppCommandConverter.stringToDate(end),
+        return this.objectCrud.findAllByTypeAndCreationTimestampBetweenAndActiveIsTrueAndCreatedBy(Constants.GRADE, miniAppCommandConverter.stringToDate(start),
+                miniAppCommandConverter.stringToDate(end),creator,
                 PageRequest.of(miniAppCommandConverter.getPage(commandAtt), miniAppCommandConverter.getSize(commandAtt), Sort.Direction.ASC, "creationTimestamp"));
     }
 
